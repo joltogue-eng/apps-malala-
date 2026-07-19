@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Meta tags cruciales para comportamiento de App Móvil -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>AI Tetris Mobile</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- MediaPipe y TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Press+Start+2P&display=swap');
+        
+        :root {
+            --neon-purple: #a855f7;
+            --neon-pink: #ec4899;
+            --neon-cyan: #06b6d4;
+        }
+
+        body, html { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #020617;
+            color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Previene scroll en móvil */
+            touch-action: none; /* Bloquea gestos táctiles nativos (zoom, pan) */
+            overscroll-behavior: none; /* Bloquea pull-to-refresh */
+        }
+
+        .retro-text { font-family: 'Press Start 2P', cursive; }
+
+        /* Efecto espejo para la cámara frontal */
+        #webcam { transform: scaleX(-1); }
+        
+        /* Ocultar cursor */
+        #gameCanvas { cursor: none; }
+
+        .neon-text-cyan {
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+        }
+
+        .neon-border {
+            box-shadow: 0 0 15px rgba(168,85,247,0.4), inset 0 0 10px rgba(168,85,247,0.2);
+            border: 2px solid rgba(168,85,247,0.5);
+        }
+
+        /* Animación para instrucciones */
+        @keyframes bounce-horizontal {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+        .animate-bounce-h { animation: bounce-horizontal 2s infinite; }
+
+        @keyframes bounce-vertical {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-v { animation: bounce-vertical 2s infinite; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center bg-slate-950">
+
+    <!-- Contenedor Principal de la App (Ocupa 100% del móvil) -->
+    <div class="w-full h-full max-w-md bg-black relative flex flex-col overflow-hidden shadow-2xl mx-auto sm:border-x sm:border-purple-900/50">
+        
+        <!-- HEADER MÓVIL: Puntuación -->
+        <div class="w-full p-4 flex justify-between items-center bg-gradient-to-b from-slate-900 to-transparent absolute top-0 z-20 pointer-events-none">
+            <div class="flex flex-col">
+                <span class="text-pink-500 text-[10px] font-bold retro-text">LÍNEAS</span>
+                <span id="linesDisplay" class="text-xl font-bold text-white retro-text">0</span>
+            </div>
+            
+            <div class="flex flex-col items-end">
+                <span class="text-purple-400 text-[10px] font-bold retro-text">PUNTOS</span>
+                <span id="scoreDisplay" class="text-2xl font-black text-cyan-400 retro-text neon-text-cyan transition-all">0</span>
+            </div>
+        </div>
+
+        <!-- ÁREA DE JUEGO (Cámara + Canvas) -->
+        <div class="flex-1 relative w-full h-full flex items-center justify-center bg-slate-950">
+            <!-- Cámara de fondo (efecto inmersivo) -->
+            <video id="webcam" playsinline autoplay muted class="absolute inset-0 w-full h-full object-cover opacity-40"></video>
+            
+            <!-- Canvas del Juego -->
+            <canvas id="gameCanvas" class="absolute inset-0 w-full h-full z-10"></canvas>
+            
+            <!-- PANTALLAS SUPERPUESTAS (Overlays) -->
+            <!-- 1. Pantalla de Carga -->
+            <div id="loadingOverlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md transition-opacity duration-300">
+                <div class="animate-spin rounded-full h-14 w-14 border-4 border-cyan-500 border-t-transparent mb-6"></div>
+                <h2 class="text-lg font-bold text-cyan-400 mb-2 retro-text text-center px-4" id="loadingText">Iniciando Red Neuronal</h2>
+                <p class="text-slate-400 text-xs text-center px-6 mt-4">Optimizando IA para este celular...</p>
+            </div>
+
+            <!-- 2. Pantalla de Inicio (Instrucciones Móviles) -->
+            <div id="startScreen" class="absolute inset-0 z-40 flex flex-col items-center justify-start bg-slate-950/90 backdrop-blur-sm hidden pt-12 pb-6 px-4">
+                <h2 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mb-8 retro-text text-center mt-8">AI TETRIS</h2>
+                
+                <div class="w-full bg-slate-900/80 p-5 rounded-3xl neon-border mb-auto flex flex-col gap-4">
+                    <p class="text-cyan-400 retro-text text-[10px] text-center mb-2">CÓMO JUGAR CON IA:</p>
+                    
+                    <div class="flex items-center gap-4 text-slate-200">
+                        <div class="text-3xl">📱</div>
+                        <p class="text-xs leading-relaxed">Apoya tu celular en una superficie fija mirándote frontalmente.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 text-slate-200 bg-slate-800/50 p-3 rounded-xl">
+                        <div class="text-2xl animate-bounce-h">✋↔️</div>
+                        <p class="text-xs font-bold text-purple-300">Mueve la mano a los lados para desplazar la ficha.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 text-slate-200 bg-slate-800/50 p-3 rounded-xl">
+                        <div class="text-2xl animate-bounce-v">✋↕️</div>
+                        <p class="text-xs font-bold text-pink-300">Desliza la mano rápido ARRIBA o ABAJO para rotar.</p>
+                    </div>
+                </div>
+
+                <div id="cameraErrorContainer" class="hidden w-full bg-red-900/50 border border-red-500 p-4 rounded-xl mb-6 text-center">
+                    <p class="text-red-400 text-xs retro-text mb-2">ERROR DE CÁMARA</p>
+                    <p class="text-xs text-slate-200">La IA necesita permisos de cámara para jugar. Por favor, otórgalos en tu navegador.</p>
+                </div>
+
+                <button id="startBtn" class="w-full py-5 bg-gradient-to-r from-cyan-600 to-purple-600 active:from-cyan-700 active:to-purple-700 text-white retro-text text-sm rounded-2xl shadow-[0_0_20px_rgba(6,182,212,0.6)] transform transition-transform active:scale-95 mb-4">
+                    DAR PERMISOS Y JUGAR
+                </button>
+            </div>
+
+            <!-- 3. Pantalla de Game Over -->
+            <div id="gameOverOverlay" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/95 backdrop-blur-md hidden opacity-0 transition-opacity duration-300 px-4">
+                <h2 class="text-4xl font-black text-red-500 mb-6 retro-text text-center animate-pulse drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]">GAME OVER</h2>
+                <p class="text-sm text-slate-400 mb-2 retro-text">PUNTUACIÓN FINAL</p>
+                <p id="finalScore" class="text-5xl font-bold text-cyan-400 mb-12 retro-text neon-text-cyan">0</p>
+                
+                <button id="restartBtn" class="w-full max-w-[250px] py-4 bg-gradient-to-r from-purple-600 to-pink-600 active:bg-gradient-to-r active:from-purple-700 active:to-pink-700 text-white retro-text text-sm rounded-2xl shadow-[0_0_20px_rgba(236,72,153,0.5)] transform transition-transform active:scale-95">
+                    REINTENTAR
+                </button>
+            </div>
+        </div>
+
+        <!-- FOOTER MÓVIL: Estado de la cámara -->
+        <div class="w-full bg-slate-950 p-3 flex justify-center items-center gap-2 border-t border-slate-800 z-20">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 border border-black" id="cameraStatusIndicator"></span>
+            <span id="cameraStatusText" class="retro-text text-[8px] text-slate-400 uppercase tracking-widest">IA en espera</span>
+        </div>
+    </div>
+
+    <script>
+        // --- STREAMING_CHUNK:Initializing Audio System for Mobile... ---
+        // Sistema de Audio (Optimizado para requerir interacción táctil primero)
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                const now = audioCtx.currentTime;
+                
+                if (type === 'move') {
+                    osc.type = 'square'; 
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+                    gainNode.gain.setValueAtTime(0.05, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(); osc.stop(now + 0.05);
+                } else if (type === 'rotate') {
+                    osc.type = 'triangle'; 
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.linearRampToValueAtTime(600, now + 0.1);
+                    gainNode.gain.setValueAtTime(0.1, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(); osc.stop(now + 0.1);
+                } else if (type === 'clear') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.linearRampToValueAtTime(1200, now + 0.1);
+                    osc.frequency.linearRampToValueAtTime(1600, now + 0.2);
+                    gainNode.gain.setValueAtTime(0.15, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(); osc.stop(now + 0.25);
+                } else if (type === 'gameover') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.5);
+                    gainNode.gain.setValueAtTime(0.2, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(); osc.stop(now + 0.6);
+                }
+            } catch(e) {} // Evitar errores si el audio falla en algunos móviles
+        }
+    </script>
+
+    <script>
+        // --- STREAMING_CHUNK:Setting up Core Game Variables and UI Elements... ---
+        // Elementos UI
+        const videoElement = document.getElementById('webcam');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const linesDisplay = document.getElementById('linesDisplay');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const camStatusIndicator = document.getElementById('cameraStatusIndicator');
+        const camStatusText = document.getElementById('cameraStatusText');
+        const cameraErrorContainer = document.getElementById('cameraErrorContainer');
+
+        // Estado Global
+        let isPlaying = false;
+        let animationId = null;
+        let lastTime = 0;
+        
+        // IA y Cámara
+        let handDetector = null;
+        let cameraActive = false;
+        let isDetecting = false;
+
+        // Controles Gestuales Móviles
+        let aimCursor = { active: false, percentX: 0.5, percentY: 0.5 }; 
+        let yHistory = [];
+        let lastRotateTime = 0;
+        const SWIPE_THRESHOLD_PERCENT = 0.15; // 15% de la altura de la pantalla para rotar
+        let lastMoveColTime = 0;
+
+        // Tablero Tetris (Optimizado para móvil: 10x20 es estándar, usaremos esto para calcular el bloque)
+        const COLS = 10;
+        const ROWS = 20;
+        let BLOCK_SIZE = 20; // Se calcula en resizeCanvas
+        let boardOffsetX = 0;
+        let boardOffsetY = 0;
+
+        const COLORS = [
+            null,
+            '#06b6d4', // I - Cyan
+            '#3b82f6', // J - Blue
+            '#ec4899', // L - Pink (Mobile friendly bright)
+            '#eab308', // O - Yellow
+            '#22c55e', // S - Green
+            '#a855f7', // T - Purple
+            '#ef4444'  // Z - Red
+        ];
+
+        function createPiece(type) {
+            if (type === 'I') return [[0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0], [0, 1, 0, 0]];
+            if (type === 'L') return [[0, 3, 0], [0, 3, 0], [0, 3, 3]];
+            if (type === 'J') return [[0, 2, 0], [0, 2, 0], [2, 2, 0]];
+            if (type === 'O') return [[4, 4], [4, 4]];
+            if (type === 'Z') return [[5, 5, 0], [0, 5, 5], [0, 0, 0]];
+            if (type === 'S') return [[0, 6, 6], [6, 6, 0], [0, 0, 0]];
+            if (type === 'T') return [[0, 7, 0], [7, 7, 7], [0, 0, 0]];
+        }
+
+        const PIECES = 'ILJOTSZ';
+
+        let board = [];
+        const player = {
+            pos: {x: 0, y: 0},
+            matrix: null,
+            score: 0,
+            lines: 0
+        };
+
+        let dropCounter = 0;
+        let dropInterval = 900; // Un poco más lento al inicio para que el usuario se acostumbre al móvil
+
+        // --- STREAMING_CHUNK:Implementing Core Tetris Mechanics (Collision, Merge, Rotation)... ---
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) {
+                matrix.push(new Array(w).fill(0));
+            }
+            return matrix;
+        }
+
+        function collide(board, player) {
+            const m = player.matrix;
+            const o = player.pos;
+            for (let y = 0; y < m.length; ++y) {
+                for (let x = 0; x < m[y].length; ++x) {
+                    if (m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function merge(board, player) {
+            player.matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        board[y + player.pos.y][x + player.pos.x] = value;
+                    }
+                });
+            });
+        }
+
+        function playerDrop() {
+            player.pos.y++;
+            if (collide(board, player)) {
+                player.pos.y--;
+                merge(board, player);
+                playerReset();
+                arenaSweep();
+                updateScore();
+            }
+            dropCounter = 0;
+        }
+
+        function playerMove(offset) {
+            player.pos.x += offset;
+            if (collide(board, player)) {
+                player.pos.x -= offset; 
+            }
+        }
+
+        function playerReset() {
+            const type = PIECES[Math.floor(Math.random() * PIECES.length)];
+            player.matrix = createPiece(type);
+            player.pos.y = 0;
+            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
+
+            if (collide(board, player)) {
+                endGame();
+            }
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) {
+                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+                }
+            }
+            if (dir > 0) {
+                matrix.forEach(row => row.reverse());
+            } else {
+                matrix.reverse();
+            }
+        }
+
+        function playerRotate() {
+            const pos = player.pos.x;
+            let offset = 1;
+            rotate(player.matrix, 1);
+            
+            while (collide(board, player)) {
+                player.pos.x += offset;
+                offset = -(offset + (offset > 0 ? 1 : -1));
+                if (offset > player.matrix[0].length) {
+                    rotate(player.matrix, -1); 
+                    player.pos.x = pos;
+                    return;
+                }
+            }
+            playSound('rotate');
+        }
+
+        function arenaSweep() {
+            let rowCount = 1;
+            let linesCleared = 0;
+            
+            outer: for (let y = board.length - 1; y >= 0; --y) {
+                for (let x = 0; x < board[y].length; ++x) {
+                    if (board[y][x] === 0) continue outer; 
+                }
+
+                const row = board.splice(y, 1)[0].fill(0);
+                board.unshift(row);
+                ++y;
+
+                player.score += rowCount * 100;
+                rowCount *= 2; 
+                linesCleared++;
+            }
+
+            if (linesCleared > 0) {
+                playSound('clear');
+                player.lines += linesCleared;
+                // Curva de dificultad
+                dropInterval = Math.max(150, 900 - (player.lines * 60)); 
+            }
+        }
+
+        function updateScore() {
+            scoreDisplay.innerText = player.score;
+            linesDisplay.innerText = player.lines;
+        }
+
+        // --- STREAMING_CHUNK:Responsive Mobile Canvas Rendering... ---
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            // Lógica para móvil: El tablero debe ser lo más grande posible dentro de la pantalla vertical
+            // Calculamos el tamaño del bloque basado en el ancho y alto disponible, dejando márgenes seguros
+            const availableWidth = canvas.width * 0.9; // 90% del ancho
+            const availableHeight = canvas.height * 0.75; // 75% del alto (deja espacio arriba/abajo)
+            
+            const maxBlockByWidth = Math.floor(availableWidth / COLS);
+            const maxBlockByHeight = Math.floor(availableHeight / ROWS);
+            
+            BLOCK_SIZE = Math.min(maxBlockByWidth, maxBlockByHeight);
+
+            // Centrar el tablero
+            boardOffsetX = (canvas.width - (COLS * BLOCK_SIZE)) / 2;
+            boardOffsetY = (canvas.height - (ROWS * BLOCK_SIZE)) / 2 + 20; // Bajar un poco por el header
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        // Llamada extra al girar el dispositivo
+        window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 200));
+
+        function drawBlock(x, y, colorId, isGhost = false) {
+            if (colorId === 0) return;
+            const color = COLORS[colorId];
+            
+            const px = boardOffsetX + x * BLOCK_SIZE;
+            const py = boardOffsetY + y * BLOCK_SIZE;
+
+            if (isGhost) {
+                ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 1;
+                ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+                ctx.strokeRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+            } else {
+                ctx.fillStyle = color;
+                ctx.fillRect(px, py, BLOCK_SIZE, BLOCK_SIZE);
+                
+                // Efecto Neón
+                ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(px + 1, py + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+                
+                // Brillo central
+                ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                ctx.fillRect(px + BLOCK_SIZE*0.2, py + BLOCK_SIZE*0.2, BLOCK_SIZE*0.6, BLOCK_SIZE*0.6);
+            }
+        }
+
+        function drawMatrix(matrix, offset, isGhost = false) {
+            matrix.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        drawBlock(x + offset.x, y + offset.y, value, isGhost);
+                    }
+                });
+            });
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+            ctx.lineWidth = 1;
+            
+            // Fondo semitransparente para ver la cámara
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+            ctx.fillRect(boardOffsetX, boardOffsetY, COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+
+            ctx.beginPath();
+            for (let i = 0; i <= COLS; i++) {
+                ctx.moveTo(boardOffsetX + i * BLOCK_SIZE, boardOffsetY);
+                ctx.lineTo(boardOffsetX + i * BLOCK_SIZE, boardOffsetY + ROWS * BLOCK_SIZE);
+            }
+            for (let i = 0; i <= ROWS; i++) {
+                ctx.moveTo(boardOffsetX, boardOffsetY + i * BLOCK_SIZE);
+                ctx.lineTo(boardOffsetX + COLS * BLOCK_SIZE, boardOffsetY + i * BLOCK_SIZE);
+            }
+            ctx.stroke();
+            
+            // Borde brillante del tablero
+            ctx.strokeStyle = '#06b6d4'; // Cyan mobile
+            ctx.lineWidth = 3;
+            ctx.shadowColor = '#06b6d4';
+            ctx.shadowBlur = 10;
+            ctx.strokeRect(boardOffsetX, boardOffsetY, COLS * BLOCK_SIZE, ROWS * BLOCK_SIZE);
+            ctx.shadowBlur = 0;
+        }
+
+        // --- STREAMING_CHUNK:AI Hand Pose Logic tailored for Mobile Camera... ---
+        async function loadModel() {
+            try {
+                const model = handPoseDetection.SupportedModels.MediaPipeHands;
+                const detectorConfig = {
+                    runtime: 'mediapipe', 
+                    solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands',
+                    maxHands: 1
+                };
+                
+                handDetector = await handPoseDetection.createDetector(model, detectorConfig);
+                
+                loadingOverlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                    startScreen.classList.remove('hidden');
+                }, 300);
+                
+                camStatusIndicator.classList.replace('bg-red-500', 'bg-yellow-500');
+                camStatusText.innerText = "IA LISTA. ESPERANDO CÁMARA";
+            } catch (error) {
+                console.error("Error cargando IA:", error);
+                document.getElementById('loadingText').innerText = "ERROR DE CONEXIÓN";
+                document.getElementById('loadingText').classList.add('text-red-500');
+            }
+        }
+
+        async function startCamera() {
+            try {
+                // Solicitar cámara frontal con resolución adaptable al móvil
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        facingMode: 'user', 
+                        // En móvil es mejor dejar que el navegador decida la resolución nativa
+                        // o pedir una baja para mejorar el rendimiento de la IA
+                        width: { ideal: 480 },
+                        height: { ideal: 640 }
+                    },
+                    audio: false
+                });
+                
+                videoElement.srcObject = stream;
+                cameraErrorContainer.classList.add('hidden');
+                
+                return new Promise((resolve) => {
+                    videoElement.onloadedmetadata = () => {
+                        videoElement.play();
+                        resizeCanvas();
+                        cameraActive = true;
+                        camStatusIndicator.classList.replace('bg-yellow-500', 'bg-lime-500');
+                        camStatusText.innerText = "CÁMARA IA ACTIVA";
+                        
+                        if (!isDetecting) detectHandLoop();
+                        resolve(true);
+                    };
+                });
+            } catch (error) {
+                console.error("Error cámara:", error);
+                camStatusText.innerText = "PERMISO DENEGADO";
+                camStatusIndicator.classList.add('bg-red-500');
+                cameraErrorContainer.classList.remove('hidden');
+                return false;
+            }
+        }
+
+        function stopCamera() {
+            if (videoElement.srcObject) {
+                const tracks = videoElement.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+            cameraActive = false;
+            isDetecting = false;
+            camStatusIndicator.classList.replace('bg-lime-500', 'bg-yellow-500');
+            camStatusText.innerText = "CÁMARA APAGADA";
+        }
+
+        async function detectHandLoop() {
+            if (!cameraActive || !handDetector || videoElement.readyState < 2) {
+                isDetecting = false;
+                return;
+            }
+            isDetecting = true;
+            try {
+                const hands = await handDetector.estimateHands(videoElement, {flipHorizontal: false});
+                
+                if (hands.length > 0) {
+                    aimCursor.active = true;
+                    const hand = hands[0];
+                    const indexTip = hand.keypoints.find(k => k.name === 'index_finger_tip') || hand.keypoints[8];
+
+                    if (indexTip) {
+                        // NORMALIZACIÓN MÓVIL: En lugar de píxeles, usamos % de la pantalla
+                        // Esto soluciona problemas de aspecto y resolución en diferentes celulares
+                        
+                        // Invertimos X porque usamos cámara frontal (efecto espejo)
+                        const currentPercentX = 1.0 - (indexTip.x / videoElement.videoWidth);
+                        const currentPercentY = indexTip.y / videoElement.videoHeight;
+                        
+                        // Suavizado (Lerp)
+                        aimCursor.percentX += (currentPercentX - aimCursor.percentX) * 0.4;
+                        aimCursor.percentY += (currentPercentY - aimCursor.percentY) * 0.4;
+
+                        // --- LÓGICA DE ROTACIÓN (SWIPE Y-Axis Relativo al móvil) ---
+                        yHistory.push(currentPercentY);
+                        if (yHistory.length > 5) yHistory.shift();
+
+                        const now = Date.now();
+                        if (yHistory.length === 5) {
+                            const deltaY = yHistory[4] - yHistory[0]; // Cambio en 5 frames
+                            
+                            // Si el movimiento vertical supera el % de umbral de la pantalla
+                            if (Math.abs(deltaY) > SWIPE_THRESHOLD_PERCENT && (now - lastRotateTime) > 400) {
+                                if(isPlaying) playerRotate();
+                                lastRotateTime = now;
+                                yHistory = []; 
+                            }
+                        }
+                    }
+                } else {
+                    aimCursor.active = false;
+                    yHistory = [];
+                }
+            } catch(e) {
+                console.error("Error en detección:", e);
+            }
+            // requestAnimationFrame es vital en móviles para no quemar la batería
+            if (cameraActive) requestAnimationFrame(detectHandLoop);
+            else isDetecting = false;
+        }
+
+        // --- STREAMING_CHUNK:Main Game Loop implementation... ---
+        function update(time = 0) {
+            if (!isPlaying) return;
+
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            // 1. LÓGICA DE MOVIMIENTO IA (Adaptada a Porcentajes)
+            if (aimCursor.active && player.matrix) {
+                const pieceWidth = player.matrix[0].length;
+                
+                // Mapeamos el porcentaje X (0.0 a 1.0) directamente a las columnas del tablero
+                // Multiplicamos por COLS para saber en qué columna debería estar
+                let targetCol = Math.floor(aimCursor.percentX * COLS);
+                
+                // Centramos la pieza respecto al dedo y evitamos salir de los bordes
+                targetCol = targetCol - Math.floor(pieceWidth / 2);
+                if (targetCol < 0) targetCol = 0;
+                if (targetCol > COLS - pieceWidth) targetCol = COLS - pieceWidth;
+
+                const now = Date.now();
+                // Cooldown rápido de movimiento para que sea controlable en pantalla pequeña
+                if (now - lastMoveColTime > 60) { 
+                    if (player.pos.x < targetCol) {
+                        playerMove(1);
+                        playSound('move');
+                        lastMoveColTime = now;
+                    } else if (player.pos.x > targetCol) {
+                        playerMove(-1);
+                        playSound('move');
+                        lastMoveColTime = now;
+                    }
+                }
+            }
+
+            // 2. Gravedad
+            dropCounter += deltaTime;
+            if (dropCounter > dropInterval) {
+                playerDrop();
+            }
+
+            draw();
+            animationId = requestAnimationFrame(update);
+        }
+
+        // Función auxiliar para saber dónde caerá la pieza (Ghost Piece)
+        function getGhostPos() {
+            const ghost = {
+                matrix: player.matrix,
+                pos: { x: player.pos.x, y: player.pos.y }
+            };
+            while (!collide(board, ghost)) {
+                ghost.pos.y++;
+            }
+            ghost.pos.y--; // Subimos uno porque el loop se detiene cuando choca
+            return ghost.pos;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawGrid();
+            drawMatrix(board, {x: 0, y: 0}); 
+            
+            if (player.matrix) {
+                // Dibujar Ghost Piece (Ayuda mucho en móvil para apuntar con la mano)
+                const ghostPos = getGhostPos();
+                drawMatrix(player.matrix, ghostPos, true);
+                
+                // Dibujar Pieza real
+                drawMatrix(player.matrix, player.pos); 
+            }
+
+            // Dibujar cursor HUD de la mano adaptado a la pantalla entera
+            if (aimCursor.active) {
+                ctx.save();
+                
+                // Convertir porcentaje a píxeles exactos de pantalla
+                const screenX = aimCursor.percentX * canvas.width;
+                const screenY = aimCursor.percentY * canvas.height;
+
+                ctx.strokeStyle = 'rgba(236, 72, 153, 0.8)'; // Pink HUD
+                ctx.lineWidth = 2;
+                
+                // Retícula de mira
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(screenX - 25, screenY); ctx.lineTo(screenX + 25, screenY);
+                ctx.moveTo(screenX, screenY - 25); ctx.lineTo(screenX, screenY + 25);
+                ctx.stroke();
+                
+                // Puntito central
+                ctx.fillStyle = '#ec4899';
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        // --- STREAMING_CHUNK:App State Controls (Start, Restart, Permission handling)... ---
+        function startGame() {
+            board = createMatrix(COLS, ROWS);
+            player.score = 0;
+            player.lines = 0;
+            dropInterval = 900; 
+            updateScore();
+            playerReset();
+            
+            startScreen.classList.add('hidden');
+            gameOverOverlay.classList.add('hidden');
+            gameOverOverlay.classList.remove('opacity-100');
+            
+            isPlaying = true;
+            lastTime = performance.now();
+            update();
+        }
+
+        function endGame() {
+            isPlaying = false;
+            cancelAnimationFrame(animationId);
+            
+            stopCamera(); 
+            
+            playSound('gameover');
+            finalScoreDisplay.innerText = player.score;
+            gameOverOverlay.classList.remove('hidden');
+            // Pequeño delay para permitir que el display block se aplique antes de la transición de opacidad
+            setTimeout(() => gameOverOverlay.classList.add('opacity-100'), 50);
+        }
+
+        async function initSequence(event) {
+            initAudio(); // Iniciar contexto de audio al primer tap (Regla de navegadores móviles)
+            
+            const btn = event.target;
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            
+            if (!cameraActive) {
+                btn.innerText = "SOLICITANDO CÁMARA...";
+                const success = await startCamera();
+                if (!success) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    return;
+                }
+            }
+            
+            btn.disabled = false;
+            btn.innerText = originalText;
+            startGame();
+        }
+
+        startBtn.addEventListener('click', initSequence);
+        restartBtn.addEventListener('click', initSequence);
+        
+        // Iniciar carga del modelo MediaPipe al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            resizeCanvas();
+            loadModel();
+        });
+        
+    </script>
+</body>
+</html>
