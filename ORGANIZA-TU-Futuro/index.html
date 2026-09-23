@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organiza Tu Futuro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+        .bg-gradient-app {
+            background: linear-gradient(180deg, #0b112c 0%, #050b4f 40%, #1e3a8a 100%);
+        }
+        /* Ocultar barra de desplazamiento */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 flex justify-center items-center min-h-screen sm:p-4">
+
+    <div class="relative w-full max-w-md h-[844px] bg-gradient-app text-white shadow-2xl rounded-[40px] overflow-hidden border-4 border-gray-800 flex flex-col">
+        
+        <!-- Pantalla de Login (Actualizada para validar admin/admin) -->
+        <div id="screen-login" class="flex-1 flex flex-col justify-between p-8 z-10">
+            <div class="flex flex-col items-center mt-12">
+                <div class="w-20 h-24 bg-gradient-to-b from-purple-600 to-indigo-900 border-2 border-blue-400 rounded-b-xl flex items-center justify-center relative shadow-lg mb-4">
+                    <div class="absolute bottom-0 w-0 h-0 border-l-[40px] border-l-transparent border-r-[40px] border-r-transparent border-b-[20px] border-b-[#0b112c]"></div>
+                    <i class="ph ph-graduation-cap text-4xl text-blue-300 -mt-4"></i>
+                </div>
+                <h1 class="text-3xl font-black tracking-wider text-center uppercase leading-none">Organiza<br><span class="text-xl font-bold tracking-widest text-blue-300">Tu Futuro</span></h1>
+            </div>
+
+            <div class="space-y-6 my-auto">
+                <h2 class="text-2xl font-bold text-gray-200">Bienvenido</h2>
+                
+                <!-- Mensaje de error de login (oculto por defecto) -->
+                <div id="login-error" class="hidden bg-red-900/40 border border-red-500/50 text-red-300 text-sm p-3 rounded-xl text-center font-semibold">
+                    Usuario o contraseña incorrectos.
+                </div>
+
+                <form id="login-form" class="space-y-4">
+                    <div class="relative">
+                        <i class="ph ph-user absolute left-4 top-3.5 text-gray-400 text-xl"></i>
+                        <input type="text" id="login-user" placeholder="Usuario" required class="w-full bg-blue-950/50 border border-blue-800/60 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 backdrop-blur-sm transition-all">
+                    </div>
+                    <div class="relative">
+                        <i class="ph ph-lock-simple absolute left-4 top-3.5 text-gray-400 text-xl"></i>
+                        <input type="password" id="login-pass" placeholder="Contraseña" required class="w-full bg-blue-950/50 border border-blue-800/60 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 backdrop-blur-sm transition-all">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-200 hover:bg-emerald-300 text-teal-950 font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-900/20 transition-all transform active:scale-95 text-lg">Iniciar sesión</button>
+                </form>
+                <p class="text-center text-sm text-gray-300 hover:underline cursor-pointer">¿Olvidaste tu contraseña?</p>
+            </div>
+            <div class="text-xs text-center text-gray-500">v1.1.0 - Acceso Seguro</div>
+        </div>
+
+        <div id="main-app-container" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+            
+            <div class="flex-1 overflow-y-auto no-scrollbar p-6 pb-24">
+                
+                <!-- Pantalla de Inicio -->
+                <div id="screen-home" class="space-y-6 app-screen">
+                    <div class="flex justify-between items-center bg-sky-900/20 p-4 rounded-2xl border border-sky-500/10">
+                        <div>
+                            <p class="text-xs text-blue-300 tracking-wider uppercase font-bold">Panel Principal</p>
+                            <h2 class="text-xl font-extrabold" id="user-welcome">¡Hola!</h2>
+                        </div>
+                        <span class="bg-emerald-500/20 text-emerald-300 text-xs px-3 py-1.5 rounded-full font-bold flex items-center gap-1 border border-emerald-500/30">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ACTIVA
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <button onclick="navigateTo('reminders')" class="flex items-center gap-4 bg-emerald-200 text-teal-950 p-5 rounded-2xl shadow-xl transition-all active:scale-98 text-left group">
+                            <div class="p-3 bg-teal-950 text-emerald-200 rounded-xl text-2xl group-hover:scale-110 transition-transform">
+                                <i class="ph ph-calendar-check"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg tracking-wide uppercase">Recordatorios</h3>
+                                <p class="text-xs text-teal-900 font-medium">Mira tus pendientes del día</p>
+                            </div>
+                        </button>
+
+                        <button onclick="navigateTo('action')" class="flex items-center gap-4 bg-slate-200 text-slate-900 p-5 rounded-2xl shadow-xl transition-all active:scale-98 text-left group">
+                            <div class="p-3 bg-slate-800 text-slate-200 rounded-xl text-2xl group-hover:scale-110 transition-transform">
+                                <i class="ph ph-map-pin-line"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-lg tracking-wide uppercase">Entrega tus tareas</h3>
+                                <p class="text-xs text-slate-700 font-medium">Gestionar y registrar envíos</p>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-600/40 to-indigo-600/40 border border-blue-500/20 p-5 rounded-2xl space-y-2">
+                        <h4 class="font-bold text-sm tracking-widest uppercase text-blue-300">Organiza tu futuro</h4>
+                        <p class="text-sm text-gray-200 leading-relaxed italic">"Organiza tu futuro con calma y determinación, porque cada pequeña tarea que completas hoy es un paso más hacia la vida que sueñas mañana."</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="navigateTo('exploration')" class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 py-3 rounded-xl font-bold text-sm text-center">Ver más</button>
+                        <button onclick="navigateTo('action')" class="bg-blue-600 hover:bg-blue-500 text-white py-3 rounded-xl font-bold text-sm text-center shadow-lg shadow-blue-900/30">Nueva orden</button>
+                    </div>
+                </div>
+
+                <div id="screen-exploration" class="space-y-6 app-screen hidden">
+                    <div class="text-center space-y-1">
+                        <h2 class="text-2xl font-black uppercase tracking-wider">Nunca olvides tu tarea</h2>
+                        <p class="text-xs text-gray-400 px-4">Las personas que triunfan siguen adelante cumpliendo sus responsabilidades día tras día.</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-sm uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                            <i class="ph ph-clock-counter-clockwise"></i> Lista de Control Escolar
+                        </h3>
+                        <div id="exploration-tasks-list" class="space-y-2">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/40 border border-slate-800 p-4 rounded-xl flex gap-4 items-center">
+                        <div class="text-4xl text-amber-400"><i class="ph ph-bell-ringing"></i></div>
+                        <div class="text-xs text-gray-300">
+                            <p class="font-bold text-white text-sm mb-0.5">Alertas de Entrega</p>
+                            Las notificaciones automáticas te recordarán tus entregas 24 horas antes del cierre.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="screen-action" class="space-y-6 app-screen hidden">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-black uppercase tracking-wider">Tu Escuela Más Organizada</h2>
+                        <p class="text-xs text-gray-400 mt-1">Registra una nueva asignación o tarea escolar para mantener el orden de tus estudios.</p>
+                    </div>
+
+                    <form id="task-form" class="bg-blue-950/30 border border-blue-900/50 p-5 rounded-2xl space-y-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase text-gray-400 tracking-wider">Materia / Asignatura</label>
+                            <input type="text" id="task-subject" placeholder="Ej. Matemáticas, Historia..." required class="w-full bg-blue-900/30 border border-blue-800 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:border-emerald-400 text-sm">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase text-gray-400 tracking-wider">Descripción de la Tarea</label>
+                            <textarea id="task-desc" rows="3" placeholder="Detalla qué tienes que entregar..." required class="w-full bg-blue-900/30 border border-blue-800 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:border-emerald-400 text-sm"></textarea>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold uppercase text-gray-400 tracking-wider">Fecha Límite de Entrega</label>
+                            <input type="date" id="task-date" required class="w-full bg-blue-900/30 border border-blue-800 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:border-emerald-400 text-sm">
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-400 hover:bg-emerald-300 text-gray-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-950/50 flex justify-center items-center gap-2 text-sm uppercase tracking-wider mt-2">
+                            <i class="ph ph-plus-circle text-lg"></i> Guardar Recordatorio
+                        </button>
+                    </form>
+                </div>
+
+                <div id="screen-reminders" class="space-y-6 app-screen hidden">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-black uppercase tracking-wider">Aprende, Organiza y Triunfa</h2>
+                        <p class="text-xs text-gray-400 mt-1">Monitorea el estatus global de tus asignaciones logísticas y académicas.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-950/60 border border-blue-800/60 p-4 rounded-xl text-center">
+                            <span class="text-3xl font-black text-emerald-400" id="count-completed">0</span>
+                            <p class="text-xs uppercase text-gray-400 font-bold tracking-wider mt-1">Completadas</p>
+                        </div>
+                        <div class="bg-blue-950/60 border border-blue-800/60 p-4 rounded-xl text-center">
+                            <span class="text-3xl font-black text-amber-400" id="count-pending">0</span>
+                            <p class="text-xs uppercase text-gray-400 font-bold tracking-wider mt-1">Pendientes</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h3 class="font-bold text-sm uppercase tracking-wider text-blue-400">Detalle de Control de Entregas</h3>
+                        <div id="reminders-tasks-container" class="space-y-3">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="screen-profile" class="space-y-6 app-screen hidden">
+                    <div class="flex flex-col items-center space-y-3 mt-4">
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-600 to-emerald-400 p-1 shadow-xl">
+                            <div class="w-full h-full bg-slate-900 rounded-full flex items-center justify-center text-4xl text-white">
+                                <i class="ph ph-user"></i>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <h3 class="text-xl font-bold uppercase" id="profile-email-display">Admin</h3>
+                            <p class="text-xs text-emerald-400 font-bold tracking-widest uppercase">Administrador Activo</p>
+                        </div>
+                    </div>
+
+                    <!-- Nueva sección para cambiar contraseña -->
+                    <div class="bg-blue-950/40 border border-blue-800/50 rounded-2xl p-4 shadow-lg mt-4">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-blue-300 flex items-center gap-2 mb-3">
+                            <i class="ph ph-key text-emerald-400 text-lg"></i> Cambiar Contraseña
+                        </h4>
+                        <div class="space-y-3">
+                            <input type="password" id="new-password" placeholder="Escribe tu nueva contraseña" class="w-full bg-blue-900/30 border border-blue-800 rounded-xl py-2 px-4 text-white placeholder-gray-400 focus:outline-none focus:border-emerald-500 text-sm">
+                            <button id="btn-change-pwd" class="w-full bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500/40 text-emerald-300 font-bold py-2 rounded-xl transition-all text-sm uppercase tracking-wider">Actualizar Clave</button>
+                            <p id="pwd-message" class="text-xs text-center hidden font-bold mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-950/30 border border-blue-900/50 rounded-2xl overflow-hidden divide-y divide-blue-900/40">
+                        <div class="p-4 flex justify-between items-center hover:bg-blue-900/20 cursor-pointer transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-sliders text-xl text-blue-400"></i>
+                                <span class="text-sm font-medium">Configuración de la App</span>
+                            </div>
+                            <i class="ph ph-caret-right text-gray-500"></i>
+                        </div>
+                        <div class="p-4 flex justify-between items-center hover:bg-blue-900/20 cursor-pointer transition-colors">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-shield-check text-xl text-emerald-400"></i>
+                                <span class="text-sm font-medium">Privacidad y Datos de Escuela</span>
+                            </div>
+                            <i class="ph ph-caret-right text-gray-500"></i>
+                        </div>
+                        <div id="btn-logout" class="p-4 flex justify-between items-center hover:bg-red-950/40 cursor-pointer transition-colors text-red-400">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-sign-out text-xl"></i>
+                                <span class="text-sm font-bold">Cerrar Sesión</span>
+                            </div>
+                            <i class="ph ph-caret-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="text-center space-y-2 pt-4 border-t border-blue-900/30">
+                        <h4 class="text-lg font-black tracking-wider uppercase text-blue-200">Todo Tu Colegio Es Una App</h4>
+                        <p class="text-xs text-gray-400">Muchas gracias por visitarnos</p>
+                        <div class="flex justify-center gap-2 text-2xl text-blue-400/50 pt-2">
+                            <i class="ph ph-buildings"></i>
+                            <i class="ph ph-books"></i>
+                            <i class="ph ph-certificate"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="absolute bottom-0 left-0 right-0 h-20 bg-slate-950/95 backdrop-blur-md border-t border-blue-950 flex items-center justify-around px-2 z-20">
+                <button onclick="navigateTo('home')" id="nav-home" class="flex flex-col items-center justify-center flex-1 h-full text-emerald-400 transition-colors">
+                    <i class="ph ph-house text-2xl"></i>
+                    <span class="text-[10px] font-bold mt-1 uppercase">Inicio</span>
+                </button>
+                <button onclick="navigateTo('exploration')" id="nav-exploration" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-white transition-colors">
+                    <i class="ph ph-magnifying-glass text-2xl"></i>
+                    <span class="text-[10px] font-bold mt-1 uppercase">Explorar</span>
+                </button>
+                <button onclick="navigateTo('action')" id="nav-action" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-white transition-colors">
+                    <i class="ph ph-plus-square text-2xl"></i>
+                    <span class="text-[10px] font-bold mt-1 uppercase">Añadir</span>
+                </button>
+                <button onclick="navigateTo('reminders')" id="nav-reminders" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-white transition-colors">
+                    <i class="ph ph-chart-bar text-2xl"></i>
+                    <span class="text-[10px] font-bold mt-1 uppercase">Estatus</span>
+                </button>
+                <button onclick="navigateTo('profile')" id="nav-profile" class="flex flex-col items-center justify-center flex-1 h-full text-gray-400 hover:text-white transition-colors">
+                    <i class="ph ph-user text-2xl"></i>
+                    <span class="text-[10px] font-bold mt-1 uppercase">Perfil</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        console.log("Configuración inicial: Autenticación por usuario habilitada de manera local.");
+
+        // Estado de la aplicación en memoria intermedia
+        let appState = {
+            currentUser: null,
+            adminPassword: 'admin', // Contraseña por defecto
+            tasks: []
+        };
+
+        // Inicialización de la aplicación al cargar ventana
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDataFromStorage();
+            checkSession();
+        });
+
+        // Guardar en LocalStorage
+        function saveDataToStorage() {
+            localStorage.setItem('organiza_futuro_state', JSON.stringify(appState));
+        }
+
+        // Cargar desde LocalStorage
+        function loadDataFromStorage() {
+            const saved = localStorage.getItem('organiza_futuro_state');
+            if (saved) {
+                appState = JSON.parse(saved);
+                // Migración: Asegurarse de que exista el password si no existía antes
+                if (!appState.adminPassword) {
+                    appState.adminPassword = 'admin';
+                }
+            } else {
+                // Tareas semilla por defecto si está vacío
+                appState.tasks = [
+                    { id: 1, subject: 'Logística Básica', desc: 'Investigar métodos de empaque sustentable', date: '2026-06-02', completed: false },
+                    { id: 2, subject: 'Matemáticas', desc: 'Resolver ecuaciones de segundo grado', date: '2026-05-30', completed: true }
+                ];
+                saveDataToStorage();
+            }
+        }
+
+        // Validar si existe sesión iniciada
+        function checkSession() {
+            if (appState.currentUser) {
+                showMainApp();
+            } else {
+                showLogin();
+            }
+        }
+
+        // Mostrar pantalla de Login
+        function showLogin() {
+            document.getElementById('screen-login').classList.remove('hidden');
+            document.getElementById('main-app-container').classList.add('hidden');
+            // Limpiar formulario y errores si los hay
+            document.getElementById('login-form').reset();
+            document.getElementById('login-error').classList.add('hidden');
+        }
+
+        // Mostrar el contenedor principal de la App
+        function showMainApp() {
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('main-app-container').classList.remove('hidden');
+            
+            // Personalizar mensaje de bienvenida basado en el usuario logueado
+            document.getElementById('user-welcome').innerText = `¡Hola, ${appState.currentUser}!`;
+            document.getElementById('profile-email-display').innerText = appState.currentUser;
+            
+            renderTasks();
+            navigateTo('home');
+        }
+
+        // Gestión del Formulario de Inicio de Sesión
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const errorDiv = document.getElementById('login-error');
+
+            // Validar que sea admin y coincida la contraseña guardada
+            if (user.toLowerCase() === 'admin' && pass === appState.adminPassword) {
+                appState.currentUser = user;
+                saveDataToStorage();
+                showMainApp();
+            } else {
+                errorDiv.classList.remove('hidden');
+                // Efecto de sacudida rápido en caso de error
+                errorDiv.classList.add('animate-pulse');
+                setTimeout(() => errorDiv.classList.remove('animate-pulse'), 500);
+            }
+        });
+
+        // Cierre de sesión
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            appState.currentUser = null;
+            saveDataToStorage();
+            showLogin();
+        });
+
+        document.getElementById('btn-change-pwd').addEventListener('click', () => {
+            const newPassword = document.getElementById('new-password').value.trim();
+            const msgBox = document.getElementById('pwd-message');
+            
+            if (newPassword.length < 3) {
+                msgBox.innerText = "La contraseña debe tener al menos 3 caracteres.";
+                msgBox.className = "text-xs text-center block mt-2 text-red-400";
+                return;
+            }
+
+            // Actualizar la contraseña en el estado y guardarla
+            appState.adminPassword = newPassword;
+            saveDataToStorage();
+            
+            // Mostrar mensaje de éxito
+            msgBox.innerText = "¡Contraseña actualizada con éxito!";
+            msgBox.className = "text-xs text-center block mt-2 text-emerald-400";
+            
+            // Limpiar input
+            document.getElementById('new-password').value = '';
+            
+            // Ocultar el mensaje después de 3 segundos
+            setTimeout(() => {
+                msgBox.classList.add('hidden');
+            }, 3000);
+        });
+
+        // Navegación entre pantallas del Bottom Navigation
+        function navigateTo(screenId) {
+            // Ocultar todas las pantallas internas
+            const screens = document.querySelectorAll('.app-screen');
+            screens.forEach(s => s.classList.add('hidden'));
+
+            // Mostrar la pantalla seleccionada
+            document.getElementById(`screen-${screenId}`).classList.remove('hidden');
+
+            // Actualizar estilo del menú de navegación inferior
+            const navIds = ['home', 'exploration', 'action', 'reminders', 'profile'];
+            navIds.forEach(id => {
+                const navBtn = document.getElementById(`nav-${id}`);
+                if (id === screenId) {
+                    navBtn.classList.remove('text-gray-400', 'hover:text-white');
+                    navBtn.classList.add('text-emerald-400');
+                } else {
+                    navBtn.classList.remove('text-emerald-400');
+                    navBtn.classList.add('text-gray-400', 'hover:text-white');
+                }
+            });
+        }
+
+        // Agregar una nueva tarea
+        document.getElementById('task-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('task-subject').value;
+            const desc = document.getElementById('task-desc').value;
+            const date = document.getElementById('task-date').value;
+
+            const newTask = {
+                id: Date.now(),
+                subject,
+                desc,
+                date,
+                completed: false
+            };
+
+            appState.tasks.push(newTask);
+            saveDataToStorage();
+            renderTasks();
+            
+            // Resetear formulario y redirigir a ver estatus
+            document.getElementById('task-form').reset();
+            navigateTo('reminders');
+        });
+
+        // Cambiar estado de completado de una tarea
+        function toggleTask(id) {
+            appState.tasks = appState.tasks.map(t => {
+                if (t.id === id) t.completed = !t.completed;
+                return t;
+            });
+            saveDataToStorage();
+            renderTasks();
+        }
+
+        // Eliminar un registro de tarea
+        function deleteTask(id) {
+            appState.tasks = appState.tasks.filter(t => t.id !== id);
+            saveDataToStorage();
+            renderTasks();
+        }
+
+        // Renderizar dinámicamente las tareas en las pantallas correspondientes
+        function renderTasks() {
+            const explorationList = document.getElementById('exploration-tasks-list');
+            const remindersContainer = document.getElementById('reminders-tasks-container');
+            
+            // Limpieza inicial
+            explorationList.innerHTML = '';
+            remindersContainer.innerHTML = '';
+
+            let completedCount = 0;
+            let pendingCount = 0;
+
+            appState.tasks.forEach(task => {
+                if (task.completed) completedCount++; else pendingCount++;
+
+                // Formatear Fecha visual corta
+                const dateParts = task.date.split('-');
+                const shortDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : task.date;
+
+                // Elemento para Pantalla 2 (Exploración / Datos de Recordatorios rápidos)
+                const expItem = document.createElement('div');
+                expItem.className = `p-3.5 rounded-xl border flex items-center justify-between transition-all ${task.completed ? 'bg-emerald-950/20 border-emerald-900/40 opacity-60' : 'bg-blue-950/40 border-blue-900/50'}`;
+                expItem.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleTask(${task.id})" class="text-xl transition-transform active:scale-120 ${task.completed ? 'text-emerald-400' : 'text-gray-400'}">
+                            <i class="${task.completed ? 'ph-fill ph-check-circle' : 'ph ph-circle'}"></i>
+                        </button>
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-tight">${task.subject}</p>
+                            <p class="text-sm font-semibold text-white leading-tight ${task.completed ? 'line-through text-gray-500' : ''}">${task.desc}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-slate-800 text-slate-300 font-bold px-2 py-1 rounded border border-slate-700">${shortDate}</span>
+                `;
+                explorationList.appendChild(expItem);
+
+                // Elemento para Pantalla 4 (Estadísticas, Detalles y Control)
+                const remItem = document.createElement('div');
+                remItem.className = "bg-blue-950/40 border border-blue-900/50 p-4 rounded-xl flex flex-col justify-between gap-3";
+                remItem.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-wider bg-blue-900/60 text-blue-300 px-2 py-0.5 rounded">${task.subject}</span>
+                            <h4 class="font-bold text-sm text-white mt-1.5">${task.desc}</h4>
+                        </div>
+                        <button onclick="deleteTask(${task.id})" class="text-gray-500 hover:text-red-400 p-1 text-lg"><i class="ph ph-trash"></i></button>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-blue-900/30 text-xs text-gray-400">
+                        <span class="flex items-center gap-1 font-medium"><i class="ph ph-calendar"></i> Límite: ${task.date}</span>
+                        <button onclick="toggleTask(${task.id})" class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase border tracking-wider transition-colors ${task.completed ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}">
+                            ${task.completed ? 'Completado' : 'Marcar Hecho'}
+                        </button>
+                    </div>
+                `;
+                remindersContainer.appendChild(remItem);
+            });
+
+            // Actualizar contadores globales en los indicadores numéricos
+            document.getElementById('count-completed').innerText = completedCount;
+            document.getElementById('count-pending').innerText = pendingCount;
+
+            // Manejo de estados vacíos visuales
+            if(appState.tasks.length === 0) {
+                explorationList.innerHTML = `<p class="text-xs text-center text-gray-500 py-4">No tienes tareas asignadas. ¡Buen trabajo!</p>`;
+                remindersContainer.innerHTML = `<p class="text-xs text-center text-gray-500 py-4">Sin datos de control registrados.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

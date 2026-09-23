@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicStudy - Tu Concentración tiene Soundtrack</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            950: '#070b1e',
+                            900: '#0a1033',
+                            800: '#111947',
+                            700: '#1a2563',
+                        },
+                        cyanAccent: '#00a3ff',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght=300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .glass {
+            background: rgba(17, 25, 71, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+        .pulse-active {
+            animation: pulse-ring 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-0 sm:p-4 font-sans selection:bg-cyanAccent selection:text-navy-950">
+
+    <!-- CONTENEDOR PRINCIPAL: Simulador Móvil o Pantalla Completa en Celulares -->
+    <div class="w-full h-screen sm:h-[840px] sm:max-w-[412px] sm:rounded-[40px] sm:border-8 sm:border-slate-800 bg-gradient-to-b from-navy-950 via-navy-900 to-navy-950 shadow-2xl overflow-hidden relative flex flex-col transition-all duration-300">
+        
+        <!-- Barra de Estado del Simulador Móvil -->
+        <div class="hidden sm:flex justify-between items-center px-6 pt-3 pb-1 text-xs text-slate-400 select-none z-50">
+            <span class="font-bold">10:43</span>
+            <div class="w-16 h-4 bg-black rounded-full absolute left-1/2 -translate-x-1/2 top-2"></div>
+            <div class="flex items-center gap-1.5">
+                <i class="ph ph-wifi-high text-xs"></i>
+                <i class="ph ph-battery-full text-sm"></i>
+            </div>
+        </div>
+
+        <!-- REPRODUCTOR DE AUDIO HTML5 OCULTO PARA MÚSICA LOCAL -->
+        <audio id="local-audio-player" class="hidden" crossorigin="anonymous"></audio>
+
+        <!-- NOTIFICACIONES TOAST PERSONALIZADAS -->
+        <div id="toast" class="absolute top-12 left-4 right-4 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+            <div class="glass border-l-4 border-cyanAccent rounded-xl p-3 shadow-lg flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-cyanAccent/20 flex items-center justify-center text-cyanAccent">
+                    <i id="toast-icon" class="ph ph-info text-lg"></i>
+                </div>
+                <div>
+                    <p id="toast-message" class="text-sm font-semibold"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PANTALLA 0.1: Splash/Acceso (Image 1) -->
+        <!-- ========================================== -->
+        <div id="pantalla-splash" class="absolute inset-0 z-40 bg-navy-950 flex flex-col justify-between p-8 text-center transition-all duration-500">
+            <div class="mt-12">
+                <h1 class="text-5xl font-extrabold tracking-tight">
+                    <span class="text-white">Music</span>
+                    <span class="text-cyanAccent block mt-1 drop-shadow-[0_0_15px_rgba(0,163,255,0.4)]">Study</span>
+                </h1>
+            </div>
+
+            <!-- Logo SVG Representativo -->
+            <div class="my-auto flex justify-center items-center">
+                <div class="relative w-48 h-48 flex items-center justify-center">
+                    <div class="absolute inset-0 bg-cyanAccent/10 rounded-full blur-2xl pulse-active"></div>
+                    <svg class="w-40 h-40 text-cyanAccent drop-shadow-[0_0_10px_rgba(0,163,255,0.5)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M42 35C35 35 30 40 30 47C30 52 33 56 36 58C34 62 37 66 41 66C43 66 45 64 46 62C47 64 49 65 51 65" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M58 35C65 35 70 40 70 47C70 52 67 56 64 58C66 62 63 66 59 66C57 66 55 64 54 62C53 64 51 65 49 65" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M50 32V68" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/>
+                        <path d="M50 63C52.5 63 54.5 61 54.5 58.5C54.5 54 48 53 48 48C48 42 53 36 53 30C53 26 50 24 49 26C47 28 47 34 50 38C52 41 53.5 44 51.5 48C49.5 52 45 53.5 45 58.5C45 61 47 63 50 63Z" fill="currentColor"/>
+                        <path d="M60 45V52M60 48C60 50 58.5 51 57 51C55.5 51 54.5 50 54.5 48C54.5 46 56.5 45 58 45M60 45C61.5 45 62.5 46.5 62.5 48" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M22 55C20.5 55 19 50 19 45C19 30 31 18 50 18C69 18 81 30 81 45C81 50 79.5 55 78 55" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <rect x="18" y="46" width="8" height="15" rx="3" fill="currentColor"/>
+                        <rect x="74" y="46" width="8" height="15" rx="3" fill="currentColor"/>
+                        <path d="M22 49V58M78 49V58" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="mb-10 flex flex-col items-center gap-6">
+                <button onclick="mostrarPantallaPIN()" class="w-48 py-3.5 bg-black hover:bg-slate-950 active:scale-95 text-white font-bold rounded-full transition-all tracking-wider shadow-lg flex items-center justify-center gap-2 border border-slate-800">
+                    Entrar <i class="ph ph-caret-right"></i>
+                </button>
+                <p class="text-slate-300 italic text-base px-4">
+                    "Tu concentración tiene soundtrack."
+                </p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PANTALLA 0.2: Teclado PIN (Image 2) -->
+        <!-- ========================================== -->
+        <div id="pantalla-pin" class="absolute inset-0 z-30 bg-navy-950 flex flex-col justify-between p-8 text-center transition-all duration-500 hidden">
+            <div class="mt-8">
+                <h2 class="text-3xl font-extrabold tracking-wide">
+                    <span class="text-white block text-2xl font-semibold opacity-90">Ingresar</span>
+                    <span class="text-cyanAccent text-4xl font-black drop-shadow-[0_0_10px_rgba(0,163,255,0.3)]">PIN</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-2">PIN predeterminado: <span class="text-cyanAccent font-bold">1234</span></p>
+            </div>
+
+            <!-- Dots de Entrada -->
+            <div class="flex justify-center gap-4 my-6">
+                <div class="pin-dot w-6 h-6 rounded-lg bg-navy-800 border-2 border-slate-700 transition-all duration-200"></div>
+                <div class="pin-dot w-6 h-6 rounded-lg bg-navy-800 border-2 border-slate-700 transition-all duration-200"></div>
+                <div class="pin-dot w-6 h-6 rounded-lg bg-navy-800 border-2 border-slate-700 transition-all duration-200"></div>
+                <div class="pin-dot w-6 h-6 rounded-lg bg-navy-800 border-2 border-slate-700 transition-all duration-200"></div>
+            </div>
+
+            <!-- Teclado Numérico Estilo Prototipo (Image 2) -->
+            <div class="grid grid-cols-3 gap-y-4 gap-x-8 max-w-[280px] mx-auto mb-8">
+                <button onclick="presionarPin(1)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">1</button>
+                <button onclick="presionarPin(2)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">2</button>
+                <button onclick="presionarPin(3)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">3</button>
+
+                <button onclick="presionarPin(4)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">4</button>
+                <button onclick="presionarPin(5)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">5</button>
+                <button onclick="presionarPin(6)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">6</button>
+
+                <button onclick="presionarPin(7)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">7</button>
+                <button onclick="presionarPin(8)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">8</button>
+                <button onclick="presionarPin(9)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">9</button>
+
+                <button onclick="borrarPin()" class="w-16 h-16 text-xl rounded-full hover:bg-rose-950/30 text-rose-400 active:scale-90 flex items-center justify-center select-none">
+                    <i class="ph ph-backspace"></i>
+                </button>
+                <button onclick="presionarPin(0)" class="w-16 h-16 text-3xl font-semibold rounded-full hover:bg-navy-800/50 active:scale-90 active:bg-cyanAccent active:text-navy-950 transition-all flex items-center justify-center select-none">0</button>
+                <button onclick="validarPin()" class="w-16 h-16 text-3xl text-cyanAccent rounded-full hover:bg-cyanAccent/10 active:scale-95 flex items-center justify-center font-bold select-none">✓</button>
+            </div>
+        </div>
+
+        <!-- MODAL INICIAL DE PERMISOS / SENSORES -->
+        <div id="modal-sensores" class="absolute inset-0 bg-navy-950/90 backdrop-blur-md z-50 flex items-center justify-center p-5 hidden">
+            <div class="glass w-full max-h-[90%] rounded-[28px] p-6 flex flex-col justify-between overflow-y-auto scroll-hide">
+                <div>
+                    <div class="flex items-center gap-2 mb-3">
+                        <i class="ph ph-cpu text-cyanAccent text-3xl"></i>
+                        <h3 class="text-xl font-bold">Permisos y Sensores</h3>
+                    </div>
+                    <p class="text-xs text-slate-300 mb-5">
+                        Configura el acceso para tu proyecto de grado once. Puedes cambiar esto más tarde en Ajustes.
+                    </p>
+
+                    <!-- Interruptores de Permisos -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-navy-800/50 rounded-xl border border-slate-700">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-bluetooth text-cyanAccent text-xl"></i>
+                                <div>
+                                    <p class="text-sm font-semibold">Bluetooth</p>
+                                    <p class="text-[10px] text-slate-400">Auriculares y altavoces</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="sensor-bluetooth" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-navy-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyanAccent"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-navy-800/50 rounded-xl border border-slate-700">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-envelope text-cyanAccent text-xl"></i>
+                                <div>
+                                    <p class="text-sm font-semibold">Correo Electrónico</p>
+                                    <p class="text-[10px] text-slate-400">Notificaciones y reportes</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="sensor-email" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-navy-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyanAccent"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-navy-800/50 rounded-xl border border-slate-700">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-image text-cyanAccent text-xl"></i>
+                                <div>
+                                    <p class="text-sm font-semibold">Subir Fotos / Galería</p>
+                                    <p class="text-[10px] text-slate-400">Personalizar perfil</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="sensor-photos" class="sr-only peer">
+                                <div class="w-11 h-6 bg-navy-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyanAccent"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-navy-800/50 rounded-xl border border-slate-700">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-map-pin text-cyanAccent text-xl"></i>
+                                <div>
+                                    <p class="text-sm font-semibold">GPS / Ubicación</p>
+                                    <p class="text-[10px] text-slate-400">Estadísticas geográficas</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="sensor-gps" class="sr-only peer">
+                                <div class="w-11 h-6 bg-navy-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyanAccent"></div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-navy-800/50 rounded-xl border border-slate-700">
+                            <div class="flex items-center gap-3">
+                                <i class="ph ph-compass-tool text-cyanAccent text-xl"></i>
+                                <div>
+                                    <p class="text-sm font-semibold">Giroscopio / Movimiento</p>
+                                    <p class="text-[10px] text-slate-400">Gestos de agitar para pausar</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="sensor-gyro" class="sr-only peer">
+                                <div class="w-11 h-6 bg-navy-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyanAccent"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="guardarPermisosIniciales()" class="w-full mt-6 py-3 bg-cyanAccent text-navy-950 font-bold rounded-xl transition-all hover:brightness-110 active:scale-95 shadow-md">
+                    Guardar y Continuar
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CUERPO PRINCIPAL DEL APP (PANTALLAS INTERNAS) -->
+        <!-- ========================================== -->
+        <div id="app-content" class="flex-1 flex flex-col justify-between overflow-hidden hidden">
+            
+            <!-- Encabezado de la App -->
+            <header class="px-5 pt-3 pb-3 flex items-center justify-between border-b border-navy-800 bg-navy-950/50 backdrop-blur">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg font-black tracking-tight"><span class="text-white">Music</span><span class="text-cyanAccent">Study</span></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="sensor-status-badge" class="flex gap-1.5 bg-navy-800/60 px-2 py-1 rounded-full text-[10px] text-slate-300">
+                        <i class="ph ph-bluetooth-connected text-cyanAccent" id="badge-bt"></i>
+                        <i class="ph ph-shield-check text-emerald-400"></i>
+                    </div>
+                    <button onclick="cerrarSesion()" class="w-8 h-8 rounded-full bg-navy-800 hover:bg-rose-950/30 text-slate-300 hover:text-rose-400 flex items-center justify-center transition-all" title="Bloquear App">
+                        <i class="ph ph-lock text-sm"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Zona de Scroll de Contenidos -->
+            <main class="flex-1 overflow-y-auto scroll-hide px-5 py-4 relative">
+                
+                <!-- ========================================== -->
+                <!-- PANTALLA 1: Home/Inicio (Image 3) -->
+                <!-- ========================================== -->
+                <div id="pantalla-home" class="space-y-6">
+                    <!-- Buscador -->
+                    <div class="relative">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="text" placeholder="Buscar canciones, tareas o sesiones..." class="w-full pl-10 pr-4 py-2.5 bg-navy-800 border border-slate-700/60 rounded-xl text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyanAccent transition-all">
+                    </div>
+
+                    <!-- Mensaje de bienvenida -->
+                    <div class="p-4 bg-gradient-to-r from-navy-800 to-navy-700 rounded-2xl relative overflow-hidden shadow-lg border border-slate-700/30">
+                        <div class="relative z-10">
+                            <span class="text-xs font-semibold uppercase text-cyanAccent tracking-wider">¡Hola, Estudiante!</span>
+                            <h3 class="text-xl font-bold mt-1">Listo para enfocarte</h3>
+                            <p class="text-xs text-slate-300 mt-1 max-w-[70%]">Combina tu música favorita con tu temporizador y vence tus deberes.</p>
+                        </div>
+                        <i class="ph ph-brain absolute right-2 bottom-0 text-7xl text-cyanAccent/15 pointer-events-none transform translate-y-2"></i>
+                    </div>
+
+                    <!-- Accesos Directos Rápidos de Prototipo (Image 3) -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Atajos de Prototipo</h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="navegarA('musica')" class="flex flex-col items-center gap-2 p-3 bg-cyanAccent hover:bg-cyanAccent/90 active:scale-95 text-navy-950 rounded-2xl transition-all shadow-md font-bold">
+                                <div class="w-10 h-10 rounded-full bg-navy-950/10 flex items-center justify-center">
+                                    <i class="ph ph-headphones text-xl"></i>
+                                </div>
+                                <span class="text-xs">Música</span>
+                            </button>
+                            <button onclick="navegarA('estudio')" class="flex flex-col items-center gap-2 p-3 bg-cyanAccent hover:bg-cyanAccent/90 active:scale-95 text-navy-950 rounded-2xl transition-all shadow-md font-bold">
+                                <div class="w-10 h-10 rounded-full bg-navy-950/10 flex items-center justify-center">
+                                    <i class="ph ph-timer text-xl"></i>
+                                </div>
+                                <span class="text-xs">Estudio</span>
+                            </button>
+                            <button onclick="navegarA('tareas')" class="flex flex-col items-center gap-2 p-3 bg-cyanAccent hover:bg-cyanAccent/90 active:scale-95 text-navy-950 rounded-2xl transition-all shadow-md font-bold">
+                                <div class="w-10 h-10 rounded-full bg-navy-950/10 flex items-center justify-center">
+                                    <i class="ph ph-list-checks text-xl"></i>
+                                </div>
+                                <span class="text-xs">Tareas</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Elementos Destacados / Playlist Sugerida -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Ambientes de Enfoque</h4>
+                            <span class="text-xs text-cyanAccent hover:underline cursor-pointer" onclick="navegarA('musica')">Ver todo</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div onclick="reproducirPistaSintetizada('Lofi Focus', 'Lofi')" class="flex items-center justify-between p-3 bg-navy-800/40 hover:bg-navy-800/80 rounded-xl cursor-pointer border border-slate-700/30 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                        <i class="ph ph-vinyl-record text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold">Lofi Focus Synth</p>
+                                        <p class="text-[10px] text-slate-400">Generador de ondas relajantes</p>
+                                    </div>
+                                </div>
+                                <button class="w-8 h-8 rounded-full bg-cyanAccent/20 text-cyanAccent flex items-center justify-center">
+                                    <i class="ph ph-play"></i>
+                                </button>
+                            </div>
+
+                            <div onclick="reproducirPistaSintetizada('Binaural Beats', 'Binaural')" class="flex items-center justify-between p-3 bg-navy-800/40 hover:bg-navy-800/80 rounded-xl cursor-pointer border border-slate-700/30 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                                        <i class="ph ph-waveform text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold">Ondas Binaurales Alfa (432Hz)</p>
+                                        <p class="text-[10px] text-slate-400">Estímulo de memoria profunda</p>
+                                    </div>
+                                </div>
+                                <button class="w-8 h-8 rounded-full bg-cyanAccent/20 text-cyanAccent flex items-center justify-center">
+                                    <i class="ph ph-play"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PANTALLA 2: Música/Reproductor (Image 4) -->
+                <!-- ========================================== -->
+                <div id="pantalla-musica" class="space-y-4 hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-2xl font-black text-white">Música</h3>
+                        <!-- Navega a Añadir Música -->
+                        <button onclick="navegarA('formulario-musica')" class="px-3 py-1.5 bg-cyanAccent text-navy-950 rounded-xl text-xs font-bold hover:brightness-110 active:scale-95 transition-all flex items-center gap-1">
+                            <i class="ph ph-plus-circle text-sm"></i> Añadir música
+                        </button>
+                    </div>
+
+                    <!-- Contenedor Principal Negro con Reproductor -->
+                    <div class="bg-black border border-slate-800 rounded-2xl p-4 shadow-2xl flex flex-col justify-between aspect-square relative overflow-hidden">
+                        
+                        <!-- Visualizador de Canvas de Audio (Funciona con micrófono y audios reales) -->
+                        <canvas id="visualizer-canvas" class="absolute inset-0 w-full h-full opacity-40 pointer-events-none"></canvas>
+
+                        <!-- Panel Superior Track -->
+                        <div class="relative z-10 flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-cyanAccent tracking-wider bg-navy-900/80 px-2 py-0.5 rounded-full border border-slate-800">Reproduciendo</span>
+                                <h4 id="current-track-title" class="text-xl font-black mt-2 text-white">Lofi Focus Synth</h4>
+                                <p id="current-track-artist" class="text-xs text-slate-400">MusicStudy Synth Engine</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-cyanAccent/10 border border-cyanAccent/20 flex items-center justify-center text-cyanAccent pulse-active">
+                                <i class="ph ph-music-note text-2xl"></i>
+                            </div>
+                        </div>
+
+                        <!-- Indicador Central Waveform -->
+                        <div class="relative z-10 flex justify-center my-4">
+                            <div id="synth-playing-indicator" class="hidden flex items-end gap-1.5 h-12">
+                                <span class="w-1.5 bg-cyanAccent rounded-full animate-bounce" style="height: 60%; animation-duration: 0.6s"></span>
+                                <span class="w-1.5 bg-cyanAccent rounded-full animate-bounce" style="height: 100%; animation-duration: 0.8s"></span>
+                                <span class="w-1.5 bg-cyanAccent rounded-full animate-bounce" style="height: 40%; animation-duration: 0.5s"></span>
+                                <span class="w-1.5 bg-cyanAccent rounded-full animate-bounce" style="height: 80%; animation-duration: 0.7s"></span>
+                            </div>
+                            <div id="synth-paused-indicator" class="text-slate-500 flex flex-col items-center">
+                                <i class="ph ph-wave-sine text-4xl mb-1 opacity-75"></i>
+                                <span class="text-[10px]">Reproductor listo</span>
+                            </div>
+                        </div>
+
+                        <!-- Controles de Reproducción -->
+                        <div class="relative z-10 space-y-3">
+                            <!-- Barra de Progreso -->
+                            <div class="space-y-1">
+                                <div class="w-full bg-slate-800 rounded-full h-1.5 relative overflow-hidden">
+                                    <div id="track-progress" class="bg-cyanAccent h-full rounded-full transition-all" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] text-slate-400">
+                                    <span id="track-current-time">0:00</span>
+                                    <span id="track-duration">Infinito / Real</span>
+                                </div>
+                            </div>
+
+                            <!-- Botones Multimedia -->
+                            <div class="flex items-center justify-center gap-6">
+                                <button onclick="pistaAnterior()" class="text-slate-400 hover:text-white text-xl active:scale-90 transition-all"><i class="ph ph-skip-back-fill"></i></button>
+                                <button onclick="alternarReproduccion()" id="btn-play-synth" class="w-12 h-12 rounded-full bg-cyanAccent text-navy-950 text-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-cyanAccent/25">
+                                    <i class="ph ph-play-fill" id="play-icon"></i>
+                                </button>
+                                <button onclick="pistaSiguiente()" class="text-slate-400 hover:text-white text-xl active:scale-90 transition-all"><i class="ph ph-skip-forward-fill"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Pistas en Biblioteca -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Biblioteca de Sonidos y Archivos</h4>
+                        <div id="lista-canciones" class="space-y-2 max-h-[160px] overflow-y-auto scroll-hide">
+                            <!-- Inyectado dinámicamente con JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PANTALLA: Añadir Música (Formulario Específico) -->
+                <!-- ========================================== -->
+                <div id="pantalla-formulario-musica" class="space-y-4 hidden">
+                    <h3 class="text-2xl font-black text-white">Nueva Pista</h3>
+                    <p class="text-xs text-slate-400">Crea una onda sintonizada o sube tu propia música desde tu dispositivo móvil.</p>
+
+                    <form id="form-action-musica" onsubmit="guardarNuevaMusica(event)" class="space-y-4 bg-navy-800/50 border border-slate-700/60 p-5 rounded-2xl">
+                        
+                        <!-- Opción de Origen de Música -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Origen del Audio</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button type="button" id="btn-source-local" onclick="toggleMusicSource('local')" class="py-2 text-xs font-bold rounded-lg bg-cyanAccent text-navy-950 transition-all">
+                                    Subir Archivo Local
+                                </button>
+                                <button type="button" id="btn-source-synth" onclick="toggleMusicSource('synth')" class="py-2 text-xs font-bold rounded-lg bg-navy-900 text-slate-300 border border-slate-700 hover:bg-navy-950 transition-all">
+                                    Generador Sintético
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Campo: Subir Archivo MP3 / WAV (Sólo visible en origen local) -->
+                        <div id="wrapper-file-input">
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Seleccionar Archivo de Audio *</label>
+                            <div class="relative w-full bg-navy-950 border border-dashed border-slate-700 rounded-xl p-4 text-center hover:border-cyanAccent transition-all cursor-pointer">
+                                <input type="file" id="form-music-file" accept="audio/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required>
+                                <i class="ph ph-upload-simple text-cyanAccent text-3xl mb-1 block mx-auto"></i>
+                                <span id="file-label-text" class="text-xs text-slate-400 block font-semibold">Toca para elegir música descargada (.mp3, .wav, etc.)</span>
+                            </div>
+                        </div>
+
+                        <!-- Campo: Nombre del sonido -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Nombre del Sonido *</label>
+                            <input type="text" id="form-music-title" required placeholder="Ej: Mi Canción Favorita" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all">
+                        </div>
+
+                        <!-- Campo: Selector de onda (Sólo visible en origen sintético) -->
+                        <div id="wrapper-genre-input" class="hidden">
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Tipo de Ondas de Concentración</label>
+                            <select id="form-music-genre" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all">
+                                <option value="Lofi">Lofi Relax Waves (Ondas Triangulares) 🎵</option>
+                                <option value="Binaural">Ondas Binaurales Alfa (Osciladores Relajantes) 🧠</option>
+                                <option value="White Noise">Ruido Blanco Puro (Mitigación de Distracciones) 🌧️</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo: Creador/Autor -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Artista / Notas</label>
+                            <input type="text" id="form-music-author" placeholder="Ej: Descargado" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all">
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="navegarA('musica')" class="flex-1 py-2.5 bg-navy-900 border border-slate-700 hover:bg-navy-950 text-slate-300 text-xs font-bold rounded-xl transition-all">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="flex-1 py-2.5 bg-cyanAccent text-navy-950 hover:brightness-110 text-xs font-black rounded-xl transition-all shadow-md">
+                                Registrar y Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PANTALLA 3: Estudio (Image 5) -->
+                <!-- ========================================== -->
+                <div id="pantalla-estudio" class="space-y-6 hidden text-center">
+                    <h3 class="text-2xl font-black text-white text-left">Estudio</h3>
+
+                    <!-- Selector de Duración Rápido -->
+                    <div class="flex justify-center gap-2 p-1.5 bg-navy-800 rounded-xl border border-slate-700/60">
+                        <button onclick="setTimerMinutes(15)" class="timer-preset-btn flex-1 py-1.5 text-xs font-bold rounded-lg bg-navy-900 text-cyanAccent transition-all hover:bg-navy-950">15m</button>
+                        <button onclick="setTimerMinutes(25)" class="timer-preset-btn flex-1 py-1.5 text-xs font-bold rounded-lg bg-navy-900 text-slate-300 transition-all hover:bg-navy-950">25m</button>
+                        <button onclick="setTimerMinutes(50)" class="timer-preset-btn flex-1 py-1.5 text-xs font-bold rounded-lg bg-navy-900 text-slate-300 transition-all hover:bg-navy-950">50m</button>
+                    </div>
+
+                    <!-- Cronómetro -->
+                    <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
+                        <div class="absolute inset-0 rounded-full border-8 border-navy-800"></div>
+                        <svg class="absolute inset-0 w-full h-full transform -rotate-90">
+                            <circle cx="128" cy="128" r="120" stroke="currentColor" stroke-width="8" fill="transparent" class="text-cyanAccent transition-all duration-300" id="timer-progress-ring" stroke-dasharray="754" stroke-dashoffset="0" />
+                        </svg>
+
+                        <div class="w-52 h-52 rounded-full bg-black flex flex-col items-center justify-center shadow-inner relative z-10 border-4 border-slate-900">
+                            <span id="timer-label" class="text-xs font-semibold text-cyanAccent uppercase tracking-widest mb-1">Enfoque</span>
+                            <span id="timer-time" class="text-5xl font-black tracking-tighter text-white">25:00</span>
+                            <span id="timer-total-stats" class="text-[10px] text-slate-400 mt-2">Sesiones completas: 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex flex-col gap-3 max-w-[280px] mx-auto">
+                        <div class="flex gap-3">
+                            <button id="btn-start-timer" onclick="iniciarTimer()" class="flex-1 py-3.5 bg-cyanAccent hover:brightness-110 active:scale-95 text-navy-950 font-black rounded-full transition-all tracking-wide shadow-md flex items-center justify-center gap-2">
+                                <i class="ph ph-play-fill text-lg"></i> Iniciar
+                            </button>
+                            <button onclick="pausarTimer()" class="flex-1 py-3.5 bg-cyanAccent hover:brightness-110 active:scale-95 text-navy-950 font-black rounded-full transition-all tracking-wide shadow-md flex items-center justify-center gap-2">
+                                <i class="ph ph-pause-fill text-lg"></i> Pausar
+                            </button>
+                        </div>
+                        <button onclick="reiniciarTimer()" class="py-3 bg-cyanAccent hover:brightness-110 active:scale-95 text-navy-950 font-black rounded-full transition-all tracking-wide shadow-md flex items-center justify-center gap-2">
+                            <i class="ph ph-arrow-counter-clockwise text-lg"></i> Reiniciar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PANTALLA 4: Tareas (Image 6) -->
+                <!-- ========================================== -->
+                <div id="pantalla-tareas" class="space-y-4 hidden flex flex-col h-full">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-2xl font-black text-white">Tareas</h3>
+                        <span id="task-completed-ratio" class="text-xs font-bold text-cyanAccent bg-cyanAccent/10 px-2.5 py-1 rounded-full border border-cyanAccent/25">0/0 completadas</span>
+                    </div>
+
+                    <!-- Gran Caja Contenedora Negra del Prototipo -->
+                    <div class="bg-black border border-slate-800 rounded-2xl p-4 flex-1 min-h-[300px] flex flex-col justify-between shadow-2xl">
+                        
+                        <!-- Lista de Tareas Scrolleable -->
+                        <div id="lista-tareas-container" class="space-y-3 overflow-y-auto scroll-hide flex-1 max-h-[280px]">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <button onclick="abrirFormularioTarea()" class="py-3 bg-cyanAccent hover:brightness-110 active:scale-95 text-navy-950 font-black rounded-full transition-all tracking-wide text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyanAccent/20">
+                                <i class="ph ph-plus-circle-fill text-lg"></i> Añadir
+                            </button>
+                            <button onclick="eliminarTareasCompletadas()" class="py-3 bg-cyanAccent hover:brightness-110 active:scale-95 text-navy-950 font-black rounded-full transition-all tracking-wide text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyanAccent/20">
+                                <i class="ph ph-trash-fill text-lg"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PANTALLA: Formulario de Acción Tareas -->
+                <!-- ========================================== -->
+                <div id="pantalla-formulario" class="space-y-4 hidden">
+                    <h3 class="text-2xl font-black text-white">Nueva Tarea</h3>
+                    <p class="text-xs text-slate-400">Introduce los detalles para calendarizar y priorizar tu estudio.</p>
+
+                    <form id="form-action" onsubmit="guardarNuevaTarea(event)" class="space-y-4 bg-navy-800/50 border border-slate-700/60 p-5 rounded-2xl">
+                        
+                        <!-- Campo 1: Texto -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Nombre de la Tarea *</label>
+                            <input type="text" id="form-task-title" required placeholder="Ej: Estudiar para Física de 11°" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all">
+                        </div>
+
+                        <!-- Campo 2: Textarea -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Descripción o Notas</label>
+                            <textarea id="form-task-desc" rows="2" placeholder="Ej: Repasar las leyes de la termodinámica..." class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all"></textarea>
+                        </div>
+
+                        <!-- Campo 3: Select -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Materia / Categoría</label>
+                            <select id="form-task-subject" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all">
+                                <option value="Física">Física 🪐</option>
+                                <option value="Matemáticas">Matemáticas 📐</option>
+                                <option value="Español">Español 📖</option>
+                                <option value="Química">Química 🧪</option>
+                                <option value="Música">Música 🎵</option>
+                            </select>
+                        </div>
+
+                        <!-- Campo 4: Radio Buttons -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Prioridad</label>
+                            <div class="flex gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                                    <input type="radio" name="priority" value="Baja" checked class="accent-cyanAccent"> Baja
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                                    <input type="radio" name="priority" value="Media" class="accent-cyanAccent"> Media
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                                    <input type="radio" name="priority" value="Alta" class="accent-cyanAccent text-rose-500"> Alta 🔥
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Campo 5: Input de Fecha -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1.5">Fecha de Entrega</label>
+                            <input type="date" id="form-task-date" class="w-full bg-navy-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyanAccent transition-all">
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="navegarA('tareas')" class="flex-1 py-2.5 bg-navy-900 border border-slate-700 hover:bg-navy-950 text-slate-300 text-xs font-bold rounded-xl transition-all">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="flex-1 py-2.5 bg-cyanAccent text-navy-950 hover:brightness-110 text-xs font-black rounded-xl transition-all shadow-md">
+                                Registrar Tarea
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- PANTALLA 5: Perfil/Ajustes & Estadísticas -->
+                <!-- ========================================== -->
+                <div id="pantalla-perfil" class="space-y-6 hidden">
+                    <h3 class="text-2xl font-black text-white">Perfil y Ajustes</h3>
+
+                    <!-- Sección Estadísticas de Uso -->
+                    <div class="bg-navy-800/40 border border-slate-700/60 p-4 rounded-2xl space-y-3">
+                        <div class="flex items-center gap-2 text-cyanAccent">
+                            <i class="ph ph-chart-bar text-xl"></i>
+                            <h4 class="text-sm font-bold uppercase tracking-wider">Tu Progreso de Enfoque</h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <div class="bg-navy-900/60 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[10px] text-slate-400 block uppercase font-semibold">Horas Enfocado</span>
+                                <span id="stats-total-hours" class="text-2xl font-black text-white">0.0h</span>
+                            </div>
+                            <div class="bg-navy-900/60 p-3 rounded-xl border border-slate-800">
+                                <span class="text-[10px] text-slate-400 block uppercase font-semibold">Productividad</span>
+                                <span id="stats-productivity" class="text-2xl font-black text-cyanAccent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración del PIN de Bloqueo -->
+                    <div class="bg-navy-800/40 border border-slate-700/60 p-4 rounded-2xl space-y-4">
+                        <div class="flex items-center gap-2 text-cyanAccent">
+                            <i class="ph ph-keyhole text-xl"></i>
+                            <h4 class="text-sm font-bold uppercase tracking-wider">Seguridad de Acceso</h4>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-xs text-slate-300">Cambiar PIN (Mínimo 4 números)</label>
+                            <div class="flex gap-2">
+                                <input type="password" id="input-new-pin" maxlength="4" placeholder="Nuevo PIN" class="bg-navy-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyanAccent w-full transition-all">
+                                <button onclick="actualizarPin()" class="px-4 py-2 bg-cyanAccent text-navy-950 font-bold rounded-xl text-xs hover:brightness-110 active:scale-95 transition-all">
+                                    Actualizar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección Sensores / Permisos -->
+                    <div class="bg-navy-800/40 border border-slate-700/60 p-4 rounded-2xl space-y-3">
+                        <div class="flex justify-between items-center text-cyanAccent">
+                            <div class="flex items-center gap-2">
+                                <i class="ph ph-toggle-left text-xl"></i>
+                                <h4 class="text-sm font-bold uppercase tracking-wider">Permisos de Sensores</h4>
+                            </div>
+                            <button onclick="abrirPanelSensores()" class="text-xs text-cyanAccent hover:underline">Reconfigurar</button>
+                        </div>
+                        <div id="status-sensores-list" class="space-y-1 text-xs text-slate-300">
+                            <!-- Dinámico -->
+                        </div>
+                    </div>
+
+                    <!-- Créditos del Proyecto Escolar -->
+                    <div class="text-center bg-navy-950/40 p-3 rounded-xl border border-slate-800">
+                        <p class="text-[10px] text-slate-500 font-bold">PROYECTO GRADO ONCE</p>
+                        <p class="text-xs text-slate-400">© 2026 MusicStudy App. Listo para Exposición.</p>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- ========================================== -->
+            <!-- MENÚ DE NAVEGACIÓN INFERIOR (Bottom Nav) -->
+            <!-- ========================================== -->
+            <nav class="bg-navy-950 border-t border-navy-800 px-4 py-2.5 flex justify-between items-center relative z-20">
+                <button onclick="navegarA('home')" class="nav-item-btn flex flex-col items-center text-cyanAccent transition-all flex-1 py-1" id="nav-home">
+                    <i class="ph ph-house-simple text-xl"></i>
+                    <span class="text-[9px] font-semibold mt-1">Inicio</span>
+                </button>
+                <button onclick="navegarA('musica')" class="nav-item-btn flex flex-col items-center text-slate-400 hover:text-cyanAccent transition-all flex-1 py-1" id="nav-musica">
+                    <i class="ph ph-headphones text-xl"></i>
+                    <span class="text-[9px] font-semibold mt-1">Música</span>
+                </button>
+                <button onclick="navegarA('estudio')" class="nav-item-btn flex flex-col items-center text-slate-400 hover:text-cyanAccent transition-all flex-1 py-1" id="nav-estudio">
+                    <i class="ph ph-timer text-xl"></i>
+                    <span class="text-[9px] font-semibold mt-1">Estudio</span>
+                </button>
+                <button onclick="navegarA('tareas')" class="nav-item-btn flex flex-col items-center text-slate-400 hover:text-cyanAccent transition-all flex-1 py-1" id="nav-tareas">
+                    <i class="ph ph-list-checks text-xl"></i>
+                    <span class="text-[9px] font-semibold mt-1">Tareas</span>
+                </button>
+                <button onclick="navegarA('perfil')" class="nav-item-btn flex flex-col items-center text-slate-400 hover:text-cyanAccent transition-all flex-1 py-1" id="nav-perfil">
+                    <i class="ph ph-user-gear text-xl"></i>
+                    <span class="text-[9px] font-semibold mt-1">Perfil</span>
+                </button>
+            </nav>
+
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SCRIPTS INTEGRADOS DE JAVASCRIPT                        -->
+    <!-- ======================================================= -->
+    <script>
+        // --- 1. CONFIGURACIÓN DEL SISTEMA, LOCAL STORAGE E INDEXEDDB ---
+        const DEFAULT_PIN = "1234";
+        let pinActual = localStorage.getItem("musicstudy_pin") || DEFAULT_PIN;
+        let pinIngresado = "";
+        
+        let tareas = JSON.parse(localStorage.getItem("musicstudy_tareas")) || [
+            { id: 1, title: "Estudiar Álgebra Lineal", desc: "Resolver ejercicios de matrices", subject: "Matemáticas", priority: "Alta", date: "2026-05-25", completed: false },
+            { id: 2, title: "Leer Capítulo 2 Español", desc: "Tema sobre el realismo mágico", subject: "Español", priority: "Media", date: "2026-05-26", completed: true },
+            { id: 3, title: "Exposición de Física", desc: "Termodinámica aplicada", subject: "Física", priority: "Alta", date: "2026-05-28", completed: false }
+        ];
+
+        let canciones = JSON.parse(localStorage.getItem("musicstudy_canciones")) || [
+            { id: 1, title: "Lofi Focus Synth", genre: "Lofi", author: "Synth Engine", isLocal: false },
+            { id: 2, title: "Binaural Beats (432Hz)", genre: "Binaural", author: "Synth Engine", isLocal: false },
+            { id: 3, title: "White Noise Chillout", genre: "White Noise", author: "Synth Engine", isLocal: false }
+        ];
+
+        let permisos = JSON.parse(localStorage.getItem("musicstudy_permisos")) || {
+            bluetooth: true,
+            email: true,
+            photos: false,
+            gps: false,
+            gyro: false
+        };
+
+        let stats = JSON.parse(localStorage.getItem("musicstudy_stats")) || {
+            sesionesCompletadas: 0,
+            horasEnfocado: 0.0
+        };
+
+        // --- MOTOR DE BASE DE DATOS INDEXEDDB PARA GUARDAR MP3 REALES ---
+        let db = null;
+        const dbRequest = indexedDB.open("MusicStudyDB", 1);
+        
+        dbRequest.onupgradeneeded = function(e) {
+            db = e.target.result;
+            if (!db.objectStoreNames.contains("audioBlobs")) {
+                db.createObjectStore("audioBlobs", { keyPath: "id" });
+            }
+        };
+
+        dbRequest.onsuccess = function(e) {
+            db = e.target.result;
+            console.log("IndexedDB para almacenamiento de música inicializado con éxito.");
+        };
+
+        dbRequest.onerror = function(e) {
+            console.error("Error al abrir IndexedDB:", e.target.error);
+        };
+
+        // Guardar archivo binario de audio en la base de datos
+        function guardarBlobMúsica(id, blob) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject("La base de datos no está disponible.");
+                    return;
+                }
+                const transaction = db.transaction(["audioBlobs"], "readwrite");
+                const store = transaction.objectStore("audioBlobs");
+                const request = store.put({ id: id, data: blob });
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // Obtener archivo binario de audio para reproducirlo
+        function obtenerBlobMúsica(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject("La base de datos no está disponible.");
+                    return;
+                }
+                const transaction = db.transaction(["audioBlobs"], "readonly");
+                const store = transaction.objectStore("audioBlobs");
+                const request = store.get(id);
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // --- 2. MOTOR DE AUDIO (REPRODUCTOR DE SONIDOS SINTETIZADOS Y LOCALES) ---
+        let audioCtx = null;
+        let synthNode = null;
+        let isPlayingSynth = false;
+        let isPlayingLocalAudio = false;
+        let playInterval = null;
+        let secondsPlaying = 0;
+        let activePista = canciones[0];
+
+        // Nodos del Analizador
+        let analyzer = null;
+        let drawVisual = null;
+        let audioSourceNode = null; // Nodo del elemento de audio HTML5
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Inicializar analizador para el canvas
+        function conectarNodoAlVisualizador(sourceNode) {
+            if (!analyzer) {
+                analyzer = audioCtx.createAnalyser();
+                analyzer.fftSize = 64;
+            }
+            sourceNode.disconnect();
+            sourceNode.connect(analyzer);
+            analyzer.connect(audioCtx.destination);
+            
+            analizarYDibujar();
+        }
+
+        // Generar Ondas en tiempo real (Generador Sintético)
+        function startSynth(type) {
+            initAudioContext();
+            stopAllPlayback();
+
+            let osc = audioCtx.createOscillator();
+            let gainNode = audioCtx.createGain();
+            let filterNode = audioCtx.createBiquadFilter();
+
+            if (type === 'Binaural') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                
+                let lfo = audioCtx.createOscillator();
+                lfo.frequency.setValueAtTime(4, audioCtx.currentTime);
+                let lfoGain = audioCtx.createGain();
+                lfoGain.gain.setValueAtTime(10, audioCtx.currentTime);
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                lfo.start();
+            } else if (type === 'White Noise') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(80, audioCtx.currentTime);
+                filterNode.type = 'lowpass';
+                filterNode.frequency.setValueAtTime(600, audioCtx.currentTime);
+            } else {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                
+                let vibrato = audioCtx.createOscillator();
+                vibrato.frequency.setValueAtTime(0.5, audioCtx.currentTime);
+                let vibGain = audioCtx.createGain();
+                vibGain.gain.setValueAtTime(2, audioCtx.currentTime);
+                
+                vibrato.connect(vibGain);
+                vibGain.connect(osc.frequency);
+                vibrato.start();
+            }
+
+            osc.connect(filterNode);
+            filterNode.connect(gainNode);
+            
+            gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            osc.start();
+            
+            synthNode = osc;
+            isPlayingSynth = true;
+
+            conectarNodoAlVisualizador(filterNode);
+        }
+
+        // Reproducir Archivo Real Seleccionado por el Usuario
+        async function reproducirArchivoLocal(songId) {
+            initAudioContext();
+            stopAllPlayback();
+
+            const player = document.getElementById("local-audio-player");
+            
+            // Liberar ObjectURL anterior para optimizar la RAM del celular
+            if (player.src) {
+                URL.revokeObjectURL(player.src);
+            }
+
+            try {
+                const record = await obtenerBlobMúsica(songId);
+                if (!record || !record.data) {
+                    showToast("No se encontró el archivo en base de datos local.", "warning");
+                    return;
+                }
+
+                const fileBlob = record.data;
+                const objectURL = URL.createObjectURL(fileBlob);
+                player.src = objectURL;
+
+                // Conectar el tag de audio al flujo de Web Audio para el Canvas visual
+                if (!audioSourceNode) {
+                    audioSourceNode = audioCtx.createMediaElementSource(player);
+                }
+                
+                conectarNodoAlVisualizador(audioSourceNode);
+
+                player.play()
+                    .then(() => {
+                        isPlayingLocalAudio = true;
+                        document.getElementById("play-icon").className = "ph ph-pause-fill";
+                        document.getElementById("synth-playing-indicator").classList.remove("hidden");
+                        document.getElementById("synth-paused-indicator").classList.add("hidden");
+                        iniciarIntervaloPista();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        showToast("Falla de decodificación. Revisa los permisos.", "warning");
+                    });
+
+            } catch (err) {
+                console.error(err);
+                showToast("Falla al recuperar la música.", "warning");
+            }
+        }
+
+        // Apagar todos los hilos o tracks reproduciéndose
+        function stopAllPlayback() {
+            // Detener oscilador sintético de manera segura
+            if (synthNode) {
+                try { 
+                    synthNode.stop(); 
+                } catch(e) {}
+                synthNode = null;
+            }
+            isPlayingSynth = false;
+
+            // Pausar y resetear reproductor de audio local
+            const player = document.getElementById("local-audio-player");
+            player.pause();
+            isPlayingLocalAudio = false;
+        }
+
+        // Dibujar barras de espectro en el Canvas
+        function analizarYDibujar() {
+            if (!analyzer) return;
+            
+            let bufferLength = analyzer.frequencyBinCount;
+            let dataArray = new Uint8Array(bufferLength);
+
+            let canvas = document.getElementById("visualizer-canvas");
+            let canvasCtx = canvas.getContext("2d");
+
+            function draw() {
+                if (!isPlayingSynth && !isPlayingLocalAudio) return;
+                drawVisual = requestAnimationFrame(draw);
+                analyzer.getByteFrequencyData(dataArray);
+
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+                canvasCtx.fillStyle = 'rgba(7, 11, 30, 0)';
+                canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                let barWidth = (canvas.width / bufferLength) * 1.5;
+                let barHeight;
+                let x = 0;
+
+                for(let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2;
+                    canvasCtx.fillStyle = `rgba(0, 163, 255, ${barHeight / 150})`;
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+                    x += barWidth;
+                }
+            }
+            draw();
+        }
+
+
+        // --- 3. FLUJO DE PANTALLAS ---
+        function mostrarPantallaPIN() {
+            document.getElementById("pantalla-splash").classList.add("hidden");
+            document.getElementById("pantalla-pin").classList.remove("hidden");
+            resetPinDots();
+        }
+
+        function presionarPin(numero) {
+            if (pinIngresado.length < 4) {
+                pinIngresado += numero;
+                actualizarPinDots();
+            }
+        }
+
+        function borrarPin() {
+            if (pinIngresado.length > 0) {
+                pinIngresado = pinIngresado.slice(0, -1);
+                actualizarPinDots();
+            }
+        }
+
+        function resetPinDots() {
+            pinIngresado = "";
+            actualizarPinDots();
+        }
+
+        // CORREGIDO: Alterna clases limpiamente previniendo bloqueos de herencia o prioridad CSS
+        function actualizarPinDots() {
+            const dots = document.querySelectorAll(".pin-dot");
+            dots.forEach((dot, index) => {
+                if (index < pinIngresado.length) {
+                    dot.classList.remove("bg-navy-800", "border-slate-700");
+                    dot.classList.add("bg-cyanAccent", "border-cyanAccent", "scale-110");
+                } else {
+                    dot.classList.add("bg-navy-800", "border-slate-700");
+                    dot.classList.remove("bg-cyanAccent", "border-cyanAccent", "scale-110");
+                }
+            });
+        }
+
+        function validarPin() {
+            if (pinIngresado === pinActual) {
+                showToast("Acceso Concedido", "lock-open");
+                document.getElementById("pantalla-pin").classList.add("hidden");
+                
+                if (!localStorage.getItem("musicstudy_permisos_establecidos")) {
+                    document.getElementById("modal-sensores").classList.remove("hidden");
+                } else {
+                    iniciarApp();
+                }
+            } else {
+                showToast("PIN Incorrecto. Intenta de nuevo.", "warning");
+                resetPinDots();
+            }
+        }
+
+        function guardarPermisosIniciales() {
+            permisos.bluetooth = document.getElementById("sensor-bluetooth").checked;
+            permisos.email = document.getElementById("sensor-email").checked;
+            permisos.photos = document.getElementById("sensor-photos").checked;
+            permisos.gps = document.getElementById("sensor-gps").checked;
+            permisos.gyro = document.getElementById("sensor-gyro").checked;
+
+            localStorage.setItem("musicstudy_permisos", JSON.stringify(permisos));
+            localStorage.setItem("musicstudy_permisos_establecidos", "true");
+
+            document.getElementById("modal-sensores").classList.add("hidden");
+            iniciarApp();
+        }
+
+        function iniciarApp() {
+            document.getElementById("app-content").classList.remove("hidden");
+            actualizarInsigniasSensores();
+            dibujarCanciones();
+            dibujarTareas();
+            actualizarMetricas();
+            navegarA('home');
+        }
+
+        function cerrarSesion() {
+            stopAllPlayback();
+            document.getElementById("app-content").classList.add("hidden");
+            document.getElementById("pantalla-pin").classList.remove("hidden");
+            resetPinDots();
+        }
+
+        function navegarA(target) {
+            const pantallas = ['pantalla-home', 'pantalla-musica', 'pantalla-formulario-musica', 'pantalla-estudio', 'pantalla-tareas', 'pantalla-formulario', 'pantalla-perfil'];
+            pantallas.forEach(p => {
+                document.getElementById(p).classList.add("hidden");
+            });
+
+            document.getElementById(`pantalla-${target}`).classList.remove("hidden");
+
+            const navIds = ['nav-home', 'nav-musica', 'nav-estudio', 'nav-tareas', 'nav-perfil'];
+            navIds.forEach(id => {
+                const element = document.getElementById(id);
+                let isCurrentTarget = id === `nav-${target}`;
+                if (target === 'formulario-musica' && id === 'nav-musica') isCurrentTarget = true;
+                if (target === 'formulario' && id === 'nav-tareas') isCurrentTarget = true;
+
+                if (isCurrentTarget) {
+                    element.classList.add("text-cyanAccent");
+                    element.classList.remove("text-slate-400");
+                } else {
+                    element.classList.remove("text-cyanAccent");
+                    element.classList.add("text-slate-400");
+                }
+            });
+
+            if (target === 'perfil') {
+                cargarConfiguracionAjustes();
+            }
+        }
+
+
+        // --- 4. REPRODUCTOR DE MÚSICA ---
+        function dibujarCanciones() {
+            const container = document.getElementById("lista-canciones");
+            container.innerHTML = "";
+            canciones.forEach((cancion) => {
+                const isActive = activePista.id === cancion.id;
+                const isPlaying = isActive && (isPlayingSynth || isPlayingLocalAudio);
+                
+                container.innerHTML += `
+                    <div onclick="reproducirPistaSintetizadaPorId(${cancion.id})" class="flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${isActive ? 'bg-cyanAccent/10 border border-cyanAccent/30' : 'bg-navy-800/20 border border-transparent hover:bg-navy-800/40'}">
+                        <div class="flex items-center gap-2">
+                            <i class="ph ${isPlaying ? 'ph-wave-sine text-cyanAccent' : 'ph-music-note text-slate-400'} text-lg"></i>
+                            <div>
+                                <p class="text-xs font-bold ${isActive ? 'text-cyanAccent' : 'text-slate-200'}">${cancion.title}</p>
+                                <p class="text-[9px] text-slate-500">${cancion.genre} • ${cancion.author}</p>
+                            </div>
+                        </div>
+                        <span class="text-[9px] text-slate-400 uppercase font-semibold">${cancion.isLocal ? 'Archivo Local' : 'Sintético'}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Selección automática del nombre del archivo cargado
+        document.getElementById("form-music-file").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const cleanName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                document.getElementById("form-music-title").value = cleanName;
+                document.getElementById("form-music-author").value = "Mi dispositivo móvil";
+                document.getElementById("file-label-text").innerHTML = `<span class="text-cyanAccent font-bold">✓ ${file.name} seleccionado</span>`;
+            }
+        });
+
+        // Toggle entre Formato Sintetizador vs MP3 de usuario
+        let activeSourceType = 'local';
+        function toggleMusicSource(type) {
+            activeSourceType = type;
+            const btnLocal = document.getElementById("btn-source-local");
+            const btnSynth = document.getElementById("btn-source-synth");
+            const fileWrapper = document.getElementById("wrapper-file-input");
+            const genreWrapper = document.getElementById("wrapper-genre-input");
+            const fileInput = document.getElementById("form-music-file");
+
+            if (type === 'local') {
+                btnLocal.className = "py-2 text-xs font-bold rounded-lg bg-cyanAccent text-navy-950 transition-all";
+                btnSynth.className = "py-2 text-xs font-bold rounded-lg bg-navy-900 text-slate-300 border border-slate-700 hover:bg-navy-950 transition-all";
+                fileWrapper.classList.remove("hidden");
+                genreWrapper.classList.add("hidden");
+                fileInput.required = true;
+            } else {
+                btnSynth.className = "py-2 text-xs font-bold rounded-lg bg-cyanAccent text-navy-950 transition-all";
+                btnLocal.className = "py-2 text-xs font-bold rounded-lg bg-navy-900 text-slate-300 border border-slate-700 hover:bg-navy-950 transition-all";
+                fileWrapper.classList.add("hidden");
+                genreWrapper.classList.remove("hidden");
+                fileInput.required = false;
+            }
+        }
+
+        // Guardar Pista de Música MP3 o Sintética
+        async function guardarNuevaMusica(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById("form-music-title").value;
+            const author = document.getElementById("form-music-author").value || "Desconocido";
+            const songId = Date.now();
+            
+            let nuevaCancion = {};
+
+            if (activeSourceType === 'local') {
+                const fileInput = document.getElementById("form-music-file");
+                const file = fileInput.files[0];
+
+                if (!file) {
+                    showToast("Por favor selecciona un archivo de audio", "warning");
+                    return;
+                }
+
+                showToast("Guardando audio en base de datos local...", "hourglass");
+                try {
+                    await guardarBlobMúsica(songId, file);
+                    nuevaCancion = {
+                        id: songId,
+                        title: title,
+                        genre: "Audio Local",
+                        author: author,
+                        isLocal: true
+                    };
+                } catch (e) {
+                    console.error(e);
+                    showToast("No se pudo almacenar el archivo de música.", "warning");
+                    return;
+                }
+            } else {
+                const genre = document.getElementById("form-music-genre").value;
+                nuevaCancion = {
+                    id: songId,
+                    title: title,
+                    genre: genre,
+                    author: author,
+                    isLocal: false
+                };
+            }
+
+            canciones.unshift(nuevaCancion);
+            localStorage.setItem("musicstudy_canciones", JSON.stringify(canciones));
+
+            // Resetear el formulario
+            document.getElementById("form-action-musica").reset();
+            document.getElementById("file-label-text").innerHTML = "Toca para elegir música descargada (.mp3, .wav, etc.)";
+            toggleMusicSource('local');
+
+            showToast("Nueva pista agregada con éxito", "check-circle");
+            dibujarCanciones();
+            reproducirPistaSintetizadaPorId(nuevaCancion.id);
+            navegarA('musica');
+        }
+
+        // Reproducir Pista de Música por ID (Ya sea Local o Sintética)
+        function reproducirPistaSintetizadaPorId(id) {
+            const track = canciones.find(c => c.id === id);
+            if (track) {
+                activePista = track;
+                actualizarTrackInfo();
+                
+                if (track.isLocal) {
+                    reproducirArchivoLocal(track.id);
+                } else {
+                    startSynth(track.genre);
+                    document.getElementById("play-icon").className = "ph ph-pause-fill";
+                    document.getElementById("synth-playing-indicator").classList.remove("hidden");
+                    document.getElementById("synth-paused-indicator").classList.add("hidden");
+                    iniciarIntervaloPista();
+                }
+                dibujarCanciones();
+            }
+        }
+
+        // Alternar reproducción desde el botón Play central
+        function alternarReproduccion() {
+            if (isPlayingSynth || isPlayingLocalAudio) {
+                stopAllPlayback();
+                document.getElementById("play-icon").className = "ph ph-play-fill";
+                document.getElementById("synth-playing-indicator").classList.add("hidden");
+                document.getElementById("synth-paused-indicator").classList.remove("hidden");
+                clearInterval(playInterval);
+            } else {
+                reproducirPistaSintetizadaPorId(activePista.id);
+            }
+        }
+
+        function reproducirPistaSintetizada(title, genre) {
+            activePista = { id: Date.now(), title, genre, author: "Estudio", isLocal: false };
+            actualizarTrackInfo();
+            startSynth(genre);
+            document.getElementById("play-icon").className = "ph ph-pause-fill";
+            document.getElementById("synth-playing-indicator").classList.remove("hidden");
+            document.getElementById("synth-paused-indicator").classList.add("hidden");
+            iniciarIntervaloPista();
+            navegarA('musica');
+        }
+
+        function actualizarTrackInfo() {
+            document.getElementById("current-track-title").textContent = activePista.title;
+            document.getElementById("current-track-artist").textContent = `${activePista.genre} • ${activePista.author}`;
+        }
+
+        function iniciarIntervaloPista() {
+            clearInterval(playInterval);
+            secondsPlaying = 0;
+            
+            const localPlayer = document.getElementById("local-audio-player");
+            
+            playInterval = setInterval(() => {
+                if (isPlayingLocalAudio) {
+                    let current = Math.floor(localPlayer.currentTime);
+                    let m = Math.floor(current / 60);
+                    let s = current % 60;
+                    document.getElementById("track-current-time").textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+                    
+                    if (localPlayer.duration) {
+                        let total = Math.floor(localPlayer.duration);
+                        let tm = Math.floor(total / 60);
+                        let ts = total % 60;
+                        document.getElementById("track-duration").textContent = `${tm}:${ts < 10 ? '0' : ''}${ts}`;
+                        
+                        let percent = (localPlayer.currentTime / localPlayer.duration) * 100;
+                        document.getElementById("track-progress").style.width = `${percent}%`;
+                    }
+                } else if (isPlayingSynth) {
+                    secondsPlaying++;
+                    let m = Math.floor(secondsPlaying / 60);
+                    let s = secondsPlaying % 60;
+                    document.getElementById("track-current-time").textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+                    
+                    let percent = (secondsPlaying % 300) / 3; 
+                    document.getElementById("track-progress").style.width = `${percent}%`;
+                }
+            }, 1000);
+        }
+
+        function pistaSiguiente() {
+            let currentIndex = canciones.findIndex(c => c.id === activePista.id);
+            let nextIndex = (currentIndex + 1) % canciones.length;
+            reproducirPistaSintetizadaPorId(canciones[nextIndex].id);
+        }
+
+        function pistaAnterior() {
+            let currentIndex = canciones.findIndex(c => c.id === activePista.id);
+            let prevIndex = (currentIndex - 1 + canciones.length) % canciones.length;
+            reproducirPistaSintetizadaPorId(canciones[prevIndex].id);
+        }
+
+
+        // --- 5. POMODORO TIMER DE ESTUDIO ---
+        let timerDuration = 1500; 
+        let timerSecondsRemaining = 1500;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        function setTimerMinutes(minutes) {
+            pausarTimer();
+            timerDuration = minutes * 60;
+            timerSecondsRemaining = timerDuration;
+            actualizarPantallaTimer();
+
+            const btns = document.querySelectorAll(".timer-preset-btn");
+            btns.forEach(btn => {
+                if (btn.textContent === `${minutes}m`) {
+                    btn.classList.add("text-cyanAccent");
+                    btn.classList.remove("text-slate-300");
+                } else {
+                    btn.classList.remove("text-cyanAccent");
+                    btn.classList.add("text-slate-300");
+                }
+            });
+        }
+
+        function actualizarPantallaTimer() {
+            const m = Math.floor(timerSecondsRemaining / 60);
+            const s = timerSecondsRemaining % 60;
+            document.getElementById("timer-time").textContent = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+
+            const progressRing = document.getElementById("timer-progress-ring");
+            const perimeter = 2 * Math.PI * 120; 
+            const fraction = timerSecondsRemaining / timerDuration;
+            const offset = perimeter * (1 - fraction);
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        function iniciarTimer() {
+            if (isTimerRunning) return;
+            isTimerRunning = true;
+            document.getElementById("timer-label").textContent = "Estudiando";
+            document.getElementById("timer-label").classList.add("animate-pulse");
+
+            timerInterval = setInterval(() => {
+                if (timerSecondsRemaining > 0) {
+                    timerSecondsRemaining--;
+                    actualizarPantallaTimer();
+                } else {
+                    timerFinalizado();
+                }
+            }, 1000);
+
+            showToast("Temporizador iniciado", "timer");
+        }
+
+        function pausarTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById("timer-label").textContent = "Pausado";
+            document.getElementById("timer-label").classList.remove("animate-pulse");
+        }
+
+        function reiniciarTimer() {
+            pausarTimer();
+            timerSecondsRemaining = timerDuration;
+            actualizarPantallaTimer();
+            document.getElementById("timer-label").textContent = "Enfoque";
+        }
+
+        function timerFinalizado() {
+            pausarTimer();
+            stats.sesionesCompletadas++;
+            stats.horasEnfocado += parseFloat((timerDuration / 3600).toFixed(2));
+            localStorage.setItem("musicstudy_stats", JSON.stringify(stats));
+
+            actualizarMetricas();
+            showToast("¡Sesión finalizada! Buen trabajo.", "trophy");
+            reiniciarTimer();
+
+            initAudioContext();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+            osc.start();
+            setTimeout(() => osc.stop(), 500);
+        }
+
+
+        // --- 6. GESTOR DE TAREAS ---
+        function dibujarTareas() {
+            const container = document.getElementById("lista-tareas-container");
+            container.innerHTML = "";
+
+            if (tareas.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-slate-500 py-10">
+                        <i class="ph ph-note-blank text-4xl mb-2"></i>
+                        <p class="text-xs text-slate-400">No tienes tareas pendientes.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tareas.forEach(tarea => {
+                container.innerHTML += `
+                    <div class="p-3 bg-navy-900 border border-slate-800 rounded-xl flex items-start justify-between gap-3 shadow-sm transition-all ${tarea.completed ? 'opacity-50' : ''}">
+                        <div class="flex items-start gap-2.5">
+                            <input type="checkbox" ${tarea.completed ? 'checked' : ''} onclick="alternarEstadoTarea(${tarea.id})" class="mt-1 accent-cyanAccent rounded h-4.5 w-4.5 cursor-pointer">
+                            <div>
+                                <h4 class="text-xs font-bold ${tarea.completed ? 'line-through text-slate-500' : 'text-slate-100'}">${tarea.title}</h4>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${tarea.desc || 'Sin descripción'}</p>
+                                <div class="flex gap-2 mt-1.5">
+                                    <span class="text-[8px] px-2 py-0.5 rounded bg-navy-800 text-cyanAccent uppercase font-bold">${tarea.subject}</span>
+                                    <span class="text-[8px] px-2 py-0.5 rounded ${tarea.priority === 'Alta' ? 'bg-rose-500/20 text-rose-400' : 'bg-amber-500/20 text-amber-400'} uppercase font-bold">P: ${tarea.priority}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="text-[9px] text-slate-500 font-bold">${tarea.date ? tarea.date : 'S/F'}</span>
+                    </div>
+                `;
+            });
+
+            const completedCount = tareas.filter(t => t.completed).length;
+            document.getElementById("task-completed-ratio").textContent = `${completedCount}/${tareas.length} completadas`;
+            actualizarMetricas();
+        }
+
+        function alternarEstadoTarea(id) {
+            const tarea = tareas.find(t => t.id === id);
+            if (tarea) {
+                tarea.completed = !tarea.completed;
+                localStorage.setItem("musicstudy_tareas", JSON.stringify(tareas));
+                dibujarTareas();
+                actualizarMetricas();
+            }
+        }
+
+        function abrirFormularioTarea() {
+            navegarA('formulario');
+        }
+
+        function eliminarTareasCompletadas() {
+            const tareasIniciales = tareas.length;
+            tareas = tareas.filter(t => !t.completed);
+            localStorage.setItem("musicstudy_tareas", JSON.stringify(tareas));
+            dibujarTareas();
+            
+            const eliminadas = tareasIniciales - tareas.length;
+            if (eliminadas > 0) {
+                showToast(`Eliminadas ${eliminadas} tareas completadas`, "trash");
+            } else {
+                showToast("No hay tareas completadas para eliminar", "info");
+            }
+        }
+
+        function guardarNuevaTarea(event) {
+            event.preventDefault();
+
+            const title = document.getElementById("form-task-title").value;
+            const desc = document.getElementById("form-task-desc").value;
+            const subject = document.getElementById("form-task-subject").value;
+            const priority = document.querySelector('input[name="priority"]:checked').value;
+            const date = document.getElementById("form-task-date").value;
+
+            const nueva = {
+                id: Date.now(),
+                title,
+                desc,
+                subject,
+                priority,
+                date,
+                completed: false
+            };
+
+            tareas.unshift(nueva);
+            localStorage.setItem("musicstudy_tareas", JSON.stringify(tareas));
+
+            document.getElementById("form-action").reset();
+            showToast("Nueva tarea añadida", "check-circle");
+            
+            dibujarTareas();
+            navegarA('tareas');
+        }
+
+
+        // --- 7. AJUSTES, METRICAS Y SENSORES ---
+        function abrirPanelSensores() {
+            document.getElementById("modal-sensores").classList.remove("hidden");
+        }
+
+        function actualizarInsigniasSensores() {
+            const badgeBt = document.getElementById("badge-bt");
+            if (permisos.bluetooth) {
+                badgeBt.className = "ph ph-bluetooth-connected text-cyanAccent";
+                badgeBt.title = "Bluetooth Activado";
+            } else {
+                badgeBt.className = "ph ph-bluetooth-slash text-slate-500";
+                badgeBt.title = "Bluetooth Desactivado";
+            }
+        }
+
+        function cargarConfiguracionAjustes() {
+            const list = document.getElementById("status-sensores-list");
+            list.innerHTML = `
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span>Bluetooth:</span>
+                    <span class="font-bold ${permisos.bluetooth ? 'text-cyanAccent' : 'text-slate-500'}">${permisos.bluetooth ? 'SÍ' : 'NO'}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span>Email de Reportes:</span>
+                    <span class="font-bold ${permisos.email ? 'text-cyanAccent' : 'text-slate-500'}">${permisos.email ? 'SÍ' : 'NO'}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span>Fotos / Galería:</span>
+                    <span class="font-bold ${permisos.photos ? 'text-cyanAccent' : 'text-slate-500'}">${permisos.photos ? 'SÍ' : 'NO'}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span>GPS / Ubicación:</span>
+                    <span class="font-bold ${permisos.gps ? 'text-cyanAccent' : 'text-slate-500'}">${permisos.gps ? 'SÍ' : 'NO'}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-800">
+                    <span>Giroscopio / Movimiento:</span>
+                    <span class="font-bold ${permisos.gyro ? 'text-cyanAccent' : 'text-slate-500'}">${permisos.gyro ? 'SÍ' : 'NO'}</span>
+                </div>
+            `;
+        }
+
+        function actualizarPin() {
+            const inputVal = document.getElementById("input-new-pin").value;
+            if (inputVal.length >= 4 && !isNaN(inputVal)) {
+                pinActual = inputVal;
+                localStorage.setItem("musicstudy_pin", pinActual);
+                showToast("PIN de Seguridad actualizado", "key");
+                document.getElementById("input-new-pin").value = "";
+            } else {
+                showToast("El PIN debe tener 4 dígitos numéricos", "warning");
+            }
+        }
+
+        function actualizarMetricas() {
+            document.getElementById("stats-total-hours").textContent = `${stats.horasEnfocado.toFixed(1)}h`;
+            document.getElementById("timer-total-stats").textContent = `Sesiones completas: ${stats.sesionesCompletadas}`;
+
+            let productivity = 0;
+            if (tareas.length > 0) {
+                const completed = tareas.filter(t => t.completed).length;
+                productivity = Math.round((completed / tareas.length) * 100);
+            }
+            document.getElementById("stats-productivity").textContent = `${productivity}%`;
+        }
+
+
+        // --- 8. HELPER: SISTEMA DE TOAST NOTIFICATION ---
+        function showToast(message, iconName = "info") {
+            const toast = document.getElementById("toast");
+            const msgEl = document.getElementById("toast-message");
+            const iconEl = document.getElementById("toast-icon");
+
+            msgEl.textContent = message;
+            iconEl.className = `ph ph-${iconName} text-lg`;
+
+            toast.classList.remove("opacity-0", "-translate-y-20");
+            toast.classList.add("opacity-100", "translate-y-0");
+
+            setTimeout(() => {
+                toast.classList.remove("opacity-100", "translate-y-0");
+                toast.classList.add("opacity-0", "-translate-y-20");
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

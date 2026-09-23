@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIS TAREAS - App Escolar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brandPurple: '#5c16f2', // Morado vibrante de las capturas
+                        brandPink: '#eb56ff',   // Rosa neón de los inputs y botones
+                        brandBgLight: '#eef6f6', // Fondo azul/grisáceo claro superior
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para emular el renderizado de la interfaz */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #eb56ff;
+            border-radius: 10px;
+        }
+        .watercolor-splat {
+            filter: blur(1px);
+            opacity: 0.85;
+        }
+        /* Transiciones suaves entre pantallas */
+        .screen-transition {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex justify-center items-center text-slate-800 antialiased font-sans">
+
+    <!-- CONTENEDOR MÓVIL (PWA Viewport Wrapper) -->
+    <div id="phone-wrapper" class="relative w-full max-w-[430px] h-[900px] bg-brandBgLight rounded-[40px] shadow-2xl overflow-hidden flex flex-col border-[8px] border-slate-950">
+        
+        <!-- Barra de Estado Simulada del Celular -->
+        <div class="w-full bg-transparent px-6 pt-3 flex justify-between items-center z-50 text-slate-600 font-bold text-xs select-none">
+            <span id="phone-clock">14:59</span>
+            <div class="flex items-center gap-1.5">
+                <i class="ph-bold ph-wifi-high text-sm"></i>
+                <i class="ph-bold ph-battery-full text-base"></i>
+            </div>
+        </div>
+
+        <!-- NOTIFICACIONES DE LA APP (Sistema de Alertas Integrado) -->
+        <div id="toast-container" class="absolute top-12 left-4 right-4 z-50 pointer-events-none space-y-2"></div>
+
+        <!-- PANTALLAS DE ACCESO (PANTALLA 0 - REGISTRO Y LOGIN) -->
+        <div id="auth-flow-container" class="flex-1 flex flex-col overflow-y-auto custom-scrollbar relative">
+            
+            <!-- PANTALLA 0A: REGISTRO (INSCRIPCIÓN) -->
+            <div id="screen-register" class="screen-transition flex-1 flex flex-col justify-between">
+                <!-- Parte Superior Decorativa -->
+                <div class="px-8 pt-4 pb-6 relative flex flex-col items-start min-h-[220px]">
+                    <!-- Huellita/Decoración Top Derecho -->
+                    <div class="absolute top-2 right-4 text-orange-500 opacity-90">
+                        <svg class="w-16 h-16 fill-current" viewBox="0 0 100 100">
+                            <circle cx="50" cy="65" r="18" />
+                            <circle cx="28" cy="35" r="10" />
+                            <circle cx="43" cy="22" r="10" />
+                            <circle cx="63" cy="22" r="10" />
+                            <circle cx="78" cy="38" r="10" />
+                        </svg>
+                    </div>
+                    <!-- Tres Puntos Naranjas Top Izquierda -->
+                    <div class="flex gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-orange-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-orange-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-orange-200"></div>
+                    </div>
+                    <!-- Título -->
+                    <p class="text-xl font-bold text-slate-800 text-center w-full mt-2">Welcome to</p>
+                    <h1 class="text-4xl font-black text-slate-900 tracking-wider text-center w-full mt-1 flex flex-col">
+                        <span class="text-5xl uppercase" style="font-family: 'Nunito', sans-serif; font-weight: 900;">MIS</span> 
+                        <span class="text-5xl uppercase text-slate-950 font-black tracking-widest mt-1">TAREAS</span>
+                    </h1>
+                    
+                    <!-- Dibujo Cuaderno Sonriente -->
+                    <div class="absolute -bottom-2 right-4 w-40 h-40 transform rotate-12 pointer-events-none z-10">
+                        <!-- Cuaderno SVG -->
+                        <svg viewBox="0 0 200 200" class="w-full h-full drop-shadow-md">
+                            <!-- Espiral trasera -->
+                            <rect x="25" y="15" width="20" height="170" rx="6" fill="#fcd34d"/>
+                            <!-- Libreta cuerpo -->
+                            <rect x="35" y="20" width="140" height="160" rx="12" fill="#a7f3d0"/>
+                            <!-- Libreta carita feliz y líneas -->
+                            <rect x="50" y="30" width="115" height="140" rx="8" fill="#f0fdf4"/>
+                            <!-- Cuadrículas o renglones -->
+                            <line x1="60" y1="50" x2="150" y2="50" stroke="#cbd5e1" stroke-width="2" />
+                            <line x1="60" y1="70" x2="150" y2="70" stroke="#cbd5e1" stroke-width="2" />
+                            <line x1="60" y1="90" x2="150" y2="90" stroke="#cbd5e1" stroke-width="2" />
+                            <line x1="60" y1="110" x2="150" y2="110" stroke="#cbd5e1" stroke-width="2" />
+                            <line x1="60" y1="130" x2="150" y2="130" stroke="#cbd5e1" stroke-width="2" />
+                            <!-- Corazón -->
+                            <path d="M70,45 C65,40 55,40 55,50 C55,60 70,70 70,70 C70,70 85,60 85,50 C85,40 75,40 70,45 Z" fill="#f472b6"/>
+                            <!-- Lápiz animado -->
+                            <g transform="translate(10, 60) rotate(-15)">
+                                <path d="M120,40 L120,120 L105,120 L105,40 Z" fill="#fca5a5" />
+                                <polygon points="105,40 120,40 112.5,20" fill="#fde047" />
+                                <polygon points="110,25 115,25 112.5,20" fill="#1e293b" />
+                                <rect x="105" y="115" width="15" height="12" fill="#fda4af" rx="2" />
+                            </g>
+                            <!-- Carita feliz -->
+                            <circle cx="100" cy="140" r="4" fill="#0f172a"/>
+                            <circle cx="125" cy="140" r="4" fill="#0f172a"/>
+                            <path d="M106,148 Q112.5,155 119,148" stroke="#0f172a" stroke-width="3" stroke-linecap="round" fill="none" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Parte Inferior: Formulario (Fondo Morado) -->
+                <div class="bg-brandPurple rounded-t-[40px] px-8 pt-8 pb-10 flex-1 flex flex-col justify-between relative shadow-[0_-8px_30px_rgba(92,22,242,0.3)]">
+                    <!-- Crayones Decorativos -->
+                    <div class="absolute -top-12 right-6 w-24 h-24 pointer-events-none z-20 transform -rotate-12">
+                        <svg viewBox="0 0 100 120" class="w-full h-full drop-shadow-md">
+                            <!-- Crayón Verde -->
+                            <g transform="translate(5, 20) rotate(15)">
+                                <rect x="15" y="30" width="18" height="60" rx="3" fill="#d9f99d"/>
+                                <path d="M15,30 L24,10 L33,30 Z" fill="#bef264"/>
+                                <rect x="15" y="45" width="18" height="6" fill="#a3e635"/>
+                                <circle cx="24" cy="65" r="4" fill="#84cc16" opacity="0.6"/>
+                            </g>
+                            <!-- Crayón Rosa -->
+                            <g transform="translate(45, 10) rotate(-25)">
+                                <rect x="15" y="30" width="18" height="60" rx="3" fill="#fbcfe8"/>
+                                <path d="M15,30 L24,10 L33,30 Z" fill="#f9a8d4"/>
+                                <rect x="15" y="45" width="18" height="6" fill="#f472b6"/>
+                                <circle cx="24" cy="65" r="4" fill="#ec4899" opacity="0.6"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h2 class="text-3xl font-extrabold text-white tracking-wide">Inscripcion</h2>
+                        
+                        <!-- Input Nombre -->
+                        <div class="space-y-1">
+                            <label class="text-white text-sm font-semibold ml-2">Name</label>
+                            <input type="text" id="reg-name" value="Olivia Wilson" placeholder="Ingresa tu nombre" 
+                                class="w-full bg-brandPink text-slate-900 placeholder-purple-900/60 font-bold px-6 py-3.5 rounded-3xl outline-none focus:ring-4 focus:ring-pink-300 transition-all">
+                        </div>
+
+                        <!-- Input Email -->
+                        <div class="space-y-1">
+                            <label class="text-white text-sm font-semibold ml-2">Email</label>
+                            <input type="email" id="reg-email" value="hello@reallygreatsite.com" placeholder="ejemplo@correo.com" 
+                                class="w-full bg-brandPink text-slate-900 placeholder-purple-900/60 font-bold px-6 py-3.5 rounded-3xl outline-none focus:ring-4 focus:ring-pink-300 transition-all">
+                        </div>
+
+                        <!-- Input Password -->
+                        <div class="space-y-1">
+                            <label class="text-white text-sm font-semibold ml-2">Password</label>
+                            <input type="password" id="reg-password" value="123456" placeholder="******" 
+                                class="w-full bg-brandPink text-slate-900 placeholder-purple-900/60 font-bold px-6 py-3.5 rounded-3xl outline-none focus:ring-4 focus:ring-pink-300 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex flex-col items-center gap-3">
+                        <button onclick="handleRegister()" class="w-full max-w-[180px] py-2.5 px-6 border-2 border-white text-white font-extrabold rounded-3xl hover:bg-white hover:text-brandPurple transition-all text-center text-lg active:scale-95 shadow-md">
+                            Next
+                        </button>
+                        <p class="text-white/80 text-sm">
+                            Already have an account? 
+                            <button onclick="switchAuthScreen('login')" class="font-extrabold text-white underline ml-1 hover:text-pink-300">Sign in</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 0B: INICIAR SESIÓN (LOG IN) -->
+            <div id="screen-login" class="screen-transition hidden flex-1 flex flex-col justify-between">
+                <!-- Parte Superior Decorativa -->
+                <div class="px-8 pt-4 pb-4 relative flex flex-col items-start min-h-[220px]">
+                    <!-- Salpicadura de acuarela rosa top derecho -->
+                    <div class="absolute top-0 right-0 w-36 h-36 watercolor-splat text-pink-400 mix-blend-multiply opacity-70 pointer-events-none">
+                        <svg viewBox="0 0 100 100" class="fill-current w-full h-full">
+                            <path d="M50,10 C65,5 85,15 80,35 C75,55 90,75 70,85 C50,95 30,80 20,65 C10,50 35,15 50,10 Z" />
+                        </svg>
+                    </div>
+                    <!-- Tres Puntos Naranjas Top Izquierda -->
+                    <div class="flex gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-orange-400"></div>
+                        <div class="w-3 h-3 rounded-full bg-orange-300"></div>
+                        <div class="w-3 h-3 rounded-full bg-orange-200"></div>
+                    </div>
+                    <!-- Título -->
+                    <p class="text-base font-bold text-slate-800 text-center w-full">Sign in to continue</p>
+                    <h1 class="text-4xl font-extrabold text-slate-900 tracking-wider text-center w-full mt-1">TAREAS</h1>
+
+                    <!-- Ilustración Libros Escolares (Math / Science) -->
+                    <div class="absolute -bottom-6 left-12 right-12 flex justify-center items-end pointer-events-none z-10">
+                        <div class="relative w-48 h-32">
+                            <!-- Libro de Ciencia Morado -->
+                            <div class="absolute bottom-0 left-2 w-28 h-28 bg-purple-600 rounded-xl shadow-lg transform -rotate-12 flex flex-col justify-between p-3 text-white border-r-4 border-purple-800">
+                                <div class="border-b border-purple-400 pb-1">
+                                    <p class="text-[9px] tracking-widest font-bold text-purple-200">SCIENCE</p>
+                                </div>
+                                <i class="ph-bold ph-atom text-2xl self-center text-purple-300"></i>
+                                <div class="h-1.5 w-full bg-purple-400 rounded-sm"></div>
+                            </div>
+                            <!-- Libro de Matemáticas Azul -->
+                            <div class="absolute bottom-0 right-2 w-28 h-28 bg-teal-500 rounded-xl shadow-lg transform rotate-12 flex flex-col justify-between p-3 text-white border-l-4 border-teal-700">
+                                <div class="border-b border-teal-300 pb-1">
+                                    <p class="text-[9px] tracking-widest font-bold text-teal-100">MATH</p>
+                                </div>
+                                <span class="text-lg font-black text-center text-teal-200 mt-1">x + y = z</span>
+                                <div class="h-1.5 w-full bg-teal-300 rounded-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parte Inferior Formulario (Fondo Morado) -->
+                <div class="bg-brandPurple rounded-t-[40px] px-8 pt-10 pb-10 flex-1 flex flex-col justify-between relative shadow-[0_-8px_30px_rgba(92,22,242,0.3)]">
+                    <!-- Regla Decorativa -->
+                    <div class="absolute top-24 right-4 w-28 h-8 pointer-events-none z-20 transform rotate-[35deg]">
+                        <svg viewBox="0 0 100 25" class="w-full h-full drop-shadow-md">
+                            <rect x="0" y="0" width="100" height="25" rx="3" fill="#fbbf24" />
+                            <line x1="10" y1="0" x2="10" y2="8" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="20" y1="0" x2="20" y2="12" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="30" y1="0" x2="30" y2="8" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="40" y1="0" x2="40" y2="12" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="50" y1="0" x2="50" y2="8" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="60" y1="0" x2="60" y2="12" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="70" y1="0" x2="70" y2="8" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="80" y1="0" x2="80" y2="12" stroke="#78350f" stroke-width="1.5" />
+                            <line x1="90" y1="0" x2="90" y2="8" stroke="#78350f" stroke-width="1.5" />
+                        </svg>
+                    </div>
+
+                    <!-- Textura Manchita acuarela morada -->
+                    <div class="absolute top-6 left-2 w-32 h-32 pointer-events-none z-0 opacity-40 mix-blend-screen text-purple-400">
+                        <svg viewBox="0 0 100 100" class="fill-current w-full h-full">
+                            <path d="M40,20 C55,10 75,25 70,45 C65,65 80,80 60,85 C40,90 25,75 30,55 C35,35 25,30 40,20 Z" />
+                        </svg>
+                    </div>
+
+                    <div class="space-y-5 z-10">
+                        <h2 class="text-4xl font-extrabold text-white tracking-wide">Log in</h2>
+                        
+                        <!-- Input Email -->
+                        <div class="space-y-1">
+                            <label class="text-white text-sm font-semibold ml-2">Email</label>
+                            <input type="email" id="login-email" value="hello@reallygreatsite.com" placeholder="ejemplo@correo.com" 
+                                class="w-full bg-brandPink text-slate-900 placeholder-purple-900/60 font-bold px-6 py-3.5 rounded-3xl outline-none focus:ring-4 focus:ring-pink-300 transition-all">
+                        </div>
+
+                        <!-- Input Password -->
+                        <div class="space-y-1">
+                            <label class="text-white text-sm font-semibold ml-2">Password</label>
+                            <input type="password" id="login-password" value="123456" placeholder="******" 
+                                class="w-full bg-brandPink text-slate-900 placeholder-purple-900/60 font-bold px-6 py-3.5 rounded-3xl outline-none focus:ring-4 focus:ring-pink-300 transition-all">
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex flex-col items-center gap-4 z-10">
+                        <button onclick="handleLogin()" class="w-full py-4 bg-brandPink text-white font-extrabold rounded-3xl hover:bg-white hover:text-brandPurple transition-all text-center text-lg active:scale-95 shadow-lg border-2 border-white flex justify-center items-center gap-2">
+                            <span>Login</span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </button>
+                        
+                        <div class="flex flex-col gap-1 items-center">
+                            <button onclick="handleForgotPassword()" class="text-orange-200 text-sm hover:underline font-bold">Forgot Password?</button>
+                            <p class="text-white/80 text-sm">
+                                Don't have an account? 
+                                <button onclick="switchAuthScreen('register')" class="font-extrabold text-white underline ml-1">Sign Up</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- APP PRINCIPAL PÁGINAS (PANTALLAS DEL DASHBOARD) -->
+        <div id="main-app-container" class="hidden flex-1 flex flex-col overflow-y-auto custom-scrollbar bg-brandBgLight">
+            
+            <!-- PANTALLA 1: INICIO (HOME / TAREAS DESTACADAS) -->
+            <div id="view-home" class="view-screen p-6 space-y-5">
+                <!-- Encabezado de Usuario -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Organízate</span>
+                        <h3 class="text-2xl font-extrabold text-slate-950 flex items-center gap-1.5">
+                            ¡Hola, <span id="home-user-name" class="text-brandPurple">Olivia</span>! 👋
+                        </h3>
+                    </div>
+                    <!-- Icono alerta para tareas urgentes -->
+                    <div class="relative cursor-pointer" onclick="filterByUrgency()">
+                        <div class="w-11 h-11 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-700 hover:text-brandPurple transition-all">
+                            <i class="ph-bold ph-bell text-xl"></i>
+                        </div>
+                        <span id="urgent-badge-count" class="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-brandBgLight">3</span>
+                    </div>
+                </div>
+
+                <!-- Buscador de Tareas -->
+                <div class="relative">
+                    <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                    <input type="text" id="search-task-input" oninput="renderHomeTasks()" placeholder="Buscar tarea o profesor..." 
+                        class="w-full bg-white pl-12 pr-4 py-3.5 rounded-2xl text-slate-700 placeholder-slate-400 font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-brandPurple/20 transition-all text-sm">
+                </div>
+
+                <!-- Categorías de Filtrado rápido (Materias) -->
+                <div>
+                    <h4 class="text-sm font-black text-slate-500 uppercase tracking-wider mb-2.5">Materias Rápidas</h4>
+                    <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar" id="subject-filter-chips">
+                        <!-- Chips cargados dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Lista de Elementos Destacados / Tareas Pendientes -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm font-black text-slate-500 uppercase tracking-wider">Mis Tareas Pendientes</h4>
+                        <span id="pending-tasks-count" class="text-xs font-black bg-brandPink/20 text-brandPurple px-3 py-1 rounded-full">5 activas</span>
+                    </div>
+                    
+                    <!-- Tarjeta Vacía (Fallback) -->
+                    <div id="no-tasks-message" class="hidden bg-white/70 border border-dashed border-slate-300 rounded-3xl p-6 text-center space-y-2">
+                        <i class="ph-bold ph-sparkle text-3xl text-brandPink"></i>
+                        <p class="font-bold text-slate-600 text-sm">¡Qué genial! No tienes tareas pendientes hoy.</p>
+                    </div>
+
+                    <!-- Lista de Tareas Dinámicas -->
+                    <div id="home-tasks-list" class="space-y-3">
+                        <!-- Las tareas se renderizan con JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 2: HORARIO SEMANAL (EXPLORACIÓN / DATOS) -->
+            <div id="view-explore" class="view-screen p-6 space-y-4 hidden">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Semanal</span>
+                        <h3 class="text-2xl font-black text-slate-950">Horario de Clases</h3>
+                    </div>
+                    <button onclick="openEditScheduleModal()" class="flex items-center gap-1 bg-white hover:bg-brandPurple hover:text-white text-brandPurple font-extrabold text-xs px-3 py-2 rounded-xl transition-all shadow-sm">
+                        <i class="ph-bold ph-pencil-simple-line"></i>
+                        Editar
+                    </button>
+                </div>
+
+                <!-- Tarjetas del Horario de Lunes a Viernes -->
+                <div class="space-y-3" id="weekly-schedule-container">
+                    <!-- Cargados por JS -->
+                </div>
+            </div>
+
+            <!-- PANTALLA 3: FORMULARIO DE ACCIÓN (NUEVA TAREA / MATERIA) -->
+            <div id="view-action" class="view-screen p-6 space-y-4 hidden">
+                <div>
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Editor Escolar</span>
+                    <h3 class="text-2xl font-black text-slate-950">Agregar Nueva Tarea</h3>
+                </div>
+
+                <form id="new-task-form" onsubmit="createNewTask(event)" class="bg-white p-5 rounded-3xl shadow-sm space-y-4">
+                    <!-- Campo 1: Seleccionar Materia -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-500 uppercase ml-1">Materia</label>
+                        <select id="form-task-subject" required 
+                            class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-sm">
+                            <!-- Opciones cargadas por JS -->
+                        </select>
+                    </div>
+
+                    <!-- Campo 2: Título de Tarea -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-500 uppercase ml-1">Título de la Tarea</label>
+                        <input type="text" id="form-task-title" required placeholder="Ej: Resolver cuestionario" 
+                            class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-sm">
+                    </div>
+
+                    <!-- Campo 3: Tema o Detalle -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-500 uppercase ml-1">Tema / Eje temático</label>
+                        <input type="text" id="form-task-topic" required placeholder="Ej: Polígonos Regulares" 
+                            class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-sm">
+                    </div>
+
+                    <!-- Campo 4: Nombre del Profesor -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-500 uppercase ml-1">Profesor / Docente</label>
+                        <input type="text" id="form-task-teacher" required placeholder="Ej: Prof. Martínez" 
+                            class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-sm">
+                    </div>
+
+                    <!-- Contenedor Grid Fechas -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Campo 5: Fecha de Asignación -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-black text-slate-500 uppercase ml-1">Fecha Asignación</label>
+                            <input type="date" id="form-task-assigned-date" required
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-3 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-xs">
+                        </div>
+
+                        <!-- Campo 6: Fecha de Entrega -->
+                        <div class="space-y-1">
+                            <label class="text-xs font-black text-slate-500 uppercase ml-1">Fecha de Entrega</label>
+                            <input type="date" id="form-task-due-date" required
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-3 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Campo 7: Hora de Entrega -->
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-500 uppercase ml-1">Hora límite</label>
+                        <input type="time" id="form-task-due-time" value="14:59" required
+                            class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-sm">
+                    </div>
+
+                    <!-- Botón Enviar -->
+                    <button type="submit" class="w-full py-3.5 bg-brandPurple text-white font-black rounded-2xl hover:bg-opacity-95 transition-all text-center text-sm shadow-md active:scale-95 flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-plus-circle text-lg"></i>
+                        <span>Agregar al Cuaderno escolar</span>
+                    </button>
+                </form>
+
+                <!-- Tarjeta para crear nuevas materias -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm space-y-3">
+                    <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                        <i class="ph-bold ph-books text-brandPurple"></i>
+                        <span>Añadir Nueva Materia</span>
+                    </h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-subject-input" placeholder="Ej: Filosofía" 
+                            class="flex-1 bg-slate-50 border border-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-brandPurple/30 transition-all text-sm">
+                        <button onclick="createNewSubject()" class="bg-brandPink text-white hover:bg-opacity-90 font-black px-4 rounded-xl text-sm transition-all active:scale-95">
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 4: ESTADÍSTICAS O DETALLE ESCOLAR (PEGAMENTO EN BARRA REPLICA INTERACTIVA - CAPTURA 5) -->
+            <div id="view-stats" class="view-screen p-6 space-y-4 hidden flex-1 flex flex-col justify-between min-h-0 relative">
+                <!-- Mancha pintura acuarela de fondo morado superior -->
+                <div class="absolute -top-10 -left-10 w-44 h-44 watercolor-splat text-purple-400 mix-blend-multiply opacity-55 pointer-events-none">
+                    <svg viewBox="0 0 100 100" class="fill-current w-full h-full">
+                        <path d="M40,15 C55,10 75,20 70,40 C65,60 80,75 60,80 C40,85 25,70 30,50 C35,30 25,25 40,15 Z" />
+                    </svg>
+                </div>
+
+                <div>
+                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Detalle Escolar</span>
+                    <h3 class="text-2xl font-black text-slate-950">Organizador "Pegamento"</h3>
+                    <p class="text-xs font-semibold text-slate-500">Visualiza tus tareas activas con un diseño lúdico escolar.</p>
+                </div>
+
+                <!-- EL PEGAMENTO EN BARRA INTERACTIVO (Recreación exacta de Captura 5) -->
+                <div class="flex-1 flex justify-center items-center py-4 relative min-h-0">
+                    
+                    <!-- Lápices de Colores / Crayolas Decorativas inferiores flotantes -->
+                    <div class="absolute bottom-1 left-2 w-14 h-24 transform -rotate-12 opacity-80 pointer-events-none">
+                        <!-- Marcador amarillo -->
+                        <svg viewBox="0 0 40 120" class="w-full h-full">
+                            <rect x="10" y="30" width="16" height="70" rx="3" fill="#fef08a" />
+                            <path d="M10,30 L18,10 L26,30 Z" fill="#facc15" />
+                            <rect x="8" y="90" width="20" height="20" fill="#ca8a04" rx="2" />
+                        </svg>
+                    </div>
+                    <div class="absolute bottom-2 right-2 w-16 h-24 transform rotate-12 opacity-80 pointer-events-none">
+                        <!-- Crayones de colores de la captura 5 -->
+                        <svg viewBox="0 0 60 100" class="w-full h-full">
+                            <rect x="5" y="30" width="14" height="60" rx="2" fill="#bfdbfe"/>
+                            <path d="M5,30 L12,15 L19,30 Z" fill="#60a5fa"/>
+                            <rect x="25" y="20" width="14" height="70" rx="2" fill="#fbcfe8"/>
+                            <path d="M25,20 L32,5 L39,20 Z" fill="#f472b6"/>
+                        </svg>
+                    </div>
+
+                    <!-- El Pegamento (Contenedor Principal) -->
+                    <div class="w-[280px] h-[480px] bg-[#0ea5e9] border-[6px] border-slate-900 rounded-[50px] shadow-2xl relative flex flex-col overflow-hidden transform hover:scale-102 transition-all">
+                        
+                        <!-- Tapón Blanco del Pegamento (Parte Superior) -->
+                        <div class="h-20 bg-white border-b-[6px] border-slate-900 flex flex-col justify-center items-center px-4 relative">
+                            <!-- Ranuras de rosca decorativas -->
+                            <div class="absolute top-2 w-2/3 flex justify-between px-2">
+                                <div class="w-1.5 h-3 bg-slate-200 rounded-sm"></div>
+                                <div class="w-1.5 h-3 bg-slate-200 rounded-sm"></div>
+                                <div class="w-1.5 h-3 bg-slate-200 rounded-sm"></div>
+                                <div class="w-1.5 h-3 bg-slate-200 rounded-sm"></div>
+                            </div>
+                            <h4 class="text-[11px] font-black text-slate-900 tracking-wider text-center uppercase mt-2">MIS TAREAS</h4>
+                        </div>
+
+                        <!-- Tubo Cuerpo del Pegamento (Fondo Celeste con Tareas Inscritas) -->
+                        <div class="flex-1 flex flex-col p-4 overflow-y-auto custom-scrollbar space-y-4">
+                            <!-- El contenido de las tareas se inyecta dinámicamente -->
+                            <div id="glue-stick-tasks-container" class="space-y-4">
+                                <!-- Elemento ejemplo emulado -->
+                                <div class="text-center bg-white/10 p-2.5 rounded-2xl border border-white/20 text-white space-y-1">
+                                    <h5 class="text-xs font-black tracking-widest uppercase text-yellow-300">MATEMATICAS</h5>
+                                    <p class="text-[10px] font-bold">FECHA: 23/09/23</p>
+                                    <p class="text-[10px] font-bold">HORA: 14:59</p>
+                                    <p class="text-[10px] font-bold">TEMA: POLIGONOS</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rosca del Pegamento Inferior (Blanco con Estriados) -->
+                        <div class="h-16 bg-white border-t-[6px] border-slate-900 flex justify-between px-4 items-center">
+                            <!-- Líneas verticales de rosca -->
+                            <div class="w-full flex justify-between h-full py-1">
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                                <div class="w-1.5 h-full bg-slate-300 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANTALLA 5: PERFIL / AJUSTES (SENSORES Y CONFIGURACIÓN) -->
+            <div id="view-profile" class="view-screen p-6 space-y-5 hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-brandPink rounded-3xl flex items-center justify-center text-white text-3xl font-black shadow-md border-2 border-white">
+                        OW
+                    </div>
+                    <div>
+                        <h3 id="profile-user-name" class="text-xl font-extrabold text-slate-950">Olivia Wilson</h3>
+                        <p id="profile-user-email" class="text-sm font-semibold text-slate-500">hello@reallygreatsite.com</p>
+                    </div>
+                </div>
+
+                <!-- PANEL DE CONECTIVIDAD Y SENSORES (REQUERIMIENTO 4) -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm space-y-4">
+                    <h4 class="text-base font-black text-slate-900 flex items-center gap-2">
+                        <i class="ph-bold ph-cpu text-brandPurple text-xl"></i>
+                        <span>Sensores y Conectividad</span>
+                    </h4>
+                    <p class="text-xs text-slate-500">Configura los permisos de acceso de esta PWA escolar:</p>
+
+                    <div class="space-y-3.5 pt-2">
+                        <!-- Sensor Bluetooth -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
+                                    <i class="ph-bold ph-bluetooth text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-800">Bluetooth (Sí/No)</p>
+                                    <p class="text-[10px] text-slate-500 font-semibold" id="sensor-bluetooth-desc">Para audífonos de estudio</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="sensor-bluetooth-chk" onchange="updateSensorStorage()" checked class="w-5 h-5 accent-brandPurple">
+                        </div>
+
+                        <!-- Envío de Correo -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center">
+                                    <i class="ph-bold ph-envelope text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-800">Correo Electrónico (Sí/No)</p>
+                                    <p class="text-[10px] text-slate-500 font-semibold" id="sensor-email-desc">Envío de resumen de tareas</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="sensor-email-chk" onchange="updateSensorStorage()" checked class="w-5 h-5 accent-brandPurple">
+                        </div>
+
+                        <!-- Galería / Subir fotos -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-pink-100 text-pink-600 rounded-xl flex items-center justify-center">
+                                    <i class="ph-bold ph-image text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-800">Subir Fotos (Sí/No)</p>
+                                    <p class="text-[10px] text-slate-500 font-semibold" id="sensor-photos-desc">Acceso a galería de evidencias</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="sensor-photos-chk" onchange="updateSensorStorage()" checked class="w-5 h-5 accent-brandPurple">
+                        </div>
+
+                        <!-- GPS Localización -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                                    <i class="ph-bold ph-map-pin text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-800">GPS Localizador (Sí/No)</p>
+                                    <p class="text-[10px] text-slate-500 font-semibold" id="sensor-gps-desc">Para ubicación del colegio</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="sensor-gps-chk" onchange="updateSensorStorage()" checked class="w-5 h-5 accent-brandPurple">
+                        </div>
+
+                        <!-- Giroscopio y Acelerómetro -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
+                                    <i class="ph-bold ph-arrows-out-cardinal text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-black text-slate-800">Giroscopio (Sí/No)</p>
+                                    <p class="text-[10px] text-slate-500 font-semibold" id="sensor-gyro-desc">Para sacudir y agitar útiles</p>
+                                </div>
+                            </div>
+                            <input type="checkbox" id="sensor-gyro-chk" onchange="updateSensorStorage()" checked class="w-5 h-5 accent-brandPurple">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Opciones de Cuenta Adicionales -->
+                <div class="bg-white p-5 rounded-3xl shadow-sm space-y-3">
+                    <h4 class="text-sm font-black text-slate-900">Configuración general</h4>
+                    <button onclick="handleResetAllData()" class="w-full text-left py-2 px-3 hover:bg-red-50 text-red-600 rounded-xl transition-all font-bold text-sm flex items-center gap-2">
+                        <i class="ph-bold ph-trash"></i>
+                        Reiniciar Datos de Fábrica
+                    </button>
+                    <button onclick="handleLogout()" class="w-full text-left py-2 px-3 hover:bg-slate-50 text-slate-700 rounded-xl transition-all font-bold text-sm flex items-center gap-2">
+                        <i class="ph-bold ph-sign-out"></i>
+                        Cerrar Sesión Escolar
+                    </button>
+                </div>
+
+                <!-- Créditos Grado Once -->
+                <div class="text-center py-4">
+                    <p class="text-xs text-slate-400 font-bold">MIS TAREAS v1.1</p>
+                    <p class="text-xs text-slate-400">Proyecto Escolar de Grado Once © 2026</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- MENÚ DE NAVEGACIÓN INFERIOR (BOTTOM NAV) -->
+        <div id="bottom-navigation-bar" class="hidden h-20 bg-white border-t border-slate-200 px-4 flex justify-around items-center z-50 rounded-b-[32px]">
+            <button onclick="switchView('home')" id="nav-home" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brandPurple transition-all py-1 px-3 rounded-xl">
+                <i class="ph-bold ph-house-simple text-2.5xl"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">Inicio</span>
+            </button>
+            <button onclick="switchView('explore')" id="nav-explore" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brandPurple transition-all py-1 px-3 rounded-xl">
+                <i class="ph-bold ph-calendar text-2.5xl"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">Horario</span>
+            </button>
+            <button onclick="switchView('action')" id="nav-action" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brandPurple transition-all py-1 px-3 rounded-xl">
+                <i class="ph-bold ph-plus-circle text-2.5xl text-brandPink"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">Añadir</span>
+            </button>
+            <button onclick="switchView('stats')" id="nav-stats" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brandPurple transition-all py-1 px-3 rounded-xl">
+                <i class="ph-bold ph-paint-brush text-2.5xl"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">Detalles</span>
+            </button>
+            <button onclick="switchView('profile')" id="nav-profile" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-brandPurple transition-all py-1 px-3 rounded-xl">
+                <i class="ph-bold ph-user-circle text-2.5xl"></i>
+                <span class="text-[10px] font-black uppercase tracking-wider">Ajustes</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- MODAL EDITAR HORARIO -->
+    <div id="schedule-edit-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-black text-slate-900">Modificar Horario</h3>
+                <button onclick="closeEditScheduleModal()" class="text-slate-400 hover:text-slate-600">
+                    <i class="ph-bold ph-x text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div class="space-y-1">
+                    <label class="text-xs font-black text-slate-500 uppercase">Día de la Semana</label>
+                    <select id="schedule-day-select" class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm">
+                        <option value="Lunes">Lunes</option>
+                        <option value="Martes">Martes</option>
+                        <option value="Miércoles">Miércoles</option>
+                        <option value="Jueves">Jueves</option>
+                        <option value="Viernes">Viernes</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-black text-slate-500 uppercase">Materias del Día (Separadas por comas)</label>
+                    <textarea id="schedule-subjects-input" rows="3" class="w-full bg-slate-50 border border-slate-200 text-slate-700 font-bold px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brandPurple/20" placeholder="Ej: MATEMÁTICAS, INGLES, FISICA"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeEditScheduleModal()" class="px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-all">Cancelar</button>
+                <button onclick="saveScheduleDay()" class="px-4 py-2 text-sm font-black bg-brandPurple text-white rounded-xl hover:bg-opacity-95 transition-all">Guardar Día</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SENSOR AL INICIAR LA APP (REQUERIMIENTO 4) -->
+    <div id="welcome-sensors-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] max-w-sm w-full p-6 space-y-5 shadow-2xl border-[4px] border-brandPurple text-center relative overflow-hidden">
+            <!-- Watercolor deco background -->
+            <div class="absolute -top-12 -left-12 w-32 h-32 watercolor-splat text-pink-300 mix-blend-multiply opacity-50 pointer-events-none">
+                <svg viewBox="0 0 100 100" class="fill-current w-full h-full">
+                    <circle cx="50" cy="50" r="40"/>
+                </svg>
+            </div>
+
+            <div class="w-16 h-16 bg-brandPurple/15 text-brandPurple rounded-3xl flex items-center justify-center text-3xl mx-auto">
+                <i class="ph-bold ph-shield-check"></i>
+            </div>
+
+            <div class="space-y-2">
+                <h3 class="text-2xl font-black text-slate-900">Proyecto Escolar</h3>
+                <p class="text-sm font-bold text-slate-600">Declaración de Uso de Sensores y Conectividad</p>
+                <p class="text-xs text-slate-400">
+                    Nuestra PWA requiere la aprobación inicial de los siguientes componentes para interactuar con tu entorno escolar de forma segura.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 rounded-2xl p-3.5 text-left space-y-2.5 max-h-[180px] overflow-y-auto custom-scrollbar">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="ph-bold ph-bluetooth text-blue-500"></i>
+                    <span>Bluetooth: Sí (Audífonos y parlantes de clase)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="ph-bold ph-envelope text-purple-500"></i>
+                    <span>Correo: Sí (Resumen semanal de tareas enviadas)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="ph-bold ph-image text-pink-500"></i>
+                    <span>Fotos: Sí (Subir capturas de tareas de tu cuaderno)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="ph-bold ph-map-pin text-green-500"></i>
+                    <span>GPS: Sí (Ubicación de entrada del colegio)</span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <i class="ph-bold ph-arrows-out-cardinal text-amber-500"></i>
+                    <span>Giroscopio: Sí (Detección de sacudidas de interfaz)</span>
+                </div>
+            </div>
+
+            <button onclick="acceptSensorsDeclaration()" class="w-full py-3.5 bg-brandPurple hover:bg-opacity-95 text-white font-black rounded-2xl shadow-md transition-all text-sm active:scale-95 uppercase tracking-wider">
+                Comenzar y Aceptar Permisos
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT DEL SISTEMA -->
+    <script>
+        // --- BASE DE DATOS LOCAL STORAGE / ESTADO INICIAL ---
+        const DEFAULT_SUBJECTS = ["Matemáticas", "Inglés", "Religión", "Física", "Química"];
+        
+        const DEFAULT_SCHEDULE = {
+            "Lunes": ["Matemáticas", "Física", "Inglés"],
+            "Martes": ["Religión", "Química", "Matemáticas"],
+            "Miércoles": ["Inglés", "Física", "Química"],
+            "Jueves": ["Matemáticas", "Inglés", "Religión"],
+            "Viernes": ["Física", "Química", "Recreo"]
+        };
+
+        const DEFAULT_TASKS = [
+            {
+                id: "task-1",
+                title: "Resolver Polígonos Regulares",
+                subject: "Matemáticas",
+                topic: "Polígonos",
+                teacher: "Prof. Martínez",
+                assignedDate: "2023-09-20",
+                dueDate: "2023-09-23",
+                dueTime: "14:59",
+                completed: false,
+                urgent: true
+            },
+            {
+                id: "task-2",
+                title: "Estudiar verbos irregulares",
+                subject: "Inglés",
+                topic: "Verbos",
+                teacher: "Miss Mary",
+                assignedDate: "2025-07-20",
+                dueDate: "2025-07-25",
+                dueTime: "14:59",
+                completed: false,
+                urgent: false
+            },
+            {
+                id: "task-3",
+                title: "Investigar las religiones monoteístas",
+                subject: "Religión",
+                topic: "Religiones",
+                teacher: "Padre José",
+                assignedDate: "2025-07-20",
+                dueDate: "2025-07-22",
+                dueTime: "12:48",
+                completed: false,
+                urgent: true
+            }
+        ];
+
+        let state = {
+            currentUser: null,
+            subjects: [],
+            tasks: [],
+            schedule: {},
+            sensors: {
+                bluetooth: true,
+                email: true,
+                photos: true,
+                gps: true,
+                gyro: true
+            },
+            currentView: 'home',
+            filterSubject: 'all',
+            filterUrgentOnly: false
+        };
+
+        // --- SISTEMA DE TOAST (ALERTAS NO BLOQUEANTES) ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-2xl shadow-lg text-xs font-black text-white flex items-center justify-between gap-3 transform translate-y-2 transition-all duration-300 pointer-events-auto`;
+            
+            if (type === 'success') {
+                toast.classList.add('bg-green-500');
+            } else if (type === 'error') {
+                toast.classList.add('bg-red-500');
+            } else {
+                toast.classList.add('bg-brandPurple');
+            }
+
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-white hover:opacity-80">
+                    <i class="ph-bold ph-x text-sm"></i>
+                </button>
+            `;
+            container.appendChild(toast);
+            
+            // Auto eliminable
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // --- MANEJO DE VISTA DE RECOLECCIÓN DE SENSORES ---
+        function acceptSensorsDeclaration() {
+            document.getElementById('welcome-sensors-modal').classList.add('hidden');
+            showToast('¡Sensores configurados correctamente en tu perfil!', 'success');
+        }
+
+        // --- INICIALIZADOR DE LA APP ---
+        window.onload = function() {
+            // Actualizar reloj simulación
+            setInterval(() => {
+                const now = new Date();
+                const hrs = String(now.getHours()).padStart(2, '0');
+                const mins = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('phone-clock').innerText = `${hrs}:${mins}`;
+            }, 1000);
+
+            // Cargar datos de localStorage o iniciar con defaults
+            loadDataFromStorage();
+
+            // Verificar si el usuario ya está autenticado
+            if (state.currentUser) {
+                hideAuthFlow();
+            } else {
+                showAuthFlow();
+            }
+
+            // Renderizado General
+            renderAll();
+        }
+
+        function loadDataFromStorage() {
+            const storedUser = localStorage.getItem('mistareas_user');
+            const storedSubjects = localStorage.getItem('mistareas_subjects');
+            const storedTasks = localStorage.getItem('mistareas_tasks');
+            const storedSchedule = localStorage.getItem('mistareas_schedule');
+            const storedSensors = localStorage.getItem('mistareas_sensors');
+
+            state.currentUser = storedUser ? JSON.parse(storedUser) : null;
+            state.subjects = storedSubjects ? JSON.parse(storedSubjects) : [...DEFAULT_SUBJECTS];
+            state.tasks = storedTasks ? JSON.parse(storedTasks) : [...DEFAULT_TASKS];
+            state.schedule = storedSchedule ? JSON.parse(storedSchedule) : {...DEFAULT_SCHEDULE};
+            state.sensors = storedSensors ? JSON.parse(storedSensors) : {
+                bluetooth: true,
+                email: true,
+                photos: true,
+                gps: true,
+                gyro: true
+            };
+        }
+
+        function saveDataToStorage() {
+            localStorage.setItem('mistareas_user', JSON.stringify(state.currentUser));
+            localStorage.setItem('mistareas_subjects', JSON.stringify(state.subjects));
+            localStorage.setItem('mistareas_tasks', JSON.stringify(state.tasks));
+            localStorage.setItem('mistareas_schedule', JSON.stringify(state.schedule));
+            localStorage.setItem('mistareas_sensors', JSON.stringify(state.sensors));
+        }
+
+        // --- FLUJO DE AUTENTICACIÓN INTERACTIVO ---
+        function switchAuthScreen(screen) {
+            document.getElementById('screen-register').classList.add('hidden');
+            document.getElementById('screen-login').classList.add('hidden');
+
+            if (screen === 'register') {
+                document.getElementById('screen-register').classList.remove('hidden');
+            } else if (screen === 'login') {
+                document.getElementById('screen-login').classList.remove('hidden');
+            }
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const pass = document.getElementById('reg-password').value.trim();
+
+            if (!name || !email || !pass) {
+                showToast('Por favor completa todos los campos de inscripción.', 'error');
+                return;
+            }
+
+            // Guardar perfil que se registrará
+            state.currentUser = { name, email, pass };
+            saveDataToStorage();
+
+            // Omitir verificación e ir directamente a la app principal
+            showToast('¡Inscripción Exitosa! Bienvenido a MIS TAREAS.', 'success');
+            hideAuthFlow();
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+
+            if (state.currentUser && state.currentUser.email === email && state.currentUser.pass === pass) {
+                showToast('¡Bienvenido de vuelta a clase!', 'success');
+                hideAuthFlow();
+            } else if (email === "hello@reallygreatsite.com" && pass === "123456") {
+                state.currentUser = {
+                    name: "Olivia Wilson",
+                    email: "hello@reallygreatsite.com",
+                    pass: "123456"
+                };
+                saveDataToStorage();
+                showToast('¡Sesión Escolar Iniciada!', 'success');
+                hideAuthFlow();
+            } else {
+                showToast('Las credenciales de acceso no coinciden con ninguna cuenta.', 'error');
+            }
+        }
+
+        function handleForgotPassword() {
+            showToast('Se ha enviado un enlace de reinicio a tu bandeja escolar.', 'info');
+        }
+
+        function hideAuthFlow() {
+            document.getElementById('auth-flow-container').classList.add('hidden');
+            document.getElementById('main-app-container').classList.remove('hidden');
+            document.getElementById('bottom-navigation-bar').classList.remove('hidden');
+            
+            // Actualizar interfaz con datos de usuario
+            if (state.currentUser) {
+                document.getElementById('home-user-name').innerText = state.currentUser.name;
+                document.getElementById('profile-user-name').innerText = state.currentUser.name;
+                document.getElementById('profile-user-email').innerText = state.currentUser.email;
+            }
+            renderAll();
+        }
+
+        function showAuthFlow() {
+            document.getElementById('auth-flow-container').classList.remove('hidden');
+            document.getElementById('main-app-container').classList.add('hidden');
+            document.getElementById('bottom-navigation-bar').classList.add('hidden');
+            switchAuthScreen('register');
+        }
+
+        function handleLogout() {
+            state.currentUser = null;
+            saveDataToStorage();
+            showToast('Sesión escolar cerrada correctamente.', 'info');
+            showAuthFlow();
+        }
+
+        function handleResetAllData() {
+            if (confirm('¿Seguro que deseas reiniciar la app? Perderás todas las tareas y materias añadidas.')) {
+                localStorage.clear();
+                loadDataFromStorage();
+                showToast('Se han restaurado los datos de grado once.', 'info');
+                showAuthFlow();
+            }
+        }
+
+        // --- SISTEMA DE NAVEGACIÓN ENTRE SECCIONES ---
+        function switchView(viewId) {
+            state.currentView = viewId;
+            
+            // Ocultar todas las pantallas
+            document.querySelectorAll('.view-screen').forEach(el => el.classList.add('hidden'));
+            
+            // Mostrar la seleccionada
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+
+            // Resetear estilos de todos los botones de la barra inferior
+            document.querySelectorAll('#bottom-navigation-bar button').forEach(btn => {
+                btn.classList.remove('text-brandPurple');
+                btn.classList.add('text-slate-400');
+            });
+
+            // Dar foco al activo
+            document.getElementById(`nav-${viewId}`).classList.add('text-brandPurple');
+            document.getElementById(`nav-${viewId}`).classList.remove('text-slate-400');
+
+            // Renderizados específicos si es necesario
+            if (viewId === 'home') {
+                renderHomeTasks();
+            } else if (viewId === 'explore') {
+                renderWeeklySchedule();
+            } else if (viewId === 'action') {
+                populateSubjectDropdown();
+            } else if (viewId === 'stats') {
+                renderGlueStickTasks();
+            } else if (viewId === 'profile') {
+                syncProfileSensors();
+            }
+        }
+
+        // --- ACCIONES DE RENDERS Y CARGA DE DATOS ---
+        function renderAll() {
+            renderSubjectFilters();
+            renderHomeTasks();
+            renderWeeklySchedule();
+            populateSubjectDropdown();
+            renderGlueStickTasks();
+            syncProfileSensors();
+        }
+
+        // --- PANTALLA 1: HOME ---
+        function renderSubjectFilters() {
+            const container = document.getElementById('subject-filter-chips');
+            container.innerHTML = '';
+
+            // Chip "Todos"
+            const allChip = document.createElement('button');
+            allChip.onclick = () => {
+                state.filterSubject = 'all';
+                state.filterUrgentOnly = false;
+                renderSubjectFilters();
+                renderHomeTasks();
+            };
+            allChip.className = `px-4 py-2 rounded-2xl text-xs font-black tracking-wider uppercase transition-all whitespace-nowrap ${
+                state.filterSubject === 'all' && !state.filterUrgentOnly 
+                    ? 'bg-brandPurple text-white shadow-md' 
+                    : 'bg-white text-slate-600 hover:bg-slate-50'
+            }`;
+            allChip.innerText = "Todos";
+            container.appendChild(allChip);
+
+            // Chip de urgentes
+            const urgentChip = document.createElement('button');
+            urgentChip.onclick = () => {
+                state.filterUrgentOnly = true;
+                state.filterSubject = 'all';
+                renderSubjectFilters();
+                renderHomeTasks();
+            };
+            urgentChip.className = `px-4 py-2 rounded-2xl text-xs font-black tracking-wider uppercase transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                state.filterUrgentOnly 
+                    ? 'bg-red-500 text-white shadow-md' 
+                    : 'bg-white text-red-500 hover:bg-red-50'
+            }`;
+            urgentChip.innerHTML = `<i class="ph-bold ph-bell-simple-ringing"></i> Urgentes`;
+            container.appendChild(urgentChip);
+
+            // Chips dinámicos por materia
+            state.subjects.forEach(subject => {
+                const chip = document.createElement('button');
+                chip.onclick = () => {
+                    state.filterSubject = subject;
+                    state.filterUrgentOnly = false;
+                    renderSubjectFilters();
+                    renderHomeTasks();
+                };
+                chip.className = `px-4 py-2 rounded-2xl text-xs font-black tracking-wider uppercase transition-all whitespace-nowrap ${
+                    state.filterSubject === subject 
+                        ? 'bg-brandPurple text-white shadow-md' 
+                        : 'bg-white text-slate-600 hover:bg-slate-50'
+                }`;
+                chip.innerText = subject;
+                container.appendChild(chip);
+            });
+        }
+
+        function filterByUrgency() {
+            state.filterUrgentOnly = true;
+            state.filterSubject = 'all';
+            renderSubjectFilters();
+            renderHomeTasks();
+            showToast('Mostrando solo tus tareas escolares prioritarias.', 'info');
+        }
+
+        function renderHomeTasks() {
+            const listContainer = document.getElementById('home-tasks-list');
+            const searchVal = document.getElementById('search-task-input').value.toLowerCase();
+            const noTasksMsg = document.getElementById('no-tasks-message');
+            const pendingCountBadge = document.getElementById('pending-tasks-count');
+            const urgentBadge = document.getElementById('urgent-badge-count');
+
+            listContainer.innerHTML = '';
+
+            let filtered = state.tasks;
+
+            // Filtro por materia
+            if (state.filterSubject !== 'all') {
+                filtered = filtered.filter(t => t.subject === state.filterSubject);
+            }
+
+            // Filtro de urgencia
+            if (state.filterUrgentOnly) {
+                filtered = filtered.filter(t => t.urgent && !t.completed);
+            }
+
+            // Filtro de búsqueda textual (Materia, Título, Profesor o tema)
+            if (searchVal) {
+                filtered = filtered.filter(t => 
+                    t.title.toLowerCase().includes(searchVal) ||
+                    t.subject.toLowerCase().includes(searchVal) ||
+                    t.teacher.toLowerCase().includes(searchVal) ||
+                    (t.topic && t.topic.toLowerCase().includes(searchVal))
+                );
+            }
+
+            // Contar pendientes y urgentes reales para badges
+            const totalPending = state.tasks.filter(t => !t.completed).length;
+            pendingCountBadge.innerText = `${totalPending} activas`;
+
+            const totalUrgent = state.tasks.filter(t => t.urgent && !t.completed).length;
+            urgentBadge.innerText = totalUrgent;
+            urgentBadge.className = totalUrgent > 0 
+                ? "absolute -top-1 -right-1 bg-red-500 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-brandBgLight"
+                : "hidden";
+
+            if (filtered.length === 0) {
+                noTasksMsg.classList.remove('hidden');
+                return;
+            } else {
+                noTasksMsg.classList.add('hidden');
+            }
+
+            filtered.forEach(task => {
+                const item = document.createElement('div');
+                item.className = `bg-white p-4 rounded-3xl shadow-sm transition-all relative flex flex-col justify-between gap-2.5 border-l-[6px] ${
+                    task.completed 
+                        ? 'border-emerald-400 opacity-70' 
+                        : task.urgent 
+                            ? 'border-rose-500' 
+                            : 'border-brandPurple'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full">
+                                ${task.subject}
+                            </span>
+                            <h5 class="text-base font-extrabold text-slate-900 mt-2 ${task.completed ? 'line-through text-slate-400' : ''}">
+                                ${task.title}
+                            </h5>
+                            <p class="text-xs font-bold text-slate-500 mt-0.5 flex items-center gap-1">
+                                <i class="ph-bold ph-graduation-cap"></i> ${task.teacher} 
+                                ${task.topic ? `• <span class="text-slate-400 font-semibold">${task.topic}</span>` : ''}
+                            </p>
+                        </div>
+                        <button onclick="toggleTaskCompletion('${task.id}')" class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                            task.completed 
+                                ? 'bg-emerald-500 border-emerald-500 text-white' 
+                                : 'border-slate-300 text-slate-300 hover:border-brandPurple hover:text-brandPurple'
+                        }">
+                            <i class="ph-bold ph-check text-base"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-between items-center border-t border-dashed border-slate-100 pt-2 text-[11px] font-bold text-slate-500">
+                        <div class="flex items-center gap-1">
+                            <i class="ph-bold ph-calendar-blank"></i>
+                            <span>Asignación: ${formatDateToShow(task.assignedDate)}</span>
+                        </div>
+                        <div class="flex items-center gap-1 ${task.urgent && !task.completed ? 'text-rose-500' : 'text-brandPurple'}">
+                            <i class="ph-bold ph-hourglass"></i>
+                            <span>Entrega: ${formatDateToShow(task.dueDate)} a las ${task.dueTime}</span>
+                        </div>
+                    </div>
+
+                    <!-- Botón para Eliminar Tarea -->
+                    <button onclick="deleteTask('${task.id}')" class="absolute -top-1 -right-1 bg-slate-100 hover:bg-rose-100 hover:text-rose-500 text-slate-400 w-6 h-6 rounded-full flex items-center justify-center transition-all">
+                        <i class="ph-bold ph-trash text-xs"></i>
+                    </button>
+                `;
+
+                listContainer.appendChild(item);
+            });
+        }
+
+        // --- CONTROL DE COMPLETADO DE TAREAS ---
+        function toggleTaskCompletion(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveDataToStorage();
+                renderHomeTasks();
+                renderGlueStickTasks();
+                showToast(task.completed ? '¡Felicitaciones! Tarea completada.' : 'Tarea marcada como pendiente.', 'success');
+            }
+        }
+
+        function deleteTask(id) {
+            if (confirm('¿Quieres eliminar esta tarea del cuaderno escolar?')) {
+                state.tasks = state.tasks.filter(t => t.id !== id);
+                saveDataToStorage();
+                renderHomeTasks();
+                renderGlueStickTasks();
+                showToast('Tarea eliminada con éxito.', 'info');
+            }
+        }
+
+        // --- PANTALLA 2: HORARIO ---
+        function renderWeeklySchedule() {
+            const container = document.getElementById('weekly-schedule-container');
+            container.innerHTML = '';
+
+            const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+            days.forEach(day => {
+                const list = state.schedule[day] || ["Sin clases"];
+                const card = document.createElement('div');
+                card.className = "bg-white p-4.5 rounded-3xl shadow-sm space-y-2 relative border border-slate-100";
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-sm font-black text-brandPurple uppercase tracking-wider">${day}</h4>
+                        <span class="text-[10px] font-black bg-purple-50 text-brandPurple px-2 py-0.5 rounded-md">${list.length} Materias</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${list.map(subj => `
+                            <span class="text-xs font-bold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-xl border border-slate-200/50">
+                                ${subj}
+                            </span>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        let tempDaySelected = 'Lunes';
+        function openEditScheduleModal() {
+            const day = document.getElementById('schedule-day-select').value;
+            const subjectsInput = document.getElementById('schedule-subjects-input');
+            subjectsInput.value = (state.schedule[day] || []).join(', ');
+            
+            document.getElementById('schedule-edit-modal').classList.remove('hidden');
+        }
+
+        // Enlazar evento select de cambio de día en modal
+        document.getElementById('schedule-day-select').onchange = function(e) {
+            const day = e.target.value;
+            document.getElementById('schedule-subjects-input').value = (state.schedule[day] || []).join(', ');
+        }
+
+        function closeEditScheduleModal() {
+            document.getElementById('schedule-edit-modal').classList.add('hidden');
+        }
+
+        function saveScheduleDay() {
+            const day = document.getElementById('schedule-day-select').value;
+            const inputVal = document.getElementById('schedule-subjects-input').value;
+            
+            const arr = inputVal.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            
+            state.schedule[day] = arr;
+            saveDataToStorage();
+            renderWeeklySchedule();
+            closeEditScheduleModal();
+            showToast(`Horario del día ${day} modificado con éxito.`, 'success');
+        }
+
+
+        // --- PANTALLA 3: FORMULARIO DE ACCIÓN ---
+        function populateSubjectDropdown() {
+            const select = document.getElementById('form-task-subject');
+            select.innerHTML = '';
+            
+            state.subjects.forEach(subj => {
+                const opt = document.createElement('option');
+                opt.value = subj;
+                opt.innerText = subj;
+                select.appendChild(opt);
+            });
+
+            // Setear fechas de hoy y mañana por defecto
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('form-task-assigned-date').value = todayStr;
+            
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            document.getElementById('form-task-due-date').value = tomorrowStr;
+        }
+
+        function createNewTask(e) {
+            e.preventDefault();
+
+            const subject = document.getElementById('form-task-subject').value;
+            const title = document.getElementById('form-task-title').value.trim();
+            const topic = document.getElementById('form-task-topic').value.trim();
+            const teacher = document.getElementById('form-task-teacher').value.trim();
+            const assignedDate = document.getElementById('form-task-assigned-date').value;
+            const dueDate = document.getElementById('form-task-due-date').value;
+            const dueTime = document.getElementById('form-task-due-time').value;
+
+            if (!subject || !title || !topic || !teacher || !assignedDate || !dueDate || !dueTime) {
+                showToast('Por favor completa todos los campos del formulario.', 'error');
+                return;
+            }
+
+            // Validar de manera lógica si es urgente
+            const isUrgent = new Date(dueDate) - new Date() < (3 * 24 * 60 * 60 * 1000); // menos de 3 días
+
+            const newTask = {
+                id: `task-${Date.now()}`,
+                title,
+                subject,
+                topic,
+                teacher,
+                assignedDate,
+                dueDate,
+                dueTime,
+                completed: false,
+                urgent: isUrgent
+            };
+
+            state.tasks.unshift(newTask);
+            saveDataToStorage();
+
+            // Limpiar formulario
+            document.getElementById('form-task-title').value = '';
+            document.getElementById('form-task-topic').value = '';
+            document.getElementById('form-task-teacher').value = '';
+
+            showToast('¡Nueva tarea agregada a tu cuaderno!', 'success');
+            switchView('home');
+        }
+
+        function createNewSubject() {
+            const input = document.getElementById('new-subject-input');
+            const newSubj = input.value.trim();
+
+            if (!newSubj) {
+                showToast('Escribe el nombre de la materia escolar.', 'error');
+                return;
+            }
+
+            if (state.subjects.some(s => s.toLowerCase() === newSubj.toLowerCase())) {
+                showToast('Esa materia ya existe en tu lista.', 'error');
+                return;
+            }
+
+            state.subjects.push(newSubj);
+            saveDataToStorage();
+            
+            input.value = '';
+            populateSubjectDropdown();
+            renderSubjectFilters();
+            showToast(`Materia "${newSubj}" agregada.`, 'success');
+        }
+
+        // --- PANTALLA 4: RECREACIÓN DE PEGAMENTO (DETALLES ESCOLAR DE CAPTURA 5) ---
+        function renderGlueStickTasks() {
+            const container = document.getElementById('glue-stick-tasks-container');
+            container.innerHTML = '';
+
+            // Filtrar las tareas que no estén completadas para visualizarlas en el pegamento
+            const pendingTasks = state.tasks.filter(t => !t.completed);
+
+            if (pendingTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-4 text-white/80 space-y-2">
+                        <i class="ph-bold ph-smiley-wink text-3xl"></i>
+                        <p class="text-xs font-black">SIN TAREAS ACTIVAS</p>
+                        <p class="text-[10px]">Tu pegamento está listo para pegar nuevos apuntes.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            pendingTasks.forEach(task => {
+                const card = document.createElement('div');
+                card.className = "text-center bg-white/15 p-3 rounded-2xl border border-white/20 text-white space-y-1 transform hover:scale-98 transition-all cursor-pointer";
+                card.onclick = () => {
+                    showToast(`Tarea de ${task.subject}: ${task.title}. Profesor: ${task.teacher}`, 'info');
+                };
+
+                // Formatear la fecha como la captura 5 (YY/MM/DD)
+                const rawDate = new Date(task.dueDate);
+                const yy = String(rawDate.getFullYear()).slice(-2);
+                const mm = String(rawDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(rawDate.getDate()).padStart(2, '0');
+                const formattedDate = `${dd}/${mm}/${yy}`;
+
+                card.innerHTML = `
+                    <h5 class="text-xs font-black tracking-widest uppercase text-yellow-300">${task.subject}</h5>
+                    <p class="text-[10px] font-bold">FECHA: ${formattedDate}</p>
+                    <p class="text-[10px] font-bold">HORA: ${task.dueTime}</p>
+                    <p class="text-[10px] font-bold uppercase">TEMA: ${task.topic || "General"}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- PANTALLA 5: PERFIL / AJUSTES / SENSORES ---
+        function syncProfileSensors() {
+            document.getElementById('sensor-bluetooth-chk').checked = state.sensors.bluetooth;
+            document.getElementById('sensor-email-chk').checked = state.sensors.email;
+            document.getElementById('sensor-photos-chk').checked = state.sensors.photos;
+            document.getElementById('sensor-gps-chk').checked = state.sensors.gps;
+            document.getElementById('sensor-gyro-chk').checked = state.sensors.gyro;
+
+            updateSensorLabels();
+        }
+
+        function updateSensorStorage() {
+            state.sensors.bluetooth = document.getElementById('sensor-bluetooth-chk').checked;
+            state.sensors.email = document.getElementById('sensor-email-chk').checked;
+            state.sensors.photos = document.getElementById('sensor-photos-chk').checked;
+            state.sensors.gps = document.getElementById('sensor-gps-chk').checked;
+            state.sensors.gyro = document.getElementById('sensor-gyro-chk').checked;
+
+            saveDataToStorage();
+            updateSensorLabels();
+            showToast('Permisos de sensores actualizados.', 'success');
+        }
+
+        function updateSensorLabels() {
+            document.getElementById('sensor-bluetooth-desc').innerText = state.sensors.bluetooth 
+                ? "Permitido: Conectado a audífonos" 
+                : "Bloqueado: Bluetooth apagado";
+
+            document.getElementById('sensor-email-desc').innerText = state.sensors.email 
+                ? "Permitido: Enviando alertas a hello@reallygreatsite.com" 
+                : "Bloqueado: Alertas de correo desactivadas";
+
+            document.getElementById('sensor-photos-desc').innerText = state.sensors.photos 
+                ? "Permitido: Acceso a galería para subir evidencias" 
+                : "Bloqueado: Acceso a cámara denegado";
+
+            document.getElementById('sensor-gps-desc').innerText = state.sensors.gps 
+                ? "Permitido: Ubicado en Colegio Grado Once" 
+                : "Bloqueado: Ubicación oculta";
+
+            document.getElementById('sensor-gyro-desc').innerText = state.sensors.gyro 
+                ? "Permitido: Agitar el celular limpia el pegamento" 
+                : "Bloqueado: Detección de movimiento inactiva";
+        }
+
+
+        // --- HELPERS ÚTILES ---
+        function formatDateToShow(dateStr) {
+            if (!dateStr) return "";
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0].slice(-2)}`;
+            }
+            return dateStr;
+        }
+
+        // Simular gesto de sacudida (Giroscopio) si está activado
+        window.addEventListener('keyup', function(e) {
+            // Si presionas la tecla "S" y el giroscopio está activado, simula una sacudida para completar la tarea más urgente.
+            if (e.key.toLowerCase() === 's' && state.sensors.gyro && state.currentView === 'home') {
+                const firstPending = state.tasks.find(t => !t.completed);
+                if (firstPending) {
+                    toggleTaskCompletion(firstPending.id);
+                    showToast('¡Giroscopio detectado! Sacudiste el móvil y marcaste una tarea.', 'success');
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

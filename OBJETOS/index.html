@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LostFinder - Reporte y Búsqueda de Objetos Perdidos</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts - Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#FAF5FF',
+              100: '#F3E8FF',
+              200: '#E9D5FF',
+              300: '#D8B4FE',
+              400: '#C084FC', // El color lavanda principal de tus pantallas
+              500: '#A855F7',
+              600: '#9333EA',
+              700: '#7E22CE',
+              800: '#6B21A8',
+              900: '#581C87',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos personalizados para emular las ondas orgánicas del fondo de tus capturas */
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f3f0f7;
+    }
+    
+    .wave-bg {
+      position: relative;
+      overflow: hidden;
+      background-color: #d8b4fe; /* Fondo base morado */
+    }
+
+    /* Ondas de fondo usando pseudo-elementos */
+    .wave-bg::before {
+      content: "";
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 43% 50% 40% 45%;
+      background: rgba(243, 232, 255, 0.4);
+      top: -120px;
+      left: -100px;
+      z-index: 0;
+      animation: drift 20s infinite linear;
+    }
+
+    .wave-bg::after {
+      content: "";
+      position: absolute;
+      width: 320px;
+      height: 320px;
+      border-radius: 40% 43% 45% 40%;
+      background: rgba(243, 232, 255, 0.35);
+      bottom: -100px;
+      right: -100px;
+      z-index: 0;
+      animation: drift 25s infinite linear;
+    }
+
+    @keyframes drift {
+      from { transform: rotate(0deg); }
+      from { transform: rotate(360deg); }
+    }
+
+    /* Ocultar barra de scroll pero mantener funcionalidad */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-0 sm:p-4">
+
+  <!-- CONTENEDOR MÓVIL (Simulador de Celular) -->
+  <div class="relative w-full max-w-[412px] h-[840px] bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col border-[8px] border-slate-950">
+    
+    <!-- Barra de Estado Simulada del Celular -->
+    <div class="bg-slate-950 text-white px-6 py-2 flex justify-between items-center text-xs z-30 shrink-0">
+      <span class="font-bold">12:30</span>
+      <!-- Cámara frontal notch simulada -->
+      <div class="w-16 h-4 bg-black rounded-full absolute left-1/2 -translate-x-1/2 top-1"></div>
+      <div class="flex items-center gap-1.5">
+        <i class="ph-bold ph-chart-bar"></i>
+        <i class="ph-bold ph-wifi-high"></i>
+        <i class="ph-bold ph-battery-charging-vertical"></i>
+      </div>
+    </div>
+
+    <!-- PANTALLAS (El contenido cambia dinámicamente) -->
+    <div id="app-content" class="flex-1 overflow-y-auto no-scrollbar relative flex flex-col">
+      
+      <!-- PANTALLA 0: ACCESO (Login/Registro) -->
+      <section id="screen-login" class="wave-bg flex-1 p-6 flex flex-col justify-between text-slate-800 z-10">
+        <div class="w-full flex justify-between items-start mt-4">
+          <!-- Icono de teléfono superior izquierda (como tu captura 1) -->
+          <div class="w-14 h-14 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 shadow-md">
+            <i class="ph-fill ph-phone text-2xl"></i>
+          </div>
+          <!-- Icono de lupa superior derecha (como tu captura 1) -->
+          <div class="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 shadow-md">
+            <i class="ph-bold ph-magnifying-glass text-3xl"></i>
+          </div>
+        </div>
+
+        <!-- Logotipo LostFinder -->
+        <div class="text-center my-4 z-10">
+          <div class="inline-block bg-brand-100 border-2 border-brand-300 px-6 py-3 rounded-md shadow-sm">
+            <h1 class="text-4xl font-black tracking-wide text-brand-900">LostFinder</h1>
+          </div>
+          <p class="text-brand-900 font-extrabold text-2xl mt-8">¡Welcome!</p>
+        </div>
+
+        <!-- Formulario de Acceso -->
+        <div class="space-y-4 z-10 w-full px-4">
+          <div class="relative">
+            <input type="text" id="login-username" placeholder="usuario" 
+              class="w-full bg-transparent border-b-2 border-brand-700 py-2 px-1 focus:outline-none focus:border-brand-900 placeholder-brand-800 font-semibold text-slate-800">
+          </div>
+          <div class="relative">
+            <input type="password" id="login-password" placeholder="contraseña" 
+              class="w-full bg-transparent border-b-2 border-brand-700 py-2 px-1 focus:outline-none focus:border-brand-900 placeholder-brand-800 font-semibold text-slate-800">
+          </div>
+          
+          <button onclick="handleLogin()" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-black py-3 rounded-full shadow-lg transition-transform active:scale-95 text-lg mt-4">
+            acceder
+          </button>
+          
+          <div class="text-center">
+            <a href="#" onclick="showNotification('Ingresa cualquier usuario y contraseña para probar de forma simulada.', 'info')" class="text-xs text-brand-900 underline font-semibold">Forgot Password</a>
+          </div>
+
+          <button onclick="toggleLoginRegister(true)" class="w-full bg-brand-200 hover:bg-brand-300 text-slate-900 font-black py-3 rounded-full shadow-lg transition-transform active:scale-95 text-lg">
+            Regístrate
+          </button>
+        </div>
+
+        <!-- Footer Informativo -->
+        <div class="text-center mt-6 z-10 flex flex-col items-center justify-end">
+          <p class="text-xs text-brand-900 font-bold tracking-wider">www.lostfinder.com</p>
+          <div class="w-14 h-14 mt-2 border-4 border-brand-700 rounded-full flex items-center justify-center text-brand-700">
+            <i class="ph-bold ph-user text-2xl"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- REGISTRO (Pantalla secundaria de Acceso) -->
+      <section id="screen-register" class="wave-bg flex-1 p-6 flex flex-col justify-between text-slate-800 hidden z-10">
+        <div class="mt-4">
+          <button onclick="toggleLoginRegister(false)" class="text-brand-900 flex items-center gap-1 font-bold">
+            <i class="ph-bold ph-arrow-left"></i> Volver a Acceso
+          </button>
+        </div>
+
+        <div class="text-center my-4 z-10">
+          <div class="inline-block bg-brand-100 border-2 border-brand-300 px-6 py-2 rounded-md shadow-sm">
+            <h1 class="text-3xl font-black tracking-wide text-brand-900">Registro</h1>
+          </div>
+          <p class="text-sm text-brand-900 font-semibold mt-2">Crea una cuenta para reportar tus objetos</p>
+        </div>
+
+        <!-- Formulario Registro -->
+        <div class="space-y-4 z-10 w-full px-4 my-auto">
+          <input type="text" id="reg-fullname" placeholder="Nombre completo" 
+            class="w-full bg-transparent border-b-2 border-brand-700 py-2 px-1 focus:outline-none focus:border-brand-900 placeholder-brand-800 font-semibold text-slate-800">
+          
+          <input type="email" id="reg-email" placeholder="Correo electrónico" 
+            class="w-full bg-transparent border-b-2 border-brand-700 py-2 px-1 focus:outline-none focus:border-brand-900 placeholder-brand-800 font-semibold text-slate-800">
+          
+          <input type="text" id="reg-username" placeholder="Nombre de usuario" 
+            class="w-full bg-transparent border-b-2 border-brand-700 py-2 px-1 focus:outline-none focus:border-brand-900 placeholder-brand-800 font-semibold text-slate-800">
+          
+          <input type="password" id="reg-password" placeholder="Contraseña" 
+            class="w-full bg-transparent border-b-2 border-brand-700 py-2 px-1 focus:outline-none focus:border-brand-900 placeholder-brand-800 font-semibold text-slate-800">
+          
+          <button onclick="handleRegisterSubmit()" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-black py-3 rounded-full shadow-lg transition-transform active:scale-95 text-lg mt-4">
+            Registrar cuenta
+          </button>
+        </div>
+
+        <div class="text-center py-4">
+          <p class="text-xs text-brand-900 font-bold">www.lostfinder.com</p>
+        </div>
+      </section>
+
+      <!-- PANTALLA 1: INICIO (Dashboard / Bienvenido) -->
+      <section id="screen-home" class="wave-bg flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Título Superior -->
+        <div class="text-center mt-4 mb-4">
+          <div class="inline-block bg-brand-100 px-8 py-2.5 rounded-sm shadow-sm border border-brand-200">
+            <h2 class="text-2xl font-black tracking-wider text-slate-900 uppercase">BIENVENIDO</h2>
+          </div>
+        </div>
+
+        <!-- Menú Principal de Botones Gigantes (Basado en captura 2) -->
+        <div class="flex-1 flex flex-col justify-center space-y-4 max-w-sm mx-auto w-full px-2">
+          
+          <!-- Buscar Objeto -->
+          <button onclick="navigateTo('screen-search')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-extrabold text-lg py-4 px-6 rounded-2xl shadow-md border-b-4 border-brand-300 flex items-center gap-4 transition-transform active:scale-98">
+            <span class="text-3xl">🔍</span>
+            <span>Buscar objeto</span>
+          </button>
+
+          <!-- Reportar Objeto -->
+          <button onclick="navigateTo('screen-report')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-extrabold text-lg py-4 px-6 rounded-2xl shadow-md border-b-4 border-brand-300 flex items-center gap-4 transition-transform active:scale-98">
+            <span class="text-3xl">📢</span>
+            <span>Reportar objeto</span>
+          </button>
+
+          <!-- Objetos Encontrados -->
+          <button onclick="navigateTo('screen-found')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-extrabold text-lg py-4 px-6 rounded-2xl shadow-md border-b-4 border-brand-300 flex items-center gap-4 transition-transform active:scale-98">
+            <span class="text-3xl">📦</span>
+            <span class="text-left leading-tight">Objetos<br>encontrados</span>
+          </button>
+
+          <!-- Mis Reportes -->
+          <button onclick="navigateTo('screen-my-reports')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-extrabold text-lg py-4 px-6 rounded-2xl shadow-md border-b-4 border-brand-300 flex items-center gap-4 transition-transform active:scale-98">
+            <span class="text-3xl">📝</span>
+            <span>Mis reportes</span>
+          </button>
+
+          <!-- Perfil -->
+          <button onclick="navigateTo('screen-profile')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-900 font-extrabold text-lg py-4 px-6 rounded-2xl shadow-md border-b-4 border-brand-300 flex items-center gap-4 transition-transform active:scale-98">
+            <span class="text-3xl">👤</span>
+            <span>Perfil</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- PANTALLA 2: EXPLORACIÓN / BUSCAR OBJETO (Basada en captura 3) -->
+      <section id="screen-search" class="wave-bg flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Título -->
+        <div class="text-center mt-2 mb-4">
+          <div class="inline-block bg-brand-100 px-8 py-2 rounded-sm border border-brand-200 shadow-sm">
+            <h2 class="text-2xl font-black text-slate-900">Buscar objeto</h2>
+          </div>
+        </div>
+
+        <!-- Barra de Búsqueda -->
+        <div class="relative w-full mb-6 shadow-md rounded-2xl overflow-hidden border-2 border-slate-900">
+          <div class="flex bg-white">
+            <input type="text" id="search-input" oninput="filterSearchObjects()" placeholder="Buscar..." 
+              class="w-full px-4 py-3 text-slate-800 placeholder-slate-400 font-bold text-lg focus:outline-none">
+            <button class="bg-white px-4 border-l border-slate-300 text-slate-600">
+              <i class="ph-bold ph-magnifying-glass text-2xl"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grid de Objetos para Búsqueda -->
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-10">
+          <div id="search-items-grid" class="grid grid-cols-2 gap-4">
+            <!-- Cargado Dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PANTALLA DETALLES DE OBJETO (Para ver información completa y contactar) -->
+      <section id="screen-object-details" class="bg-purple-50 flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Cabecera -->
+        <div class="flex items-center justify-between mb-4">
+          <button onclick="goBackToPreviousScreen()" class="text-slate-800 bg-white p-2 rounded-full shadow-md">
+            <i class="ph-bold ph-arrow-left text-lg"></i>
+          </button>
+          <span id="detail-tag-type" class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider">Perdido</span>
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-4 pb-6">
+          <!-- Foto del objeto -->
+          <div class="w-full h-48 rounded-2xl overflow-hidden shadow-lg border-2 border-brand-300 relative bg-purple-100">
+            <img id="detail-image" src="" alt="Objeto" class="w-full h-full object-cover">
+          </div>
+
+          <!-- Nombre del Objeto -->
+          <div>
+            <h3 id="detail-name" class="text-2xl font-black text-slate-900 leading-tight">Cargador portátil</h3>
+            <div class="flex items-center gap-1.5 text-brand-700 mt-1">
+              <i class="ph-bold ph-map-pin"></i>
+              <span id="detail-location" class="text-sm font-bold">Biblioteca</span>
+            </div>
+          </div>
+
+          <!-- Detalles rápidos -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100">
+              <p class="text-xs text-slate-400 font-bold uppercase">Fecha de suceso</p>
+              <p id="detail-date" class="text-sm font-black text-slate-800">15 de Mayo, 2026</p>
+            </div>
+            <div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100">
+              <p class="text-xs text-slate-400 font-bold uppercase">Estado</p>
+              <p id="detail-status" class="text-sm font-black text-green-600">No reclamado</p>
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100 space-y-1">
+            <p class="text-xs text-slate-400 font-bold uppercase">Descripción</p>
+            <p id="detail-description" class="text-sm font-bold text-slate-700 leading-relaxed">
+              Es color negro, marca Anker. Tiene un sticker de un sticker de gatito en la parte posterior. Lo dejé en las mesas del fondo.
+            </p>
+          </div>
+
+          <!-- Sensor Ubicación (Simulación GPS) -->
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-brand-100 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-slate-400 font-bold uppercase">Ubicación GPS Guardada</span>
+              <span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">GPS Activo</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center text-brand-600 shrink-0">
+                <i class="ph-bold ph-navigation-arrow text-xl"></i>
+              </div>
+              <div class="text-xs text-slate-600 font-bold">
+                <p id="detail-gps-coords" class="font-black text-slate-800">Lat: 4.1420, Lon: -73.6266</p>
+                <p>Villavicencio, Meta (Ubicación simulada de reporte)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario Contactar dueño / Encontrador -->
+          <div class="bg-white p-4 rounded-xl shadow-md border-2 border-brand-300 space-y-3">
+            <h4 class="font-black text-slate-800 text-sm flex items-center gap-1.5">
+              <i class="ph-bold ph-envelope"></i> Contactar al publicador
+            </h4>
+            <p class="text-xs text-slate-500 font-semibold">Envía un correo directamente para acordar la entrega segura del objeto.</p>
+            
+            <div class="space-y-2">
+              <input type="text" id="contact-sender-name" placeholder="Tu Nombre" class="w-full text-xs px-3 py-2 bg-slate-50 border rounded-lg focus:outline-none focus:border-brand-400 font-bold">
+              <textarea id="contact-message" rows="2" placeholder="Hola, creo que tengo tu objeto. Podemos vernos en..." class="w-full text-xs px-3 py-2 bg-slate-50 border rounded-lg focus:outline-none focus:border-brand-400 font-bold"></textarea>
+            </div>
+
+            <button onclick="sendContactEmail()" class="w-full bg-brand-400 hover:bg-brand-500 text-white font-black py-2 rounded-lg text-xs transition-transform active:scale-95 flex items-center justify-center gap-2">
+              <i class="ph-bold ph-paper-plane-tilt"></i> Enviar Correo de Contacto
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANTALLA 3: FORMULARIO (Reportar objeto - Basada en captura 4) -->
+      <section id="screen-report" class="wave-bg flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Título -->
+        <div class="text-center mt-2 mb-1">
+          <div class="inline-block bg-brand-100 px-8 py-2 rounded-sm border border-brand-200 shadow-sm">
+            <h2 class="text-2xl font-black text-slate-900">Reportar objeto</h2>
+          </div>
+        </div>
+        <p class="text-center text-xs font-bold text-slate-700 mb-4 leading-tight">Cuéntanos sobre el objeto que perdiste o encontraste</p>
+
+        <!-- Formulario -->
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-12">
+          
+          <!-- Tipo de reporte -->
+          <div class="flex gap-2 p-1 bg-brand-100 rounded-xl border border-brand-200">
+            <button type="button" id="type-lost" onclick="setReportType('perdido')" class="flex-1 py-2 rounded-lg font-black text-xs text-center transition-colors bg-brand-400 text-white">
+              Lo perdí 🔍
+            </button>
+            <button type="button" id="type-found" onclick="setReportType('encontrado')" class="flex-1 py-2 rounded-lg font-black text-xs text-center transition-colors hover:bg-brand-200 text-brand-800">
+              Lo encontré 📦
+            </button>
+          </div>
+
+          <!-- Input 1: Nombre del Objeto (como captura 4) -->
+          <div class="bg-brand-100 rounded-xl p-3 shadow-sm flex items-center gap-3 border border-brand-200">
+            <div class="text-xl text-brand-800"><i class="ph-bold ph-backpack"></i></div>
+            <div class="flex-1">
+              <p class="text-[10px] text-brand-800 font-extrabold uppercase leading-none">Nombre del objeto</p>
+              <input type="text" id="report-name" placeholder="Ej. Mochila negra" class="w-full bg-transparent text-sm font-semibold focus:outline-none text-slate-800 placeholder-brand-900 mt-1">
+            </div>
+          </div>
+
+          <!-- Input 2: Lugar donde se perdió / encontró (como captura 4) -->
+          <div class="bg-brand-100 rounded-xl p-3 shadow-sm flex items-center gap-3 border border-brand-200">
+            <div class="text-xl text-brand-800"><i class="ph-bold ph-map-pin"></i></div>
+            <div class="flex-1">
+              <p class="text-[10px] text-brand-800 font-extrabold uppercase leading-none">Lugar donde se perdió</p>
+              <input type="text" id="report-location" placeholder="Ej. Biblioteca" class="w-full bg-transparent text-sm font-semibold focus:outline-none text-slate-800 placeholder-brand-900 mt-1">
+            </div>
+          </div>
+
+          <!-- Input 3: Fecha (como captura 4) -->
+          <div class="bg-brand-100 rounded-xl p-3 shadow-sm flex items-center gap-3 border border-brand-200">
+            <div class="text-xl text-brand-800"><i class="ph-bold ph-calendar"></i></div>
+            <div class="flex-1">
+              <p class="text-[10px] text-brand-800 font-extrabold uppercase leading-none">Fecha</p>
+              <input type="date" id="report-date" class="w-full bg-transparent text-sm font-semibold focus:outline-none text-slate-800 placeholder-brand-900 mt-1">
+            </div>
+          </div>
+
+          <!-- Input 4: Descripción (como captura 4) -->
+          <div class="bg-brand-100 rounded-xl p-3 shadow-sm flex items-center gap-3 border border-brand-200">
+            <div class="text-xl text-brand-800"><i class="ph-bold ph-pencil-simple"></i></div>
+            <div class="flex-1">
+              <p class="text-[10px] text-brand-800 font-extrabold uppercase leading-none">Descripción</p>
+              <input type="text" id="report-description" placeholder="Describe cómo era el objeto" class="w-full bg-transparent text-sm font-semibold focus:outline-none text-slate-800 placeholder-brand-900 mt-1">
+            </div>
+          </div>
+
+          <!-- Input 5: Contacto (Email o celular) -->
+          <div class="bg-brand-100 rounded-xl p-3 shadow-sm flex items-center gap-3 border border-brand-200">
+            <div class="text-xl text-brand-800"><i class="ph-bold ph-envelope-simple"></i></div>
+            <div class="flex-1">
+              <p class="text-[10px] text-brand-800 font-extrabold uppercase leading-none">Contacto (Email / Teléfono)</p>
+              <input type="text" id="report-contact" placeholder="Ej. correo@ejemplo.com" class="w-full bg-transparent text-sm font-semibold focus:outline-none text-slate-800 placeholder-brand-900 mt-1">
+            </div>
+          </div>
+
+          <!-- Sensor GPS Integrado (Auto localización) -->
+          <div class="bg-purple-100 rounded-xl p-3 border border-brand-300 shadow-sm space-y-1.5">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] text-brand-800 font-extrabold uppercase flex items-center gap-1">
+                <i class="ph-bold ph-navigation-arrow"></i> Coordenadas GPS
+              </span>
+              <button type="button" onclick="requestGPSLocation()" class="text-[10px] bg-brand-400 text-white font-extrabold px-2 py-0.5 rounded-full hover:bg-brand-500 transition-colors">
+                Obtener GPS
+              </button>
+            </div>
+            <p id="gps-status-text" class="text-xs text-slate-600 font-bold">Ubicación aproximada del dispositivo: No registrada aún.</p>
+          </div>
+
+          <!-- Subir foto del objeto (como captura 4) -->
+          <div class="border-2 border-dashed border-brand-400 bg-brand-100 rounded-2xl p-6 text-center shadow-inner cursor-pointer hover:bg-brand-200 transition-colors relative" onclick="triggerFilePicker()">
+            <input type="file" id="report-image-file" accept="image/*" class="hidden" onchange="previewSelectedImage(event)">
+            
+            <div id="image-upload-placeholder" class="space-y-2">
+              <i class="ph-bold ph-upload-simple text-4xl text-brand-700 block mx-auto"></i>
+              <span class="font-extrabold text-slate-800 text-sm block">Subir foto del objeto</span>
+              <span class="text-[10px] text-slate-500 font-bold block">(Opcional - Haz clic para seleccionar de tu galería)</span>
+            </div>
+
+            <div id="image-upload-preview-container" class="hidden absolute inset-0 w-full h-full bg-white rounded-2xl overflow-hidden p-1">
+              <img id="image-upload-preview" src="" alt="Vista previa" class="w-full h-full object-cover rounded-xl">
+              <button type="button" onclick="removeSelectedImage(event)" class="absolute top-2 right-2 bg-slate-900 text-white p-1.5 rounded-full text-xs hover:bg-slate-800">
+                <i class="ph-bold ph-x"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Botón Publicar reporte -->
+          <button onclick="submitNewReport()" class="w-full bg-brand-400 hover:bg-brand-500 text-slate-900 font-black py-4 rounded-full shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2 text-lg">
+            <i class="ph-fill ph-paper-plane-tilt"></i> Publicar reporte
+          </button>
+        </div>
+      </section>
+
+      <!-- PANTALLA 4: DETALLES / OBJETOS ENCONTRADOS (Dashboard general y Estadísticas) -->
+      <section id="screen-found" class="wave-bg flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Título -->
+        <div class="text-center mt-2 mb-4">
+          <div class="inline-block bg-brand-100 px-8 py-2 rounded-sm border border-brand-200 shadow-sm">
+            <h2 class="text-2xl font-black text-slate-900">Objetos encontrados</h2>
+          </div>
+        </div>
+
+        <!-- Estadísticas Rápidas (Requerimiento de Pantalla 4) -->
+        <div class="grid grid-cols-3 gap-2 mb-5">
+          <div class="bg-white p-2 rounded-xl shadow-sm text-center border border-purple-100">
+            <span class="text-xl">📊</span>
+            <p class="text-[9px] font-extrabold text-slate-400 uppercase leading-none mt-1">Reportados</p>
+            <p id="stats-total" class="text-base font-black text-slate-800 mt-0.5">0</p>
+          </div>
+          <div class="bg-white p-2 rounded-xl shadow-sm text-center border border-purple-100">
+            <span class="text-xl">✅</span>
+            <p class="text-[9px] font-extrabold text-slate-400 uppercase leading-none mt-1">Encontrados</p>
+            <p id="stats-found" class="text-base font-black text-green-600 mt-0.5">0</p>
+          </div>
+          <div class="bg-white p-2 rounded-xl shadow-sm text-center border border-purple-100">
+            <span class="text-xl">🔍</span>
+            <p class="text-[9px] font-extrabold text-slate-400 uppercase leading-none mt-1">Perdidos</p>
+            <p id="stats-lost" class="text-base font-black text-red-600 mt-0.5">0</p>
+          </div>
+        </div>
+
+        <!-- Subtítulo de publicaciones recientes -->
+        <p class="text-xs font-black text-slate-700 mb-3 flex items-center gap-1">
+          <i class="ph-bold ph-clock"></i> Reportes Recientes
+        </p>
+
+        <!-- Lista de Objetos Encontrados/Perdidos Recientes (Como la captura 5) -->
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-10">
+          <div id="found-items-list" class="grid grid-cols-2 gap-4">
+            <!-- Cargado Dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PANTALLA: MIS REPORTES (Listado personalizado del usuario) -->
+      <section id="screen-my-reports" class="wave-bg flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Título -->
+        <div class="text-center mt-2 mb-4">
+          <div class="inline-block bg-brand-100 px-8 py-2 rounded-sm border border-brand-200 shadow-sm">
+            <h2 class="text-2xl font-black text-slate-900">Mis reportes</h2>
+          </div>
+        </div>
+        <p class="text-xs font-bold text-slate-700 mb-4 text-center">Aquí puedes gestionar las publicaciones que has realizado en la comunidad.</p>
+
+        <!-- Listado de Mis Reportes -->
+        <div class="flex-1 overflow-y-auto no-scrollbar pb-10">
+          <div id="my-reports-container" class="space-y-3">
+            <!-- Cargado dinámicamente -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PANTALLA 5: PERFIL / AJUSTES (Basada en captura 6) -->
+      <section id="screen-profile" class="wave-bg flex-1 p-5 flex flex-col hidden z-10">
+        <!-- Título -->
+        <div class="text-center mt-2 mb-4">
+          <div class="inline-block bg-brand-100 px-8 py-2 rounded-sm border border-brand-200 shadow-sm">
+            <h2 class="text-2xl font-black text-slate-900">Mi perfil</h2>
+          </div>
+        </div>
+
+        <!-- Avatar & Datos (Como en tu captura 6) -->
+        <div class="flex flex-col items-center mb-6 mt-2">
+          <div class="w-24 h-24 bg-brand-700 rounded-full flex items-center justify-center text-white border-4 border-brand-100 shadow-lg relative">
+            <i class="ph-bold ph-user text-5xl"></i>
+            <!-- Indicador simulado online -->
+            <span class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></span>
+          </div>
+          <h3 id="profile-name" class="text-xl font-black text-slate-900 mt-3">Leidy Pérez</h3>
+          <p id="profile-email" class="text-sm font-semibold text-slate-800">Leidy.Perez@gmail.com</p>
+        </div>
+
+        <!-- Opciones de Configuración (Estilo lista captura 6) -->
+        <div class="space-y-3 max-w-sm mx-auto w-full px-2 pb-12">
+          
+          <!-- Mis reportes -->
+          <button onclick="navigateTo('screen-my-reports')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-850 py-3 px-4 rounded-2xl shadow-sm border border-brand-200 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <i class="ph-bold ph-article text-xl text-slate-800"></i>
+              <div>
+                <p class="font-extrabold text-sm text-slate-950">Mis reportes</p>
+                <p class="text-[10px] text-slate-700 font-semibold leading-tight">Revisa los objetos que has reportado</p>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-slate-400"></i>
+          </button>
+
+          <!-- Configuración -->
+          <button onclick="showNotification('Ajustes del sistema simulados en almacenamiento local', 'info')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-850 py-3 px-4 rounded-2xl shadow-sm border border-brand-200 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <i class="ph-bold ph-gear text-xl text-slate-800"></i>
+              <div>
+                <p class="font-extrabold text-sm text-slate-950">Configuración</p>
+                <p class="text-[10px] text-slate-700 font-semibold leading-tight">Administra tu cuenta y preferencias</p>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-slate-400"></i>
+          </button>
+
+          <!-- Objetos Publicados -->
+          <button onclick="navigateTo('screen-search')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-850 py-3 px-4 rounded-2xl shadow-sm border border-brand-200 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <i class="ph-bold ph-package text-xl text-slate-800"></i>
+              <div>
+                <p class="font-extrabold text-sm text-slate-950">Objetos publicados</p>
+                <p class="text-[10px] text-slate-700 font-semibold leading-tight">Mira los objetos que has publicado</p>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-slate-400"></i>
+          </button>
+
+          <!-- Notificaciones -->
+          <button onclick="showNotification('Configuración de alertas enviadas a tu correo', 'info')" class="w-full bg-brand-100 hover:bg-brand-200 text-slate-850 py-3 px-4 rounded-2xl shadow-sm border border-brand-200 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <i class="ph-bold ph-bell text-xl text-slate-800"></i>
+              <div>
+                <p class="font-extrabold text-sm text-slate-950">Notificaciones</p>
+                <p class="text-[10px] text-slate-700 font-semibold leading-tight">Configura tus notificaciones</p>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-slate-400"></i>
+          </button>
+
+          <!-- Cerrar sesión -->
+          <button onclick="logout()" class="w-full bg-red-100 hover:bg-red-200 text-red-700 py-3 px-4 rounded-2xl shadow-sm border border-red-200 flex items-center justify-between text-left transition-colors">
+            <div class="flex items-center gap-3">
+              <i class="ph-bold ph-sign-out text-xl text-red-600"></i>
+              <div>
+                <p class="font-extrabold text-sm text-red-950">Cerrar sesión</p>
+                <p class="text-[10px] text-red-700 font-semibold leading-tight">Salir de tu cuenta</p>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-red-400"></i>
+          </button>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- MENSAJES DE NOTIFICACIÓN FLOTANTES -->
+    <div id="toast-container" class="absolute top-14 left-4 right-4 z-50 pointer-events-none space-y-2"></div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE ENVÍO DE EMAIL (Simulación) -->
+    <div id="modal-email-sent" class="absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-6 hidden">
+      <div class="bg-white rounded-3xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto">
+          <i class="ph-bold ph-check text-3xl"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-slate-900">¡Mensaje Enviado!</h3>
+          <p class="text-sm text-slate-600 mt-1 font-semibold leading-relaxed">
+            Se ha enviado una notificación por correo electrónico de manera exitosa. El dueño del objeto recibirá tus datos para ponerse en contacto.
+          </p>
+        </div>
+        <button onclick="closeEmailModal()" class="w-full bg-brand-400 hover:bg-brand-500 text-white font-black py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm">
+          Aceptar
+        </button>
+      </div>
+    </div>
+
+    <!-- BARRA DE NAVEGACIÓN INFERIOR (Bottom Navigation) -->
+    <nav id="bottom-nav" class="bg-brand-100 border-t border-brand-200 px-4 py-2 flex justify-around items-center z-30 shrink-0 shadow-lg hidden">
+      <!-- Inicio -->
+      <button onclick="navigateTo('screen-home')" class="nav-btn flex flex-col items-center text-slate-500 active:scale-95" data-screen="screen-home">
+        <i class="ph-bold ph-house text-2xl"></i>
+        <span class="text-[10px] font-extrabold mt-0.5">Inicio</span>
+      </button>
+      
+      <!-- Buscar -->
+      <button onclick="navigateTo('screen-search')" class="nav-btn flex flex-col items-center text-slate-500 active:scale-95" data-screen="screen-search">
+        <i class="ph-bold ph-magnifying-glass text-2xl"></i>
+        <span class="text-[10px] font-extrabold mt-0.5">Buscar</span>
+      </button>
+
+      <!-- Reportar (Botón del medio resaltado) -->
+      <button onclick="navigateTo('screen-report')" class="nav-btn flex flex-col items-center text-slate-500 active:scale-95" data-screen="screen-report">
+        <div class="w-12 h-12 bg-brand-400 hover:bg-brand-500 rounded-full flex items-center justify-center text-white shadow-md -translate-y-4 absolute border-4 border-white transition-all">
+          <i class="ph-bold ph-plus text-2xl"></i>
+        </div>
+        <span class="text-[10px] font-extrabold mt-6">Reportar</span>
+      </button>
+
+      <!-- Encontrar (Listado/Estadísticas) -->
+      <button onclick="navigateTo('screen-found')" class="nav-btn flex flex-col items-center text-slate-500 active:scale-95" data-screen="screen-found">
+        <i class="ph-bold ph-package text-2xl"></i>
+        <span class="text-[10px] font-extrabold mt-0.5">Encontrar</span>
+      </button>
+
+      <!-- Perfil -->
+      <button onclick="navigateTo('screen-profile')" class="nav-btn flex flex-col items-center text-slate-500 active:scale-95" data-screen="screen-profile">
+        <i class="ph-bold ph-user text-2xl"></i>
+        <span class="text-[10px] font-extrabold mt-0.5">Perfil</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    // --- ESTADO GLOBAL Y DATOS POR DEFECTO ---
+    let currentUser = null;
+    let reportType = 'perdido'; // 'perdido' o 'encontrado'
+    let currentGPSTrack = null;
+    let selectedImageBase64 = null;
+    let navigationHistory = [];
+    let currentActiveScreenId = 'screen-login';
+
+    // Base de datos de ejemplo (guardada en localStorage)
+    const DEFAULT_OBJECTS = [
+      {
+        id: "1",
+        name: "Celular iPhone 13",
+        location: "Biblioteca",
+        date: "2026-05-18",
+        description: "Celular con funda de color celeste y fondo de pantalla animado. Tiene un pequeño rasguño en la esquina superior.",
+        type: "perdido",
+        contact: "juan.perez@email.com",
+        gps: "Lat: 4.1420, Lon: -73.6266",
+        image: "https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?auto=format&fit=crop&w=300&q=80",
+        reporter: "Juan Pérez",
+        status: "No reclamado"
+      },
+      {
+        id: "2",
+        name: "Mochila Deportiva",
+        location: "Comedor Central",
+        date: "2026-05-19",
+        description: "Mochila marca Adidas negra con detalles grises. Adentro tiene cuadernos de cálculo y una cartuchera azul.",
+        type: "perdido",
+        contact: "leidy.perez@gmail.com",
+        gps: "Lat: 4.1432, Lon: -73.6251",
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=300&q=80",
+        reporter: "Leidy Pérez",
+        status: "No reclamado"
+      },
+      {
+        id: "3",
+        name: "Llavero con Llaves",
+        location: "Cancha Deportiva",
+        date: "2026-05-17",
+        description: "Manojo de llaves con un llavero de goma de Stitch y una alarma de portón eléctrica.",
+        type: "encontrado",
+        contact: "mario.lopez@email.com",
+        gps: "Lat: 4.1401, Lon: -73.6299",
+        image: "https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=300&q=80",
+        reporter: "Mario López",
+        status: "En custodia"
+      },
+      {
+        id: "4",
+        name: "Audífonos Inalámbricos",
+        location: "Salón 1102",
+        date: "2026-05-15",
+        description: "Audífonos de diadema inalámbricos de color beige con almohadillas negras. Estaban en la mesa del profesor.",
+        type: "perdido",
+        contact: "estudiante.anonimo@email.com",
+        gps: "Lat: 4.1455, Lon: -73.6221",
+        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80",
+        reporter: "Carlos Ruiz",
+        status: "No reclamado"
+      },
+      {
+        id: "5",
+        name: "Reloj Inteligente",
+        location: "Comedor Central",
+        date: "2026-05-16",
+        description: "Smartwatch con correa de silicona negra y pantalla cuadrada azul. Estaba en una de las bancas de afuera.",
+        type: "encontrado",
+        contact: "personal.comedor@email.com",
+        gps: "Lat: 4.1431, Lon: -73.6253",
+        image: "https://images.unsplash.com/photo-1517502884422-41eaaced0168?auto=format&fit=crop&w=300&q=80",
+        reporter: "María José",
+        status: "Entregado a administración"
+      },
+      {
+        id: "6",
+        name: "Gafas Formuladas",
+        location: "Laboratorio de Química",
+        date: "2026-05-14",
+        description: "Gafas de marco negro fino y cristales antirreflejo. Estaban dentro de un estuche morado de terciopelo.",
+        type: "perdido",
+        contact: "sofia.castro@email.com",
+        gps: "Lat: 4.1470, Lon: -73.6210",
+        image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=300&q=80",
+        reporter: "Sofía Castro",
+        status: "No reclamado"
+      }
+    ];
+
+    // --- CARGANDO Y CONFIGURANDO AL INICIAR ---
+    window.onload = function() {
+      // Cargar bases de datos desde localStorage o inicializar por defecto
+      if (!localStorage.getItem('lostfinder_objects')) {
+        localStorage.setItem('lostfinder_objects', JSON.stringify(DEFAULT_OBJECTS));
+      }
+      
+      // Auto-rellenar formulario de login para agilidad si lo desea
+      document.getElementById('login-username').value = "Leidy Pérez";
+      document.getElementById('login-password').value = "12345";
+
+      // Intentar auto-login si ya hay sesión previa activa
+      const storedUser = localStorage.getItem('lostfinder_session');
+      if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        setupSession();
+      } else {
+        // Pantalla inicial Login
+        navigateTo('screen-login', false);
+      }
+    };
+
+    // --- SISTEMA DE NAVEGACIÓN ---
+    function navigateTo(screenId, saveToHistory = true) {
+      // Ocultar todas las pantallas principales
+      const screens = [
+        'screen-login', 'screen-register', 'screen-home', 
+        'screen-search', 'screen-report', 'screen-found', 
+        'screen-my-reports', 'screen-profile', 'screen-object-details'
+      ];
+      
+      screens.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.classList.add('hidden');
+      });
+
+      // Mostrar pantalla seleccionada
+      const targetScreen = document.getElementById(screenId);
+      if (targetScreen) {
+        targetScreen.classList.remove('hidden');
+        
+        // Historial para botón de retroceso
+        if (saveToHistory && currentActiveScreenId !== screenId) {
+          navigationHistory.push(currentActiveScreenId);
+        }
+        currentActiveScreenId = screenId;
+      }
+
+      // Mostrar/ocultar barra de navegación inferior según la pantalla
+      const bottomNav = document.getElementById('bottom-nav');
+      if (screenId === 'screen-login' || screenId === 'screen-register') {
+        bottomNav.classList.add('hidden');
+      } else {
+        bottomNav.classList.remove('hidden');
+      }
+
+      // Actualizar estados visuales de la barra inferior
+      updateBottomNavBarState(screenId);
+
+      // Cargos dinámicos específicos por pantalla al entrar
+      if (screenId === 'screen-search') {
+        renderSearchObjects();
+      } else if (screenId === 'screen-found') {
+        renderFoundObjects();
+        updateStatistics();
+      } else if (screenId === 'screen-my-reports') {
+        renderMyReports();
+      } else if (screenId === 'screen-profile') {
+        renderProfileInfo();
+      }
+    }
+
+    function goBackToPreviousScreen() {
+      if (navigationHistory.length > 0) {
+        const prev = navigationHistory.pop();
+        navigateTo(prev, false);
+      } else {
+        navigateTo('screen-home', false);
+      }
+    }
+
+    function updateBottomNavBarState(screenId) {
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => {
+        const target = btn.getAttribute('data-screen');
+        if (target === screenId) {
+          btn.classList.add('text-brand-700');
+          btn.classList.remove('text-slate-500');
+        } else {
+          btn.classList.remove('text-brand-700');
+          btn.classList.add('text-slate-500');
+        }
+      });
+    }
+
+    function toggleLoginRegister(showRegister) {
+      if (showRegister) {
+        navigateTo('screen-register');
+      } else {
+        navigateTo('screen-login');
+      }
+    }
+
+    // --- FUNCIONALIDAD AUTENTICACIÓN ---
+    function handleLogin() {
+      const usernameInput = document.getElementById('login-username').value.trim();
+      const passwordInput = document.getElementById('login-password').value.trim();
+
+      if (!usernameInput || !passwordInput) {
+        showNotification('Por favor completa los campos de acceso.', 'warning');
+        return;
+      }
+
+      // Iniciamos sesión con el usuario provisto o creamos uno de prueba
+      currentUser = {
+        name: usernameInput,
+        email: usernameInput.toLowerCase().replace(/\s+/g, '') + '@gmail.com',
+        username: usernameInput.toLowerCase().replace(/\s+/g, '')
+      };
+
+      // Si es el usuario por defecto de tus capturas
+      if (usernameInput.toLowerCase() === 'leidy pérez' || usernameInput.toLowerCase() === 'leidy perez') {
+        currentUser.name = "Leidy Pérez";
+        currentUser.email = "Leidy.Pérez@gmail.com";
+      }
+
+      localStorage.setItem('lostfinder_session', JSON.stringify(currentUser));
+      setupSession();
+      showNotification(`¡Bienvenido de nuevo, ${currentUser.name}!`, 'success');
+    }
+
+    function handleRegisterSubmit() {
+      const fullName = document.getElementById('reg-fullname').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+
+      if (!fullName || !email || !username || !password) {
+        showNotification('Por favor llena todos los campos de registro.', 'warning');
+        return;
+      }
+
+      currentUser = {
+        name: fullName,
+        email: email,
+        username: username
+      };
+
+      localStorage.setItem('lostfinder_session', JSON.stringify(currentUser));
+      setupSession();
+      showNotification('Cuenta creada y acceso exitoso.', 'success');
+    }
+
+    function setupSession() {
+      // Resetear historial
+      navigationHistory = [];
+      navigateTo('screen-home', false);
+    }
+
+    function logout() {
+      localStorage.removeItem('lostfinder_session');
+      currentUser = null;
+      document.getElementById('login-username').value = "";
+      document.getElementById('login-password').value = "";
+      navigateTo('screen-login', false);
+      showNotification('Sesión cerrada correctamente.', 'info');
+    }
+
+    function renderProfileInfo() {
+      if (currentUser) {
+        document.getElementById('profile-name').textContent = currentUser.name;
+        document.getElementById('profile-email').textContent = currentUser.email;
+      }
+    }
+
+
+    // --- RENDERS DE PUBLICACIONES (PANTALLAS 2 Y 4) ---
+    function getObjectsFromStorage() {
+      return JSON.parse(localStorage.getItem('lostfinder_objects')) || [];
+    }
+
+    // Render para Pantalla de Exploración / Buscar (Pantalla 2)
+    function renderSearchObjects() {
+      const objects = getObjectsFromStorage();
+      const grid = document.getElementById('search-items-grid');
+      grid.innerHTML = "";
+
+      if (objects.length === 0) {
+        grid.innerHTML = `<p class="col-span-2 text-center py-8 font-bold text-slate-500">No hay reportes de objetos.</p>`;
+        return;
+      }
+
+      objects.forEach(obj => {
+        // Creamos cada tarjeta con el estilo de la Captura 3
+        const card = document.createElement('div');
+        card.onclick = () => showObjectDetails(obj.id);
+        card.className = "bg-white p-3 rounded-2xl shadow-md border border-purple-100 flex flex-col items-center justify-between text-center cursor-pointer hover:shadow-lg transition-all transform active:scale-95";
+        
+        // Tag tipo (perdido/encontrado)
+        const typeBadge = obj.type === 'perdido' 
+          ? `<span class="absolute top-2 left-2 text-[8px] bg-red-100 text-red-600 font-extrabold px-2 py-0.5 rounded-full uppercase">Perdido</span>` 
+          : `<span class="absolute top-2 left-2 text-[8px] bg-green-100 text-green-600 font-extrabold px-2 py-0.5 rounded-full uppercase">Encontrado</span>`;
+
+        card.innerHTML = `
+          <div class="relative w-full h-28 rounded-xl overflow-hidden bg-purple-50 mb-2 flex items-center justify-center">
+            ${typeBadge}
+            <img src="${obj.image}" alt="${obj.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1594732832278-abd644401426?auto=format&fit=crop&w=200&q=80'">
+          </div>
+          <p class="font-extrabold text-xs text-slate-800 line-clamp-1 w-full">${obj.name}</p>
+          <div class="mt-1 bg-brand-100 px-3 py-1 rounded-full inline-flex items-center gap-1">
+            <span class="text-brand-600 text-xs">📍</span>
+            <span class="text-[9px] text-brand-800 font-black">${obj.location}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Filtro de búsqueda dinámica
+    function filterSearchObjects() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const objects = getObjectsFromStorage();
+      const filtered = objects.filter(obj => 
+        obj.name.toLowerCase().includes(query) || 
+        obj.location.toLowerCase().includes(query) || 
+        obj.description.toLowerCase().includes(query)
+      );
+
+      const grid = document.getElementById('search-items-grid');
+      grid.innerHTML = "";
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<p class="col-span-2 text-center py-8 font-bold text-slate-500">No se encontraron resultados.</p>`;
+        return;
+      }
+
+      filtered.forEach(obj => {
+        const card = document.createElement('div');
+        card.onclick = () => showObjectDetails(obj.id);
+        card.className = "bg-white p-3 rounded-2xl shadow-md border border-purple-100 flex flex-col items-center justify-between text-center cursor-pointer hover:shadow-lg transition-all transform active:scale-95";
+        
+        const typeBadge = obj.type === 'perdido' 
+          ? `<span class="absolute top-2 left-2 text-[8px] bg-red-100 text-red-600 font-extrabold px-2 py-0.5 rounded-full uppercase">Perdido</span>` 
+          : `<span class="absolute top-2 left-2 text-[8px] bg-green-100 text-green-600 font-extrabold px-2 py-0.5 rounded-full uppercase">Encontrado</span>`;
+
+        card.innerHTML = `
+          <div class="relative w-full h-28 rounded-xl overflow-hidden bg-purple-50 mb-2 flex items-center justify-center">
+            ${typeBadge}
+            <img src="${obj.image}" alt="${obj.name}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1594732832278-abd644401426?auto=format&fit=crop&w=200&q=80'">
+          </div>
+          <p class="font-extrabold text-xs text-slate-800 line-clamp-1 w-full">${obj.name}</p>
+          <div class="mt-1 bg-brand-100 px-3 py-1 rounded-full inline-flex items-center gap-1">
+            <span class="text-brand-600 text-xs">📍</span>
+            <span class="text-[9px] text-brand-800 font-black">${obj.location}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Render para Pantalla de Recientes / Encontrados (Pantalla 4 y Captura 5)
+    function renderFoundObjects() {
+      const objects = getObjectsFromStorage();
+      const listContainer = document.getElementById('found-items-list');
+      listContainer.innerHTML = "";
+
+      if (objects.length === 0) {
+        listContainer.innerHTML = `<p class="col-span-2 text-center py-8 font-bold text-slate-500">Sin reportes registrados.</p>`;
+        return;
+      }
+
+      // Orden descendente (más recientes primero)
+      const sorted = [...objects].reverse();
+
+      sorted.forEach(obj => {
+        // Estructura idéntica a la Captura 5 con "ver información" de fondo blanco redondeado
+        const card = document.createElement('div');
+        card.className = "flex flex-col items-center text-center space-y-1.5";
+        
+        card.innerHTML = `
+          <div onclick="showObjectDetails('${obj.id}')" class="w-full aspect-square bg-white rounded-3xl p-4 shadow-md flex items-center justify-center border border-purple-100 relative cursor-pointer hover:shadow-lg transition-transform active:scale-95">
+            <img src="${obj.image}" alt="${obj.name}" class="w-full h-full object-cover rounded-2xl" onerror="this.src='https://images.unsplash.com/photo-1594732832278-abd644401426?auto=format&fit=crop&w=200&q=80'">
+            
+            <!-- Ubicación flotante con PIN (como tu captura 5) -->
+            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 bg-white/95 px-3 py-1 rounded-full shadow-sm border border-brand-100 flex items-center gap-1 whitespace-nowrap">
+              <span class="text-red-500 text-xs">📍</span>
+              <span class="text-[9px] text-slate-800 font-extrabold">${obj.location}</span>
+            </div>
+          </div>
+          
+          <button onclick="showObjectDetails('${obj.id}')" class="bg-white hover:bg-brand-50 text-slate-800 text-[10px] font-extrabold px-4 py-1.5 rounded-full shadow-sm border border-brand-200 transition-colors">
+            ver información
+          </button>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    // Render para "Mis Reportes" (Gestión del usuario activo)
+    function renderMyReports() {
+      const objects = getObjectsFromStorage();
+      const container = document.getElementById('my-reports-container');
+      container.innerHTML = "";
+
+      // Filtramos reportes del autor activo (o simulamos con Leidy Pérez si es el por defecto)
+      const currentAuthor = currentUser ? currentUser.name : "Leidy Pérez";
+      const myObjects = objects.filter(obj => obj.reporter === currentAuthor);
+
+      if (myObjects.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-6 rounded-2xl text-center border shadow-sm">
+            <p class="font-bold text-slate-500 text-sm">No has publicado ningún objeto todavía.</p>
+            <button onclick="navigateTo('screen-report')" class="mt-4 bg-brand-400 hover:bg-brand-500 text-white font-extrabold text-xs px-4 py-2 rounded-xl">
+              Reportar uno ahora
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      myObjects.forEach(obj => {
+        const item = document.createElement('div');
+        item.className = "bg-white p-3 rounded-2xl shadow-md border border-purple-100 flex items-center justify-between gap-3";
+        
+        const badgeColor = obj.type === 'perdido' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600';
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-purple-50">
+              <img src="${obj.image}" alt="${obj.name}" class="w-full h-full object-cover">
+            </div>
+            <div>
+              <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${badgeColor}">${obj.type}</span>
+              <h4 class="font-black text-slate-800 text-sm mt-1 leading-tight">${obj.name}</h4>
+              <p class="text-xs text-slate-500 font-bold flex items-center gap-0.5 mt-0.5">
+                <span>📍</span> ${obj.location}
+              </p>
+            </div>
+          </div>
+          
+          <div class="flex flex-col gap-1">
+            <button onclick="showObjectDetails('${obj.id}')" class="text-[10px] bg-brand-100 hover:bg-brand-200 text-slate-700 font-bold py-1 px-3 rounded-lg text-center">
+              Ver
+            </button>
+            <button onclick="deleteReport('${obj.id}')" class="text-[10px] bg-red-50 hover:bg-red-100 text-red-600 font-bold py-1 px-3 rounded-lg text-center">
+              Borrar
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // --- ACTUALIZAR ESTADÍSTICAS (Pantalla 4) ---
+    function updateStatistics() {
+      const objects = getObjectsFromStorage();
+      const total = objects.length;
+      const lost = objects.filter(o => o.type === 'perdido').length;
+      const found = objects.filter(o => o.type === 'encontrado').length;
+
+      document.getElementById('stats-total').textContent = total;
+      document.getElementById('stats-found').textContent = found;
+      document.getElementById('stats-lost').textContent = lost;
+    }
+
+
+    // --- MOSTRAR DETALLES DE UN OBJETO ESPECÍFICO (Pantalla 2 Detallada) ---
+    function showObjectDetails(id) {
+      const objects = getObjectsFromStorage();
+      const obj = objects.find(o => o.id === id);
+
+      if (!obj) {
+        showNotification("Objeto no encontrado.", "error");
+        return;
+      }
+
+      // Rellenar datos
+      document.getElementById('detail-image').src = obj.image;
+      document.getElementById('detail-name').textContent = obj.name;
+      document.getElementById('detail-location').textContent = obj.location;
+      document.getElementById('detail-date').textContent = formatDateStr(obj.date);
+      document.getElementById('detail-description').textContent = obj.description || "Sin descripción adicional.";
+      document.getElementById('detail-gps-coords').textContent = obj.gps || "Lat: 4.1420, Lon: -73.6266";
+      
+      const statusText = document.getElementById('detail-status');
+      statusText.textContent = obj.status || "No reclamado";
+      if (obj.type === 'encontrado') {
+        statusText.className = "text-sm font-black text-brand-600";
+      } else {
+        statusText.className = "text-sm font-black text-red-600";
+      }
+
+      // Tag arriba a la derecha
+      const typeTag = document.getElementById('detail-tag-type');
+      typeTag.textContent = obj.type;
+      if (obj.type === 'perdido') {
+        typeTag.className = "px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-red-100 text-red-600";
+      } else {
+        typeTag.className = "px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-green-100 text-green-600";
+      }
+
+      // Guardar el email del publicador original para la simulación
+      document.getElementById('contact-message').value = `Hola, te contacto a través de LostFinder en relación al objeto: "${obj.name}". ¿Podemos ponernos de acuerdo?`;
+      document.getElementById('contact-sender-name').value = currentUser ? currentUser.name : "";
+
+      // Guardar email destino en atributo del botón de envío
+      const sendBtn = document.querySelector('[onclick="sendContactEmail()"]');
+      sendBtn.setAttribute('data-target-email', obj.contact || 'lostfinder@soporte.com');
+      sendBtn.setAttribute('data-object-name', obj.name);
+
+      navigateTo('screen-object-details');
+    }
+
+
+    // --- OPERACIONES DEL FORMULARIO DE REPORTES (PANTALLA 3) ---
+    function setReportType(type) {
+      reportType = type;
+      const btnLost = document.getElementById('type-lost');
+      const btnFound = document.getElementById('type-found');
+
+      if (type === 'perdido') {
+        btnLost.className = "flex-1 py-2 rounded-lg font-black text-xs text-center transition-colors bg-brand-400 text-white shadow-sm";
+        btnFound.className = "flex-1 py-2 rounded-lg font-black text-xs text-center transition-colors hover:bg-brand-200 text-brand-800";
+      } else {
+        btnFound.className = "flex-1 py-2 rounded-lg font-black text-xs text-center transition-colors bg-brand-400 text-white shadow-sm";
+        btnLost.className = "flex-1 py-2 rounded-lg font-black text-xs text-center transition-colors hover:bg-brand-200 text-brand-800";
+      }
+    }
+
+    // Activación y simulación de Sensor GPS
+    function requestGPSLocation() {
+      const statusText = document.getElementById('gps-status-text');
+      statusText.innerHTML = `<span class="text-brand-700 animate-pulse">Obteniendo ubicación satelital...</span>`;
+
+      // Simular retraso de sensor GPS
+      setTimeout(() => {
+        // Coordenadas reales aproximadas de Villavicencio
+        const lat = (4.135 + Math.random() * 0.02).toFixed(5);
+        const lon = (-73.626 - Math.random() * 0.02).toFixed(5);
+        currentGPSTrack = `Lat: ${lat}, Lon: ${lon}`;
+        statusText.innerHTML = `📍 Coordenadas: <span class="font-extrabold text-brand-900">${currentGPSTrack}</span> <span class="text-[10px] text-green-600 font-extrabold">(Ubicación GPS fijada)</span>`;
+        showNotification('GPS obtenido de forma exitosa.', 'success');
+      }, 1200);
+    }
+
+    // Selección de Foto simulada y real
+    function triggerFilePicker() {
+      document.getElementById('report-image-file').click();
+    }
+
+    function previewSelectedImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        selectedImageBase64 = e.target.result;
+        
+        // Mostrar preview
+        document.getElementById('image-upload-preview').src = selectedImageBase64;
+        document.getElementById('image-upload-preview-container').classList.remove('hidden');
+        document.getElementById('image-upload-placeholder').classList.add('opacity-10');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeSelectedImage(event) {
+      event.stopPropagation(); // Evitar volver a gatillar el input
+      selectedImageBase64 = null;
+      document.getElementById('report-image-file').value = "";
+      document.getElementById('image-upload-preview-container').classList.add('hidden');
+      document.getElementById('image-upload-placeholder').classList.remove('opacity-10');
+    }
+
+    // Publicación del reporte final
+    function submitNewReport() {
+      const name = document.getElementById('report-name').value.trim();
+      const location = document.getElementById('report-location').value.trim();
+      const date = document.getElementById('report-date').value;
+      const description = document.getElementById('report-description').value.trim();
+      const contact = document.getElementById('report-contact').value.trim();
+
+      // Validación
+      if (!name || !location || !date || !description || !contact) {
+        showNotification('Por favor, ingresa los 5 campos mínimos de información.', 'warning');
+        return;
+      }
+
+      // Si no usó GPS real, asignamos una por defecto de simulación
+      const finalGPS = currentGPSTrack || "Lat: 4.1420, Lon: -73.6266";
+      
+      // Si no cargó imagen, asignamos una de placeholder bonita de Unsplash
+      const defaultUnsplashImages = [
+        "https://images.unsplash.com/photo-1594732832278-abd644401426?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=300&q=80",
+        "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=300&q=80"
+      ];
+      const finalImage = selectedImageBase64 || defaultUnsplashImages[Math.floor(Math.random() * defaultUnsplashImages.length)];
+
+      const newObject = {
+        id: Date.now().toString(),
+        name: name,
+        location: location,
+        date: date,
+        description: description,
+        type: reportType,
+        contact: contact,
+        gps: finalGPS,
+        image: finalImage,
+        reporter: currentUser ? currentUser.name : "Leidy Pérez",
+        status: reportType === 'perdido' ? 'No reclamado' : 'En custodia'
+      };
+
+      // Guardar en Storage
+      const objects = getObjectsFromStorage();
+      objects.push(newObject);
+      localStorage.setItem('lostfinder_objects', JSON.stringify(objects));
+
+      // Resetear campos del formulario
+      document.getElementById('report-name').value = "";
+      document.getElementById('report-location').value = "";
+      document.getElementById('report-date').value = "";
+      document.getElementById('report-description').value = "";
+      document.getElementById('report-contact').value = "";
+      document.getElementById('gps-status-text').textContent = "Ubicación aproximada del dispositivo: No registrada aún.";
+      currentGPSTrack = null;
+      selectedImageBase64 = null;
+      document.getElementById('image-upload-preview-container').classList.add('hidden');
+      document.getElementById('image-upload-placeholder').classList.remove('opacity-10');
+
+      showNotification('¡Objeto reportado exitosamente!', 'success');
+      
+      // Navegamos al listado de recién agregados
+      navigateTo('screen-found');
+    }
+
+    // Eliminar reporte propio
+    function deleteReport(id) {
+      let objects = getObjectsFromStorage();
+      objects = objects.filter(o => o.id !== id);
+      localStorage.setItem('lostfinder_objects', JSON.stringify(objects));
+      
+      renderMyReports();
+      showNotification('Publicación eliminada.', 'info');
+    }
+
+
+    // --- SIMULACIÓN CORREO ELECTRÓNICO (CON SENSORES) ---
+    function sendContactEmail() {
+      const sender = document.getElementById('contact-sender-name').value.trim();
+      const text = document.getElementById('contact-message').value.trim();
+      
+      const sendBtn = document.querySelector('[onclick="sendContactEmail()"]');
+      const targetEmail = sendBtn.getAttribute('data-target-email');
+      const objectName = sendBtn.getAttribute('data-object-name');
+
+      if (!sender || !text) {
+        showNotification('Ingresa tu nombre y el mensaje de contacto.', 'warning');
+        return;
+      }
+
+      // Simulación de Envío
+      showNotification('Enviando correo de contacto...', 'info');
+      
+      setTimeout(() => {
+        // Abrimos modal de confirmación
+        document.getElementById('modal-email-sent').classList.remove('hidden');
+        
+        // Log en consola de simulación técnica
+        console.log(`%c[LOSTFINDER MAIL SERVICE] Correo enviado de: ${sender} a: ${targetEmail}. Referencia: Objeto: ${objectName}. Mensaje: ${text}`, "color: #A855F7; font-weight: bold;");
+      }, 1000);
+    }
+
+    function closeEmailModal() {
+      document.getElementById('modal-email-sent').classList.add('hidden');
+      goBackToPreviousScreen();
+    }
+
+
+    // --- CONTROL DE TOASTS/NOTIFICACIONES EN DISPOSITIVO ---
+    function showNotification(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let bg = 'bg-slate-900 text-white';
+      let icon = '🔔';
+      if (type === 'success') {
+        bg = 'bg-green-600 text-white';
+        icon = '✅';
+      } else if (type === 'warning') {
+        bg = 'bg-amber-500 text-slate-900';
+        icon = '⚠️';
+      } else if (type === 'error') {
+        bg = 'bg-red-600 text-white';
+        icon = '❌';
+      }
+
+      toast.className = `${bg} px-4 py-3 rounded-2xl shadow-lg flex items-center gap-2.5 text-xs font-black transition-all transform translate-y-2 opacity-0 w-full max-w-sm pointer-events-auto border border-white/20`;
+      toast.innerHTML = `
+        <span>${icon}</span>
+        <span class="flex-1">${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      // Entrada suave
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      // Salida suave
+      setTimeout(() => {
+        toast.classList.add('translate-y-[-10px]', 'opacity-0');
+        setTimeout(() => {
+          toast.remove();
+        }, 300);
+      }, 3500);
+    }
+
+    // Formateador de Fechas Amigable
+    function formatDateStr(dateStr) {
+      if (!dateStr) return "";
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const date = new Date(dateStr + 'T00:00:00'); // Evitar desfase de zona horaria
+      return date.toLocaleDateString('es-ES', options);
+    }
+  </script>
+
+</body>
+</html>

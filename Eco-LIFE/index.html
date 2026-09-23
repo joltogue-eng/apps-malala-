@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoLight - Ahorro Inteligente de Energía</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            light: '#eefcf4',
+                            DEFAULT: '#10b981', // Emerald 500
+                            dark: '#059669',   // Emerald 600
+                            accent: '#34d399'  // Emerald 400
+                        },
+                        darkBg: '#0f172a',
+                        cardBg: '#ffffff'
+                    },
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts - Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Deshabilitar barra de scroll para una experiencia de app nativa */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased flex justify-center items-center min-h-screen">
+
+    <!-- Contenedor Principal de la App (Simulación de Dispositivo Móvil) -->
+    <div class="w-full max-w-md h-[844px] bg-slate-50 rounded-[40px] shadow-2xl border-[8px] border-slate-900 relative overflow-hidden flex flex-col">
+        
+        <!-- Barra de Estado Simulada del Celular -->
+        <div class="bg-white px-6 pt-3 pb-1 flex justify-between items-center text-xs font-bold text-slate-700 z-30 select-none">
+            <span id="phone-time">12:08</span>
+            <div class="w-20 h-4 bg-slate-900 rounded-full absolute left-1/2 transform -translate-x-1/2 top-2"></div> <!-- Notch -->
+            <div class="flex items-center gap-1.5">
+                <i class="ph ph-wifi-high text-sm"></i>
+                <i class="ph ph-battery-charging text-base"></i>
+            </div>
+        </div>
+
+        <!-- MODAL DE PERMISOS Y DECLARACIÓN DE CONECTIVIDAD (Se muestra al inicio) -->
+        <div id="connectivity-modal" class="absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-6 transition-all duration-300">
+            <div class="bg-white rounded-3xl p-6 w-full max-h-[90%] overflow-y-auto shadow-2xl">
+                <div class="flex items-center gap-3 text-brand mb-4">
+                    <div class="p-3 bg-brand-light rounded-2xl">
+                        <i class="ph-bold ph-plugs-connected text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900 leading-tight">Declaración de Sensores</h3>
+                        <p class="text-xs text-slate-500">Configuración técnica del proyecto</p>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                    Para cumplir con los requerimientos técnicos de la asignatura de undécimo grado, 
+                    <strong>EcoLight</strong> requiere simular el acceso a los siguientes recursos del dispositivo móvil:
+                </p>
+
+                <!-- Tarjetas de Permisos -->
+                <div class="space-y-2.5 mb-6 text-xs">
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <i class="ph-bold ph-bluetooth text-blue-500 text-lg mt-0.5"></i>
+                        <div>
+                            <span class="font-bold block text-slate-800">Bluetooth (SÍ)</span>
+                            <span class="text-slate-500">Para vincularse con interruptores inteligentes y módulos de iluminación LED.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <i class="ph-bold ph-envelope-simple text-amber-500 text-lg mt-0.5"></i>
+                        <div>
+                            <span class="font-bold block text-slate-800">Correo Electrónico (SÍ)</span>
+                            <span class="text-slate-500">Envío de resúmenes de ahorro energético y alertas mensuales de sobreconsumo.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <i class="ph-bold ph-image text-purple-500 text-lg mt-0.5"></i>
+                        <div>
+                            <span class="font-bold block text-slate-800">Galería de Fotos (SÍ)</span>
+                            <span class="text-slate-500">Acceso para personalizar la foto del perfil y la foto de portada de cada habitación.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <i class="ph-bold ph-map-pin text-red-500 text-lg mt-0.5"></i>
+                        <div>
+                            <span class="font-bold block text-slate-800">GPS y Localización (SÍ)</span>
+                            <span class="text-slate-500">Automatización por geovalla (apaga todo al alejarte más de 50 metros del hogar).</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl">
+                        <i class="ph-bold ph-activity text-brand text-lg mt-0.5"></i>
+                        <div>
+                            <span class="font-bold block text-slate-800">Giroscopio / Acelerómetro (SÍ)</span>
+                            <span class="text-slate-500">Detección de sacudida rápida del celular para el apagado de emergencia (pánico).</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="acceptPermissions()" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2">
+                    <span>Autorizar y Continuar</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- CONTENIDO PRINCIPAL (Se desliza en base a la pantalla activa) -->
+        <main class="flex-1 overflow-y-auto no-scrollbar pb-24 bg-slate-50 relative">
+
+            <!-- PANTALLA 0: LOGIN / ACCESO (CON COLOR MEJORADO Y ORBES DE LUZ) -->
+            <section id="screen-login" class="screen-view min-h-full flex flex-col justify-between p-8 bg-gradient-to-b from-brand-light via-emerald-50/40 to-white relative overflow-hidden">
+                
+                <!-- Orbes decorativos de luz ecológica de fondo -->
+                <div class="absolute -top-12 -left-12 w-48 h-48 bg-emerald-300/35 rounded-full filter blur-3xl pointer-events-none"></div>
+                <div class="absolute top-1/3 -right-16 w-56 h-56 bg-teal-200/40 rounded-full filter blur-3xl pointer-events-none"></div>
+                <div class="absolute bottom-10 -left-16 w-48 h-48 bg-emerald-200/30 rounded-full filter blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col items-center text-center pt-8 relative z-10">
+                    <!-- Isotipo EcoLight -->
+                    <div class="relative w-36 h-36 flex items-center justify-center mb-6">
+                        <!-- Círculos concéntricos de energía brillante -->
+                        <div class="absolute inset-0 bg-brand-accent/25 rounded-full animate-ping opacity-60"></div>
+                        <div class="absolute w-32 h-32 bg-brand/10 rounded-full animate-pulse"></div>
+                        <div class="absolute w-28 h-28 bg-gradient-to-tr from-brand/20 to-emerald-400/10 rounded-full flex items-center justify-center shadow-inner">
+                            <!-- Bombilla verde brillante de la imagen 1 -->
+                            <svg class="w-20 h-20 text-brand drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A5 5 0 0 0 8 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path>
+                                <path d="M9 18h6"></path>
+                                <path d="M10 22h4"></path>
+                                <!-- Rayos de luz -->
+                                <line x1="12" y1="2" x2="12" y2="4"></line>
+                                <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"></line>
+                                <line x1="2" y1="12" x2="4" y2="12"></line>
+                                <line x1="19.07" y1="12" x2="22" y2="12"></line>
+                                <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"></line>
+                                <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"></line>
+                            </svg>
+                        </div>
+                    </div>
+                    <h1 class="text-4xl font-black text-slate-900 tracking-tight bg-gradient-to-r from-emerald-600 to-teal-700 bg-clip-text text-transparent">EcoLight</h1>
+                    <p class="text-slate-500 font-bold text-xs mt-1 bg-emerald-100/75 text-emerald-800 px-3 py-1 rounded-full border border-emerald-200/50">Ahorro inteligente y automático de energía</p>
+                </div>
+
+                <!-- Formulario con placeholders refinados, colores y sombreados verdes -->
+                <div class="space-y-4 my-6 relative z-10">
+                    <!-- Campo de Usuario -->
+                    <div class="relative group">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-emerald-600 group-focus-within:text-brand transition-colors">
+                            <i class="ph-bold ph-user text-xl"></i>
+                        </span>
+                        <input type="text" id="login-username" placeholder="Nombre de Usuario" value="Estudiante Grado 11" class="w-full pl-12 pr-12 py-4 bg-white/90 backdrop-blur-sm border-2 border-emerald-100/80 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand transition-all font-bold text-slate-800 placeholder-emerald-800/40">
+                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-brand">
+                            <i class="ph-fill ph-check-circle text-xl"></i>
+                        </span>
+                    </div>
+
+                    <!-- Campo de Ubicación -->
+                    <div class="relative group">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-emerald-600 group-focus-within:text-brand transition-colors">
+                            <i class="ph-bold ph-map-pin text-xl"></i>
+                        </span>
+                        <input type="text" id="login-location" placeholder="Ubicación (Casa, Colegio)" value="Apartamento 402" class="w-full pl-12 pr-12 py-4 bg-white/90 backdrop-blur-sm border-2 border-emerald-100/80 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand transition-all font-bold text-slate-800 placeholder-emerald-800/40">
+                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-brand">
+                            <i class="ph-fill ph-check-circle text-xl"></i>
+                        </span>
+                    </div>
+
+                    <!-- Campo de Contraseña -->
+                    <div class="relative group">
+                        <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-emerald-600 group-focus-within:text-brand transition-colors">
+                            <i class="ph-bold ph-lock text-xl"></i>
+                        </span>
+                        <input type="password" id="login-password" placeholder="Contraseña de Seguridad" value="12345" class="w-full pl-12 pr-12 py-4 bg-white/90 backdrop-blur-sm border-2 border-emerald-100/80 rounded-2xl shadow-sm focus:outline-none focus:ring-4 focus:ring-brand/15 focus:border-brand transition-all font-bold text-slate-800 placeholder-emerald-800/40">
+                        <span class="absolute inset-y-0 right-0 pr-4 flex items-center text-brand">
+                            <i class="ph-fill ph-check-circle text-xl"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Botón con Degradado Más Colorido y Efecto de Hover -->
+                <div class="pb-4 relative z-10">
+                    <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-brand via-emerald-500 to-teal-500 hover:from-brand-dark hover:to-emerald-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-brand/30 hover:shadow-brand/45 active:scale-[0.98] transition-all flex items-center justify-center gap-2.5 text-lg">
+                        <i class="ph-bold ph-sign-in text-xl"></i>
+                        <span>Iniciar Sesión de EcoLight</span>
+                    </button>
+                    <p class="text-center text-[10px] text-slate-400 font-extrabold mt-4 uppercase tracking-widest">v2.0 • Proyecto Escolar de Grado Once</p>
+                </div>
+            </section>
+
+            <!-- PANTALLA 1: HOME / INICIO (Vista General de Habitaciones) -->
+            <section id="screen-home" class="screen-view hidden p-5 space-y-5">
+                <!-- Cabecera de bienvenida -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Panel de Control</span>
+                        <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+                            Mis Habitaciones
+                            <span class="inline-block w-2.5 h-2.5 rounded-full bg-brand animate-ping"></span>
+                        </h2>
+                    </div>
+                    <button onclick="goToScreen(5)" class="w-10 h-10 rounded-full bg-brand-light flex items-center justify-center text-brand relative">
+                        <i class="ph-bold ph-user-circle text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- Barra de búsqueda y filtro rápido -->
+                <div class="flex gap-2">
+                    <div class="relative flex-1">
+                        <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input type="text" id="search-input" onkeyup="filterRooms()" placeholder="Buscar habitación o estado..." class="w-full bg-white border border-slate-100 pl-11 pr-4 py-3 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand/30 shadow-sm font-semibold">
+                    </div>
+                    <button onclick="goToScreen(3)" class="w-12 h-12 bg-brand text-white rounded-2xl flex items-center justify-center shadow-md shadow-brand/20">
+                        <i class="ph-bold ph-plus text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Panel resumido de estado general (Inspirado en pie de imagen 3) -->
+                <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-4 text-white shadow-xl flex justify-between items-center">
+                    <div class="text-center flex-1 border-r border-slate-700/50">
+                        <span id="active-rooms-count" class="block text-2xl font-extrabold text-brand-accent">2</span>
+                        <span class="text-[10px] text-slate-400 font-semibold block uppercase">Ocupadas</span>
+                    </div>
+                    <div class="text-center flex-1 border-r border-slate-700/50">
+                        <span id="on-lights-count" class="block text-2xl font-extrabold text-amber-400">3</span>
+                        <span class="text-[10px] text-slate-400 font-semibold block uppercase">Luces Enc.</span>
+                    </div>
+                    <div class="text-center flex-1">
+                        <span id="energy-saved-today" class="block text-2xl font-extrabold text-brand-accent">1.4 kWh</span>
+                        <span class="text-[10px] text-slate-400 font-semibold block uppercase">Ahorro Hoy</span>
+                    </div>
+                </div>
+
+                <!-- Contenedor dinámico de Habitaciones (Lista con interruptores) -->
+                <div id="rooms-container" class="space-y-4">
+                    <!-- Se renderizan vía JavaScript para soportar localStorage -->
+                </div>
+
+                <!-- Botón de pánico o acción rápida adicional -->
+                <div class="p-4 bg-brand-light/40 border border-brand/10 rounded-3xl flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-brand/10 text-brand rounded-full flex items-center justify-center">
+                            <i class="ph-bold ph-shield-check text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-sm text-slate-800 block">Modo Eco Automático</span>
+                            <span class="text-xs text-slate-500 block">Apaga tras 30s de inactividad</span>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="global-eco-mode" checked class="sr-only peer" onchange="toggleGlobalEco()">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                    </label>
+                </div>
+            </section>
+
+            <!-- PANTALLA 2: EXPLORACIÓN/DATOS (Historial de Eventos de Ahorro) -->
+            <section id="screen-explore" class="screen-view hidden p-5 space-y-5">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Actividad Reciente</span>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Historial EcoLight</h2>
+                </div>
+
+                <!-- Selector de Filtros -->
+                <div class="flex gap-2">
+                    <button onclick="filterHistory('all')" id="btn-hist-all" class="flex-1 py-2 rounded-xl text-xs font-bold bg-slate-950 text-white transition-all">Todos</button>
+                    <button onclick="filterHistory('off')" id="btn-hist-off" class="flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-100 transition-all">Auto-Apagados</button>
+                    <button onclick="filterHistory('on')" id="btn-hist-on" class="flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-100 transition-all">Encendidos</button>
+                </div>
+
+                <!-- Historial Temporal de Actividades -->
+                <div id="history-list" class="space-y-3">
+                    <!-- Dinámico por JS -->
+                </div>
+
+                <!-- Alerta educativa -->
+                <div class="bg-gradient-to-br from-brand-light/60 to-brand/10 border border-brand/20 rounded-3xl p-5 text-center relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 text-brand/10 text-9xl">
+                        <i class="ph ph-leaf"></i>
+                    </div>
+                    <i class="ph-bold ph-lightbulb-filaments text-3xl text-brand mb-2 block"></i>
+                    <h3 class="font-bold text-sm text-slate-800">¿Sabías qué?</h3>
+                    <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                        Dejar encendida una bombilla de 60W por 5 horas consume 0.3kWh. ¡EcoLight ya ha prevenido más de 12 descuidos esta semana!
+                    </p>
+                </div>
+            </section>
+
+            <!-- PANTALLA 3: FORMULARIO DE ACCIÓN (Agregar Nueva Habitación / Sensor) -->
+            <section id="screen-action" class="screen-view hidden p-5 space-y-5">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Configurador</span>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Nueva Habitación</h2>
+                </div>
+
+                <!-- Formulario completo con 5 campos de entrada diferentes -->
+                <form id="new-room-form" onsubmit="createNewRoom(event)" class="space-y-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
+                    
+                    <!-- Campo 1: Texto (Nombre) -->
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">Nombre de la Habitación</label>
+                        <div class="relative">
+                            <i class="ph ph-house absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input type="text" id="form-name" required placeholder="Ej. Sala de Estar, Cocina, Baño..." class="w-full bg-slate-50 pl-10 pr-4 py-3 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-brand/30 focus:outline-none border-0">
+                        </div>
+                    </div>
+
+                    <!-- Campo 2: Number (Número de Bombillas) -->
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">Número de Luces Vinculadas</label>
+                        <div class="relative">
+                            <i class="ph ph-lightbulb absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <input type="number" id="form-lights" required min="1" max="15" value="2" class="w-full bg-slate-50 pl-10 pr-4 py-3 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-brand/30 focus:outline-none border-0">
+                        </div>
+                    </div>
+
+                    <!-- Campo 3: Select (Tipo de Sensor de Presencia) -->
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">Tecnología del Sensor</label>
+                        <div class="relative">
+                            <i class="ph ph-waveform-slanted absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-lg"></i>
+                            <select id="form-sensor-type" class="w-full bg-slate-50 pl-10 pr-4 py-3 rounded-2xl text-sm font-semibold focus:ring-2 focus:ring-brand/30 focus:outline-none border-0 appearance-none">
+                                <option value="Infrarrojo Pasivo (PIR)">Infrarrojo Pasivo (PIR)</option>
+                                <option value="Microondas (Radar)">Microondas (Radar)</option>
+                                <option value="Ultrasónico">Ultrasónico</option>
+                                <option value="Cámara Inteligente">Cámara Inteligente</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campo 4: Range (Sensibilidad del sensor) -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-extrabold uppercase text-slate-500">Sensibilidad de Detección</label>
+                            <span id="range-value" class="text-xs font-bold text-brand">Media</span>
+                        </div>
+                        <input type="range" id="form-sensitivity" min="1" max="3" value="2" oninput="updateRangeText(this.value)" class="w-full accent-brand h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-400 px-1 mt-1 font-bold">
+                            <span>BAJA</span>
+                            <span>MEDIA</span>
+                            <span>ALTA</span>
+                        </div>
+                    </div>
+
+                    <!-- Campo 5: Checkbox/Toggle (Auto-apagado por defecto) -->
+                    <div class="flex justify-between items-center p-3 bg-brand-light/30 rounded-2xl">
+                        <div class="flex items-center gap-2">
+                            <i class="ph ph-leaf text-brand text-lg"></i>
+                            <div>
+                                <span class="text-xs font-bold text-slate-800 block">Auto-Apagar</span>
+                                <span class="text-[10px] text-slate-500 block">Apaga al detectar vaciado</span>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="form-auto-off" checked class="w-5 h-5 accent-brand rounded">
+                    </div>
+
+                    <!-- Campo Extra: Imagen decorativa por defecto -->
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1.5">Ambiente / Foto de Portada</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button type="button" onclick="selectFormImg('living')" id="img-opt-living" class="room-img-opt border-2 border-brand p-1 rounded-xl overflow-hidden bg-slate-100">
+                                <img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=150&auto=format&fit=crop&q=60" alt="Sala" class="h-10 w-full object-cover rounded-lg">
+                            </button>
+                            <button type="button" onclick="selectFormImg('kitchen')" id="img-opt-kitchen" class="room-img-opt border-2 border-transparent p-1 rounded-xl overflow-hidden bg-slate-100">
+                                <img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=150&auto=format&fit=crop&q=60" alt="Cocina" class="h-10 w-full object-cover rounded-lg">
+                            </button>
+                            <button type="button" onclick="selectFormImg('bed')" id="img-opt-bed" class="room-img-opt border-2 border-transparent p-1 rounded-xl overflow-hidden bg-slate-100">
+                                <img src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=150&auto=format&fit=crop&q=60" alt="Habitación" class="h-10 w-full object-cover rounded-lg">
+                            </button>
+                            <button type="button" onclick="selectFormImg('bath')" id="img-opt-bath" class="room-img-opt border-2 border-transparent p-1 rounded-xl overflow-hidden bg-slate-100">
+                                <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=150&auto=format&fit=crop&q=60" alt="Baño" class="h-10 w-full object-cover rounded-lg">
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 px-4 rounded-2xl shadow-lg shadow-brand/20 transition-all flex items-center justify-center gap-2">
+                        <i class="ph ph-plus-circle text-lg"></i>
+                        <span>Guardar Habitación</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- PANTALLA 4: ESTADÍSTICAS Y AUTOMATIZACIÓN (Métricas, Gráfico de Consumo vs Ahorro) -->
+            <section id="screen-stats" class="screen-view hidden p-5 space-y-5">
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Resumen de Uso y Ahorro</span>
+                    <h2 class="text-2xl font-extrabold text-slate-900">Métricas de EcoLight</h2>
+                </div>
+
+                <!-- Gráfico de Consumo vs Ahorro en Canvas (Inspirado en la imagen 5) -->
+                <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold text-slate-700">Consumo Bruto vs. Ahorro de EcoLight</span>
+                        <span class="text-[10px] bg-slate-100 text-slate-500 font-extrabold py-1 px-2.5 rounded-full">Últimos 7 días</span>
+                    </div>
+                    
+                    <div class="relative h-40 w-full">
+                        <canvas id="stats-canvas" class="w-full h-full"></canvas>
+                    </div>
+
+                    <!-- Indicadores de Gráfico -->
+                    <div class="flex justify-around mt-3 text-xs border-t border-slate-50 pt-3">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-800"></span>
+                            <span class="text-slate-500">Consumo Sin EcoLight</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-brand"></span>
+                            <span class="text-slate-500">Ahorro EcoLight</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Métricas destacadas (Inspirado en imagen 5) -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-1 text-slate-400">
+                            <span class="text-[10px] font-extrabold uppercase">Ahorrado este mes</span>
+                            <i class="ph ph-trend-up text-brand text-lg"></i>
+                        </div>
+                        <span class="text-xl font-extrabold text-slate-900 block">58.2 kWh</span>
+                        <span class="text-[10px] text-brand font-bold bg-brand-light/70 px-2 py-0.5 rounded-md inline-block mt-1">Equivale a $12.50 USD</span>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+                        <div class="flex justify-between items-center mb-1 text-slate-400">
+                            <span class="text-[10px] font-extrabold uppercase">Reducción CO2</span>
+                            <i class="ph ph-tree-evergreen text-emerald-600 text-lg"></i>
+                        </div>
+                        <span class="text-xl font-extrabold text-slate-900 block">42.1 kg</span>
+                        <span class="text-[10px] text-slate-500 font-semibold block mt-1">~ 2 árboles plantados</span>
+                    </div>
+                </div>
+
+                <!-- Detalles e Intervalo Pico (Imagen 5) -->
+                <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-slate-500 uppercase">Habitación más eficiente</span>
+                        <span class="font-extrabold text-brand">Dormitorio Principal</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-slate-500 uppercase">Horario de mayor ocupación</span>
+                        <span class="font-extrabold text-slate-800">20:00 - 22:00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-slate-500 uppercase">Alertas de descuido apagadas</span>
+                        <span class="font-extrabold text-slate-800">48 esta semana</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANTALLA 5: PERFIL / AJUSTES (Gestión de Sensores y Perfil Escolar) -->
+            <section id="screen-profile" class="screen-view hidden p-5 space-y-5">
+                <div class="text-center py-4 bg-white rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden">
+                    <div class="absolute inset-x-0 top-0 h-16 bg-gradient-to-r from-brand to-brand-dark"></div>
+                    <div class="relative inline-block w-20 h-20 rounded-full border-4 border-white overflow-hidden bg-brand-light mt-6 shadow">
+                        <i class="ph ph-user text-5xl text-brand absolute inset-0 m-auto flex items-center justify-center"></i>
+                    </div>
+                    <h3 id="profile-name-display" class="font-extrabold text-slate-900 text-lg mt-2">Estudiante Grado 11</h3>
+                    <p id="profile-loc-display" class="text-xs text-slate-400">Colegio Técnico EcoSmart • Apartamento 402</p>
+                </div>
+
+                <!-- Estado de los Dispositivos Simulados -->
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-4 space-y-3">
+                    <h4 class="text-xs font-extrabold uppercase text-slate-400">Estado de Conexión del Proyecto</h4>
+                    
+                    <div class="flex justify-between items-center text-xs p-2 bg-slate-50 rounded-xl">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-bold ph-bluetooth text-blue-500"></i>
+                            <span class="font-bold">Módulos Bluetooth</span>
+                        </div>
+                        <span class="text-brand font-extrabold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></span> Conectado
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs p-2 bg-slate-50 rounded-xl">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-bold ph-envelope-simple text-amber-500"></i>
+                            <span class="font-bold">Servicio Alertas Email</span>
+                        </div>
+                        <span class="text-brand font-extrabold flex items-center gap-1">Listo</span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-xs p-2 bg-slate-50 rounded-xl">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-bold ph-map-pin text-red-500"></i>
+                            <span class="font-bold">Geolocalización GPS</span>
+                        </div>
+                        <span class="text-brand font-extrabold flex items-center gap-1">Activo</span>
+                    </div>
+                </div>
+
+                <!-- Ajustes Rápidos -->
+                <div class="space-y-2">
+                    <button onclick="clearAllData()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-extrabold py-3.5 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+                        <i class="ph ph-trash-simple text-base"></i>
+                        <span>Reiniciar Base de Datos Local</span>
+                    </button>
+                    <button onclick="goToScreen(0)" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold py-3.5 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 transition-all">
+                        <i class="ph ph-sign-out text-base"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </div>
+
+                <!-- Créditos de Grado 11 -->
+                <div class="text-center text-[10px] text-slate-400 py-2 leading-relaxed">
+                    <strong>Proyecto Tecnológico Interdisciplinar</strong><br>
+                    Creado con pasión para la asignatura de Automatización y Domótica.
+                </div>
+            </section>
+        </main>
+
+        <!-- NAVEGACIÓN INFERIOR (Bottom Nav - Siempre visible desde pantalla 1 a 5) -->
+        <nav id="bottom-navigation" class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-100 px-6 py-2.5 flex justify-between items-center z-40 shadow-xl hidden">
+            <button onclick="goToScreen(1)" id="nav-btn-1" class="flex flex-col items-center gap-0.5 text-brand transition-all">
+                <i class="ph-fill ph-house text-2xl"></i>
+                <span class="text-[9px] font-extrabold uppercase">Inicio</span>
+            </button>
+            <button onclick="goToScreen(2)" id="nav-btn-2" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-brand transition-all">
+                <i class="ph-bold ph-clock-counter-clockwise text-2xl"></i>
+                <span class="text-[9px] font-extrabold uppercase">Historial</span>
+            </button>
+            <button onclick="goToScreen(3)" id="nav-btn-3" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-brand transition-all">
+                <i class="ph-bold ph-plus-circle text-2xl"></i>
+                <span class="text-[9px] font-extrabold uppercase">Nuevo</span>
+            </button>
+            <button onclick="goToScreen(4)" id="nav-btn-4" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-brand transition-all">
+                <i class="ph-bold ph-chart-bar text-2xl"></i>
+                <span class="text-[9px] font-extrabold uppercase">Estadísticas</span>
+            </button>
+            <button onclick="goToScreen(5)" id="nav-btn-5" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-brand transition-all">
+                <i class="ph-bold ph-gear-six text-2xl"></i>
+                <span class="text-[9px] font-extrabold uppercase">Ajustes</span>
+            </button>
+        </nav>
+
+        <!-- Alerta flotante / Notificación inteligente (Reemplaza a los molestos alert()) -->
+        <div id="toast-message" class="absolute bottom-24 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 z-50 pointer-events-none opacity-0 transition-all duration-300">
+            <i id="toast-icon" class="ph ph-check-circle text-brand text-lg"></i>
+            <span id="toast-text">¡Acción guardada con éxito!</span>
+        </div>
+
+    </div>
+
+    <!-- SCRIPTS INTEGRADOS -->
+    <script>
+        // Datos por defecto para poblar localStorage la primera vez (Basado en la Imagen 3)
+        const DEFAULT_ROOMS = [
+            {
+                id: "1",
+                name: "Sala de Estar",
+                lights: 2,
+                sensorType: "Infrarrojo Pasivo (PIR)",
+                sensitivity: "ALTA",
+                isOccupied: true,
+                lightsOn: true,
+                autoOff: true,
+                imageType: "living"
+            },
+            {
+                id: "2",
+                name: "Cocina",
+                lights: 1,
+                sensorType: "Microondas (Radar)",
+                sensitivity: "MEDIA",
+                isOccupied: true,
+                lightsOn: true,
+                autoOff: true,
+                imageType: "kitchen"
+            },
+            {
+                id: "3",
+                name: "Dormitorio Principal",
+                lights: 2,
+                sensorType: "Infrarrojo Pasivo (PIR)",
+                sensitivity: "ALTA",
+                isOccupied: false,
+                lightsOn: false,
+                autoOff: true,
+                imageType: "bed"
+            },
+            {
+                id: "4",
+                name: "Baño",
+                lights: 1,
+                sensorType: "Ultrasónico",
+                sensitivity: "BAJA",
+                isOccupied: false,
+                lightsOn: false,
+                autoOff: false,
+                imageType: "bath"
+            }
+        ];
+
+        const DEFAULT_HISTORY = [
+            { id: "h1", roomName: "Sala de Estar", action: "detect", text: "Persona detectada", time: "Hace 2 min", type: "on" },
+            { id: "h2", roomName: "Dormitorio Principal", action: "auto-off", text: "Auto-Apagado por ausencia", time: "Hace 15 min", type: "off" },
+            { id: "h3", roomName: "Cocina", action: "detect", text: "Persona detectada", time: "Hace 28 min", type: "on" },
+            { id: "h4", roomName: "Baño", action: "manual-off", text: "Apagado por interruptor", time: "Hace 1 hora", type: "off" },
+            { id: "h5", roomName: "Sala de Estar", action: "auto-off", text: "Auto-Apagado por ausencia", time: "Hace 2 horas", type: "off" }
+        ];
+
+        // Estado global de la aplicación
+        let rooms = [];
+        let history = [];
+        let selectedImgType = 'living';
+        let currentHistoryFilter = 'all';
+
+        // Inicialización al cargar la ventana
+        window.onload = function() {
+            // Configurar hora simulada actualizable
+            updatePhoneTime();
+            setInterval(updatePhoneTime, 30000);
+
+            // Cargar de LocalStorage o inicializar defaults
+            if (!localStorage.getItem('ecolight_rooms')) {
+                localStorage.setItem('ecolight_rooms', JSON.stringify(DEFAULT_ROOMS));
+            }
+            if (!localStorage.getItem('ecolight_history')) {
+                localStorage.setItem('ecolight_history', JSON.stringify(DEFAULT_HISTORY));
+            }
+
+            rooms = JSON.parse(localStorage.getItem('ecolight_rooms'));
+            history = JSON.parse(localStorage.getItem('ecolight_history'));
+
+            renderRooms();
+            renderHistory();
+            drawStatsChart();
+
+            // Verificar si el usuario ya inició sesión previamente
+            const savedUser = localStorage.getItem('ecolight_user');
+            if (savedUser) {
+                document.getElementById('login-username').value = savedUser;
+                const savedLoc = localStorage.getItem('ecolight_location') || 'Hogar';
+                document.getElementById('login-location').value = savedLoc;
+                
+                // Aplicar a interfaz de perfil
+                document.getElementById('profile-name-display').innerText = savedUser;
+                document.getElementById('profile-loc-display').innerText = `Colegio Técnico EcoSmart • ${savedLoc}`;
+            }
+        }
+
+        // Simulación de hora del smartphone
+        function updatePhoneTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('phone-time').innerText = `${hours}:${minutes}`;
+        }
+
+        // Permisos de Sensores y Modal de Bienvenida
+        function acceptPermissions() {
+            const modal = document.getElementById('connectivity-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 3000);
+            showToast('ph-plugs-connected', 'Servicios y Bluetooth vinculados', 'brand');
+        }
+
+        // Notificación personalizada e interactiva
+        function showToast(icon, text, colorClass = 'brand') {
+            const toast = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastText = document.getElementById('toast-text');
+
+            toastIcon.className = `ph-bold ${icon} text-${colorClass} text-lg`;
+            toastText.innerText = text;
+            
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3500);
+        }
+
+        // Inicio de sesión interactivo
+        function handleLogin() {
+            const username = document.getElementById('login-username').value.trim();
+            const location = document.getElementById('login-location').value.trim();
+
+            if (username === '') {
+                showToast('ph-warning', 'Por favor ingresa un nombre', 'red-500');
+                return;
+            }
+
+            localStorage.setItem('ecolight_user', username);
+            localStorage.setItem('ecolight_location', location);
+
+            document.getElementById('profile-name-display').innerText = username;
+            document.getElementById('profile-loc-display').innerText = `Colegio Técnico EcoSmart • ${location}`;
+
+            showToast('ph-smiley', `¡Bienvenido, ${username}!`, 'brand');
+            goToScreen(1); // Ir a la pantalla Home
+        }
+
+        // Enrutamiento / Navegación por pantallas
+        function goToScreen(screenNumber) {
+            // Ocultar todas las pantallas
+            const screens = document.querySelectorAll('.screen-view');
+            screens.forEach(screen => screen.classList.add('hidden'));
+
+            // Mostrar la seleccionada
+            if (screenNumber === 0) {
+                document.getElementById('screen-login').classList.remove('hidden');
+                document.getElementById('bottom-navigation').classList.add('hidden');
+            } else if (screenNumber === 1) {
+                document.getElementById('screen-home').classList.remove('hidden');
+                document.getElementById('bottom-navigation').classList.remove('hidden');
+                updateActiveNav(1);
+                renderRooms();
+            } else if (screenNumber === 2) {
+                document.getElementById('screen-explore').classList.remove('hidden');
+                document.getElementById('bottom-navigation').classList.remove('hidden');
+                updateActiveNav(2);
+                renderHistory();
+            } else if (screenNumber === 3) {
+                document.getElementById('screen-action').classList.remove('hidden');
+                document.getElementById('bottom-navigation').classList.remove('hidden');
+                updateActiveNav(3);
+            } else if (screenNumber === 4) {
+                document.getElementById('screen-stats').classList.remove('hidden');
+                document.getElementById('bottom-navigation').classList.remove('hidden');
+                updateActiveNav(4);
+                // Redibujar gráfico
+                setTimeout(drawStatsChart, 50);
+            } else if (screenNumber === 5) {
+                document.getElementById('screen-profile').classList.remove('hidden');
+                document.getElementById('bottom-navigation').classList.remove('hidden');
+                updateActiveNav(5);
+            }
+        }
+
+        // Resaltar icono activo en la barra de navegación
+        function updateActiveNav(activeId) {
+            const navButtons = document.querySelectorAll('#bottom-navigation button');
+            navButtons.forEach((btn, index) => {
+                const isCurrent = (index + 1) === activeId;
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+                
+                if (isCurrent) {
+                    btn.className = "flex flex-col items-center gap-0.5 text-brand transition-all scale-105";
+                    if (icon.classList.contains('ph-bold')) {
+                        icon.className = icon.className.replace('ph-bold', 'ph-fill');
+                    }
+                } else {
+                    btn.className = "flex flex-col items-center gap-0.5 text-slate-400 hover:text-brand transition-all";
+                    if (icon.classList.contains('ph-fill')) {
+                        icon.className = icon.className.replace('ph-fill', 'ph-bold');
+                    }
+                }
+            });
+        }
+
+        // Renderizar Habitaciones en la pantalla 1 (Inspirada en Imagen 3)
+        function renderRooms() {
+            const container = document.getElementById('rooms-container');
+            container.innerHTML = '';
+
+            let occupiedCount = 0;
+            let lightsOnCount = 0;
+
+            rooms.forEach(room => {
+                if (room.isOccupied) occupiedCount++;
+                if (room.lightsOn) lightsOnCount += parseInt(room.lights);
+
+                // Imágenes simuladas de Unsplash según tipo de habitación
+                let imgUrl = "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?w=300&auto=format&fit=crop&q=60";
+                if (room.imageType === 'kitchen') imgUrl = "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=300&auto=format&fit=crop&q=60";
+                if (room.imageType === 'bed') imgUrl = "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=300&auto=format&fit=crop&q=60";
+                if (room.imageType === 'bath') imgUrl = "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=300&auto=format&fit=crop&q=60";
+
+                const roomCard = document.createElement('div');
+                roomCard.className = "bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm flex h-28 relative transition-all hover:shadow-md";
+
+                roomCard.innerHTML = `
+                    <div class="w-28 relative">
+                        <img src="${imgUrl}" alt="${room.name}" class="h-full w-full object-cover">
+                        ${room.isOccupied ? `
+                            <div class="absolute inset-0 bg-emerald-950/20 backdrop-blur-[1px] flex items-center justify-center">
+                                <span class="bg-brand text-white text-[9px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                    <i class="ph-bold ph-person-walking"></i> Ocupado
+                                </span>
+                            </div>
+                        ` : `
+                            <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center">
+                                <span class="bg-slate-700/80 text-slate-200 text-[9px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                    <i class="ph-bold ph-user-minus"></i> Vacío
+                                </span>
+                            </div>
+                        `}
+                    </div>
+
+                    <div class="flex-1 p-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-extrabold text-slate-800 text-sm leading-tight">${room.name}</h4>
+                                <button onclick="deleteRoom('${room.id}')" class="text-slate-300 hover:text-red-500 transition-all">
+                                    <i class="ph ph-trash text-sm"></i>
+                                </button>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-semibold block mt-0.5">Sensor: ${room.sensorType}</span>
+                        </div>
+
+                        <div class="flex justify-between items-center mt-2">
+                            <div>
+                                <span class="text-[10px] block font-extrabold ${room.lightsOn ? 'text-amber-500' : 'text-slate-400'}">
+                                    ${room.lightsOn ? `${room.lights} Luces encendidas` : 'Luces apagadas'}
+                                </span>
+                                <span class="text-[9px] text-slate-400 block">Eco Mode: ${room.autoOff ? 'Auto-Apagado' : 'Manual'}</span>
+                            </div>
+
+                            <!-- Switch de iluminación principal de la habitación -->
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" ${room.lightsOn ? 'checked' : ''} class="sr-only peer" onchange="toggleRoomLights('${room.id}', this.checked)">
+                                <div class="w-10 h-5.5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-brand"></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Acción rápida: botón simulador de presencia para interactuar (Como grado 11) -->
+                    <button onclick="toggleRoomPresence('${room.id}')" title="Simular presencia de persona" class="absolute -left-1.5 -top-1.5 w-6 h-6 rounded-full bg-white border border-slate-100 flex items-center justify-center text-xs shadow hover:scale-110 transition-all text-brand z-10">
+                        <i class="ph-bold ph-fingerprint"></i>
+                    </button>
+                `;
+                container.appendChild(roomCard);
+            });
+
+            // Actualizar contadores del Dashboard
+            document.getElementById('active-rooms-count').innerText = occupiedCount;
+            document.getElementById('on-lights-count').innerText = lightsOnCount;
+        }
+
+        // Cambiar estado de luces manualmente
+        function toggleRoomLights(roomId, isChecked) {
+            rooms = rooms.map(room => {
+                if (room.id === roomId) {
+                    room.lightsOn = isChecked;
+                    // Agregar registro al historial
+                    const logText = isChecked ? "Encendido manual" : "Apagado manual";
+                    addHistoryLog(room.name, "manual", logText, isChecked ? 'on' : 'off');
+                }
+                return room;
+            });
+            saveAndRefresh();
+        }
+
+        // Simular sensor de presencia (¡Crucial para que el usuario pueda jugar y probar la app de grado 11!)
+        function toggleRoomPresence(roomId) {
+            rooms = rooms.map(room => {
+                if (room.id === roomId) {
+                    room.isOccupied = !room.isOccupied;
+                    
+                    if (room.isOccupied) {
+                        // Si entra persona, se enciende la luz automáticamente
+                        room.lightsOn = true;
+                        addHistoryLog(room.name, "detect", "Persona ingresó (Detección)", 'on');
+                        showToast('ph-person-walking', `Presencia en ${room.name}`, 'brand');
+                    } else {
+                        // Si sale persona y autoOff está activo, se apaga automáticamente tras unos segundos (simulado de inmediato)
+                        if (room.autoOff) {
+                            room.lightsOn = false;
+                            addHistoryLog(room.name, "auto-off", "Auto-Apagado por ausencia", 'off');
+                            showToast('ph-leaf', `Auto-Apagado en ${room.name}`, 'brand');
+                        } else {
+                            addHistoryLog(room.name, "empty", "Habitación desocupada", 'off');
+                        }
+                    }
+                }
+                return room;
+            });
+            saveAndRefresh();
+        }
+
+        // Guardar en localStorage y actualizar pantalla
+        function saveAndRefresh() {
+            localStorage.setItem('ecolight_rooms', JSON.stringify(rooms));
+            renderRooms();
+        }
+
+        // Filtrado por buscador
+        function filterRooms() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('#rooms-container > div');
+
+            cards.forEach((card, index) => {
+                const room = rooms[index];
+                const matchesName = room.name.toLowerCase().includes(query);
+                const matchesSensor = room.sensorType.toLowerCase().includes(query);
+                
+                if (matchesName || matchesSensor) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Renderizar Historial (Exploración de datos)
+        function renderHistory() {
+            const container = document.getElementById('history-list');
+            container.innerHTML = '';
+
+            let filtered = history;
+            if (currentHistoryFilter === 'on') {
+                filtered = history.filter(h => h.type === 'on');
+            } else if (currentHistoryFilter === 'off') {
+                filtered = history.filter(h => h.type === 'off');
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 font-semibold">Sin registros de actividad para este filtro</p>`;
+                return;
+            }
+
+            filtered.forEach(log => {
+                const isOff = log.type === 'off';
+                
+                const item = document.createElement('div');
+                item.className = "bg-white p-3 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-base ${isOff ? 'bg-emerald-50 text-brand' : 'bg-amber-50 text-amber-500'}">
+                            <i class="${isOff ? 'ph-bold ph-leaf' : 'ph-bold ph-lightbulb'}"></i>
+                        </div>
+                        <div>
+                            <span class="font-extrabold text-xs text-slate-800 block">${log.roomName}</span>
+                            <span class="text-[10px] text-slate-400 block">${log.text}</span>
+                        </div>
+                    </div>
+                    <span class="text-[9px] text-slate-400 font-extrabold">${log.time}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Cambiar filtros de historial
+        function filterHistory(type) {
+            currentHistoryFilter = type;
+            
+            // Estilos de botones
+            const btnAll = document.getElementById('btn-hist-all');
+            const btnOff = document.getElementById('btn-hist-off');
+            const btnOn = document.getElementById('btn-hist-on');
+
+            [btnAll, btnOff, btnOn].forEach(btn => {
+                btn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-100 transition-all";
+            });
+
+            if (type === 'all') {
+                btnAll.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-slate-950 text-white transition-all";
+            } else if (type === 'off') {
+                btnOff.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-slate-950 text-white transition-all";
+            } else if (type === 'on') {
+                btnOn.className = "flex-1 py-2 rounded-xl text-xs font-bold bg-slate-950 text-white transition-all";
+            }
+
+            renderHistory();
+        }
+
+        // Agregar evento al historial
+        function addHistoryLog(roomName, action, text, type) {
+            const newLog = {
+                id: 'h_' + Date.now(),
+                roomName: roomName,
+                action: action,
+                text: text,
+                time: "Hace instantes",
+                type: type
+            };
+            history.unshift(newLog);
+            if (history.length > 20) history.pop(); // Mantener historial corto
+            localStorage.setItem('ecolight_history', JSON.stringify(history));
+        }
+
+        // Seleccionar imagen en formulario (Pantalla 3)
+        function selectFormImg(type) {
+            selectedImgType = type;
+            document.querySelectorAll('.room-img-opt').forEach(opt => {
+                opt.classList.replace('border-brand', 'border-transparent');
+            });
+            document.getElementById(`img-opt-${type}`).classList.replace('border-transparent', 'border-brand');
+        }
+
+        // Actualizar texto del input range (Campo 4 de Formulario)
+        function updateRangeText(value) {
+            const valText = document.getElementById('range-value');
+            if (value === '1') valText.innerText = "Baja (Evita falsos encendidos)";
+            if (value === '2') valText.innerText = "Media (Estándar inteligente)";
+            if (value === '3') valText.innerText = "Alta (Detecta hasta respiración)";
+        }
+
+        // Crear nueva habitación desde formulario (Pantalla 3)
+        function createNewRoom(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('form-name').value.trim();
+            const lights = document.getElementById('form-lights').value;
+            const sensorType = document.getElementById('form-sensor-type').value;
+            const sensitivityVal = document.getElementById('form-sensitivity').value;
+            const autoOff = document.getElementById('form-auto-off').checked;
+
+            let sensitivity = 'MEDIA';
+            if (sensitivityVal === '1') sensitivity = 'BAJA';
+            if (sensitivityVal === '3') sensitivity = 'ALTA';
+
+            const newRoom = {
+                id: 'r_' + Date.now(),
+                name: name,
+                lights: parseInt(lights),
+                sensorType: sensorType,
+                sensitivity: sensitivity,
+                isOccupied: false,
+                lightsOn: false,
+                autoOff: autoOff,
+                imageType: selectedImgType
+            };
+
+            rooms.push(newRoom);
+            localStorage.setItem('ecolight_rooms', JSON.stringify(rooms));
+
+            addHistoryLog(name, "create", "Nueva habitación registrada en EcoLight", 'off');
+
+            // Limpiar formulario
+            document.getElementById('new-room-form').reset();
+            updateRangeText('2');
+            selectFormImg('living');
+
+            showToast('ph-house-line', `${name} registrada`, 'brand');
+            goToScreen(1); // Redirigir a Home
+        }
+
+        // Eliminar habitación
+        function deleteRoom(id) {
+            const room = rooms.find(r => r.id === id);
+            if (room) {
+                rooms = rooms.filter(r => r.id !== id);
+                localStorage.setItem('ecolight_rooms', JSON.stringify(rooms));
+                addHistoryLog(room.name, "delete", "Habitación desvinculada del sistema", 'off');
+                showToast('ph-trash', 'Habitación removida', 'red-500');
+                renderRooms();
+            }
+        }
+
+        // Toggle global Eco (Modifica todas las habitaciones)
+        function toggleGlobalEco() {
+            const checked = document.getElementById('global-eco-mode').checked;
+            rooms = rooms.map(r => {
+                r.autoOff = checked;
+                return r;
+            });
+            saveAndRefresh();
+            showToast('ph-leaf', checked ? 'Eco-Modo global activado' : 'Eco-Modo desactivado', 'brand');
+        }
+
+        // Dibujar gráfico personalizado con Canvas (Inspirado en la imagen 5)
+        function drawStatsChart() {
+            const canvas = document.getElementById('stats-canvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            
+            // Ajustar tamaño del canvas para pantallas de retina/alto contraste
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            const width = canvas.width;
+            const height = canvas.height;
+
+            // Limpiar
+            ctx.clearRect(0, 0, width, height);
+
+            // Datos de prueba de la semana
+            const rawCons = [40, 55, 30, 75, 50, 80, 45]; // Consumo original sin EcoLight
+            const savedCons = [25, 35, 12, 50, 30, 48, 22]; // Consumo real con el ahorro de EcoLight
+
+            const padding = 20;
+            const chartWidth = width - (padding * 2);
+            const chartHeight = height - (padding * 2);
+
+            const maxVal = 90; // Escala máxima
+
+            // Función de proyección de coordenadas
+            function getX(index) {
+                return padding + (index * (chartWidth / (rawCons.length - 1)));
+            }
+
+            function getY(val) {
+                return padding + chartHeight - ((val / maxVal) * chartHeight);
+            }
+
+            // --- 1. Dibujar Área de Ahorro EcoLight (Verde brillante) ---
+            ctx.beginPath();
+            ctx.moveTo(getX(0), getY(0));
+            for (let i = 0; i < rawCons.length; i++) {
+                ctx.lineTo(getX(i), getY(savedCons[i]));
+            }
+            // Cerrar el polígono hacia el fondo
+            ctx.lineTo(getX(rawCons.length - 1), getY(0));
+            ctx.closePath();
+            
+            let greenGrad = ctx.createLinearGradient(0, 0, 0, height);
+            greenGrad.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+            greenGrad.addColorStop(1, 'rgba(16, 185, 129, 0.02)');
+            ctx.fillStyle = greenGrad;
+            ctx.fill();
+
+            // --- 2. Línea de Ahorro (Verde sólida) ---
+            ctx.beginPath();
+            ctx.moveTo(getX(0), getY(savedCons[0]));
+            for (let i = 1; i < rawCons.length; i++) {
+                ctx.lineTo(getX(i), getY(savedCons[i]));
+            }
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3.5;
+            ctx.stroke();
+
+            // --- 3. Línea de Consumo sin EcoLight (Gris / Azul oscuro de la Imagen 5) ---
+            ctx.beginPath();
+            ctx.moveTo(getX(0), getY(rawCons[0]));
+            for (let i = 1; i < rawCons.length; i++) {
+                ctx.lineTo(getX(i), getY(rawCons[i]));
+            }
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([4, 4]); // Línea segmentada para diferenciar
+            ctx.stroke();
+            ctx.setLineDash([]); // Restaurar
+
+            // --- 4. Dibujar puntos destacados de interacción en picos ---
+            const peakIdx = 5; // El pico máximo en el día de mayor descuido (Día 6)
+            ctx.beginPath();
+            ctx.arc(getX(peakIdx), getY(rawCons[peakIdx]), 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#0f172a';
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.arc(getX(peakIdx), getY(savedCons[peakIdx]), 5, 0, 2 * Math.PI);
+            ctx.fillStyle = '#10b981';
+            ctx.fill();
+
+            // Etiquetas de eje X sencillas
+            const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 10px Nunito';
+            ctx.textAlign = 'center';
+            for (let i = 0; i < days.length; i++) {
+                ctx.fillText(days[i], getX(i), height - 2);
+            }
+        }
+
+        // Limpieza de datos (Reset de fábrica)
+        function clearAllData() {
+            if (confirm("¿Estás seguro de que deseas reiniciar todos los datos? Se restablecerán las habitaciones por defecto.")) {
+                localStorage.clear();
+                rooms = DEFAULT_ROOMS;
+                history = DEFAULT_HISTORY;
+                localStorage.setItem('ecolight_rooms', JSON.stringify(rooms));
+                localStorage.setItem('ecolight_history', JSON.stringify(history));
+                
+                showToast('ph-arrows-clockwise', 'Aplicación reiniciada', 'brand');
+                goToScreen(1);
+            }
+        }
+    </script>
+</body>
+</html>

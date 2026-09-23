@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riego Preciso - Más Productividad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Ocultar barra de desplazamiento manteniendo funcionalidad */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #e5e7eb; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex justify-center items-center min-h-screen p-4">
+
+    <div class="w-full max-w-md h-[844px] bg-gray-50 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col border-[8px] border-gray-800">
+        
+        <!-- ================= PANTALLA DE LOGIN ================= -->
+        <div id="pantalla-login" class="absolute inset-0 bg-white z-50 flex flex-col justify-center items-center p-8 transition-opacity duration-500">
+            <div class="w-24 h-24 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <i class="ph-fill ph-drop text-6xl"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold text-brand-900 tracking-tight text-center leading-tight mb-2">RIEGO<br>PRECISO</h1>
+            <p class="text-brand-600 text-sm font-bold uppercase tracking-widest mb-12">Más Productividad</p>
+
+            <div class="w-full space-y-4 mb-8">
+                <div>
+                    <label class="block text-gray-500 text-xs font-bold mb-1 ml-1 uppercase">Usuario</label>
+                    <div class="flex items-center bg-gray-100 rounded-xl p-3 border border-gray-200">
+                        <i class="ph-bold ph-user text-gray-400 text-xl mr-3"></i>
+                        <input type="text" placeholder="Correo electrónico" class="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-500 text-xs font-bold mb-1 ml-1 uppercase">Contraseña</label>
+                    <div class="flex items-center bg-gray-100 rounded-xl p-3 border border-gray-200">
+                        <i class="ph-bold ph-lock-key text-gray-400 text-xl mr-3"></i>
+                        <input type="password" placeholder="••••••••" class="bg-transparent w-full outline-none text-gray-700 placeholder-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="iniciarSesion()" class="w-full bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-brand-600/30 hover:bg-brand-700 active:scale-95 transition-all text-lg mb-4">
+                Iniciar sesión
+            </button>
+            
+            <button class="text-brand-600 font-semibold text-sm hover:underline">
+                Olvidé mi contraseña
+            </button>
+        </div>
+
+        <!-- ================= MODAL DE PERMISOS ================= -->
+        <div id="modal-sensores" class="absolute inset-0 bg-black/60 z-40 hidden justify-center items-center p-6 transition-opacity duration-300 opacity-0">
+            <div class="bg-white rounded-3xl p-6 w-full shadow-xl transform scale-95 transition-transform duration-300" id="modal-content">
+                <div class="flex items-center gap-3 text-brand-600 mb-4">
+                    <i class="ph-bold ph-cpu text-3xl"></i>
+                    <h3 class="text-xl font-bold text-gray-800">Permisos App</h3>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">Para la gestión del sistema de riego, la app requiere declarar el uso de:</p>
+                <ul class="space-y-3 text-sm text-gray-700 mb-6">
+                    <li class="flex items-center gap-2 bg-blue-50 p-2 rounded-lg"><i class="ph-bold ph-bluetooth text-blue-500 text-lg"></i> <span><strong>Bluetooth:</strong> Conexión a válvulas.</span></li>
+                    <li class="flex items-center gap-2 bg-orange-50 p-2 rounded-lg"><i class="ph-bold ph-envelope text-orange-500 text-lg"></i> <span><strong>Correo:</strong> Alertas y reportes.</span></li>
+                    <li class="flex items-center gap-2 bg-purple-50 p-2 rounded-lg"><i class="ph-bold ph-image text-purple-500 text-lg"></i> <span><strong>Fotos:</strong> Registro visual.</span></li>
+                    <li class="flex items-center gap-2 bg-red-50 p-2 rounded-lg"><i class="ph-bold ph-map-pin text-red-500 text-lg"></i> <span><strong>GPS:</strong> Geolocalización de parcelas.</span></li>
+                </ul>
+                <button onclick="aceptarSensores()" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-600/30 hover:bg-brand-700 active:scale-95 transition-all">
+                    Entendido y Continuar
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= CONTENIDO PRINCIPAL ================= -->
+        <div class="flex-1 overflow-y-auto no-scrollbar relative pb-24">
+
+            <!-- PANTALLA 0: INICIO -->
+            <section id="pantalla-inicio" class="hidden flex-col h-full p-6 pt-10 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-brand-900 tracking-tight">RIEGO PRECISO</h1>
+                        <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Panel de Control</p>
+                    </div>
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 text-gray-600">
+                        <i class="ph-bold ph-bell text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-brand-500 to-brand-700 rounded-3xl p-6 text-white shadow-lg shadow-brand-600/30 mb-6 relative overflow-hidden">
+                    <i class="ph-fill ph-plant absolute -bottom-4 -right-4 text-8xl text-white/10"></i>
+                    <h2 class="text-lg font-bold mb-1">Estado General</h2>
+                    <p class="text-brand-100 text-sm mb-4">Sistema operando correctamente</p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4">
+                            <i class="ph-bold ph-drop text-2xl mb-1"></i>
+                            <p class="text-xs text-brand-100 font-semibold">Humedad Suelo</p>
+                            <p class="text-2xl font-bold">45%</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4">
+                            <i class="ph-bold ph-thermometer text-2xl mb-1"></i>
+                            <p class="text-xs text-brand-100 font-semibold">Temperatura</p>
+                            <p class="text-2xl font-bold">24°C</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-gray-800 mb-3">Zonas Activas</h3>
+                <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center">
+                            <i class="ph-fill ph-plant text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800">Huerta Norte</h3>
+                            <p class="text-xs text-green-600 font-semibold">Regando ahora (15 min)</p>
+                        </div>
+                    </div>
+                    <button class="bg-red-50 text-red-500 p-3 rounded-full hover:bg-red-100 transition">
+                        <i class="ph-bold ph-stop text-xl"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- PANTALLA 1: PROGRAMAS (CALENDARIO) -->
+            <section id="pantalla-programas" class="hidden flex-col h-full p-6 pt-10 fade-in">
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-1">Programación</h1>
+                <p class="text-gray-500 text-sm mb-6">Calendario de riego anual 2026</p>
+
+                <!-- Calendario Simulado (Mes actual) -->
+                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <button class="p-2 text-gray-400 hover:text-brand-600"><i class="ph-bold ph-caret-left"></i></button>
+                        <h2 class="font-bold text-lg text-gray-800">Agosto 2026</h2>
+                        <button class="p-2 text-gray-400 hover:text-brand-600"><i class="ph-bold ph-caret-right"></i></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
+                        <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2 text-center text-sm font-semibold text-gray-700">
+                        <div class="p-2 text-gray-300">27</div><div class="p-2 text-gray-300">28</div><div class="p-2 text-gray-300">29</div><div class="p-2 text-gray-300">30</div><div class="p-2 text-gray-300">31</div>
+                        <div class="p-2 bg-brand-50 text-brand-600 rounded-lg">1</div><div class="p-2">2</div>
+                        <div class="p-2">3</div><div class="p-2">4</div><div class="p-2 bg-brand-50 text-brand-600 rounded-lg relative">5<div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-brand-500 rounded-full"></div></div>
+                        <div class="p-2">6</div><div class="p-2">7</div><div class="p-2">8</div><div class="p-2 bg-brand-500 text-white rounded-lg shadow-md">9</div>
+                        <div class="p-2">10</div><div class="p-2">11</div><div class="p-2">12</div><div class="p-2 bg-brand-50 text-brand-600 rounded-lg">13</div>
+                        <div class="p-2">14</div><div class="p-2">15</div><div class="p-2">16</div>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-gray-800 mb-3">Próximos eventos</h3>
+                <div class="space-y-3">
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex flex-col items-center justify-center font-bold">
+                            <span class="text-xs">AGO</span>
+                            <span class="text-lg leading-none">09</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">Riego Intensivo</h4>
+                            <p class="text-xs text-gray-500">Todas las zonas • 06:00 AM</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANTALLA 2: REPORTES -->
+            <section id="pantalla-reportes" class="hidden flex-col h-full p-6 pt-10 fade-in">
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-1">Impacto 2026</h1>
+                <p class="text-gray-500 text-sm mb-6">Pequeñas acciones, grandes cambios.</p>
+
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Tarjeta 1 -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-green-100 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-green-100 text-green-600 rounded-lg flex items-center justify-center"><i class="ph-fill ph-tree text-lg"></i></div>
+                                <h3 class="font-bold text-gray-600 text-sm uppercase">Árboles Plantados</h3>
+                            </div>
+                            <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2 py-1 rounded-md">+18% vs 2025</span>
+                        </div>
+                        <p class="text-3xl font-extrabold text-gray-900">12,458</p>
+                    </div>
+
+                    <!-- Tarjeta 2 -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-100 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center"><i class="ph-fill ph-drop text-lg"></i></div>
+                                <h3 class="font-bold text-gray-600 text-sm uppercase">Agua Ahorrada (L)</h3>
+                            </div>
+                            <span class="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-1 rounded-md">+22% vs 2025</span>
+                        </div>
+                        <p class="text-3xl font-extrabold text-gray-900">98,765</p>
+                    </div>
+
+                    <!-- Tarjeta 3 -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-orange-100 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center"><i class="ph-fill ph-recycle text-lg"></i></div>
+                                <h3 class="font-bold text-gray-600 text-sm uppercase">Residuos Reciclados (KG)</h3>
+                            </div>
+                            <span class="bg-orange-50 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-md">+15% vs 2025</span>
+                        </div>
+                        <p class="text-3xl font-extrabold text-gray-900">5,432</p>
+                    </div>
+
+                    <!-- Tarjeta 4 -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-yellow-100 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center"><i class="ph-fill ph-lightning text-lg"></i></div>
+                                <h3 class="font-bold text-gray-600 text-sm uppercase">Energía Ahorrada (KWH)</h3>
+                            </div>
+                            <span class="bg-yellow-50 text-yellow-600 text-[10px] font-bold px-2 py-1 rounded-md">+10% vs 2025</span>
+                        </div>
+                        <p class="text-3xl font-extrabold text-gray-900">15,182</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANTALLA 3: USUARIOS -->
+            <section id="pantalla-usuarios" class="hidden flex-col h-full p-6 pt-10 fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-2xl font-extrabold text-gray-900">Usuarios</h1>
+                        <p class="text-gray-500 text-sm">Total de usuarios: <span class="font-bold text-brand-600">24</span></p>
+                    </div>
+                    <button class="bg-brand-100 text-brand-600 p-2 rounded-xl hover:bg-brand-200">
+                        <i class="ph-bold ph-plus text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl p-3 flex items-center gap-2 border border-gray-200 mb-6 shadow-sm">
+                    <i class="ph-bold ph-magnifying-glass text-gray-400 text-lg"></i>
+                    <input type="text" placeholder="Buscar usuario..." class="bg-transparent w-full outline-none text-sm text-gray-700">
+                </div>
+
+                <div class="space-y-3">
+                    <!-- Usuario 1 -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold">AM</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">Andrés Martínez</h4>
+                                <p class="text-xs text-gray-500">andres.martinez@gmail.com</p>
+                            </div>
+                        </div>
+                        <span class="bg-purple-50 border border-purple-200 text-purple-700 text-[10px] font-bold px-2 py-1 rounded-lg">Admin</span>
+                    </div>
+
+                    <!-- Usuario 2 -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center font-bold">MG</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">María González</h4>
+                                <p class="text-xs text-gray-500">maria.gonzalez@gmail.com</p>
+                            </div>
+                        </div>
+                        <span class="bg-orange-50 border border-orange-200 text-orange-700 text-[10px] font-bold px-2 py-1 rounded-lg">Técnico</span>
+                    </div>
+
+                    <!-- Usuario 3 -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center font-bold">JP</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">Juan Pérez</h4>
+                                <p class="text-xs text-gray-500">juan.perez@gmail.com</p>
+                            </div>
+                        </div>
+                        <span class="bg-gray-100 border border-gray-200 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-lg">Usuario</span>
+                    </div>
+                    
+                    <!-- Usuario 4 -->
+                    <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center font-bold">LS</div>
+                            <div>
+                                <h4 class="font-bold text-gray-800 text-sm">Laura Sánchez</h4>
+                                <p class="text-xs text-gray-500">laura.sanchez@gmail.com</p>
+                            </div>
+                        </div>
+                        <span class="bg-gray-100 border border-gray-200 text-gray-600 text-[10px] font-bold px-2 py-1 rounded-lg">Usuario</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANTALLA 4: AJUSTES (CONFIGURACIÓN) -->
+            <section id="pantalla-ajustes" class="hidden flex-col h-full p-6 pt-10 fade-in">
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-6">Configuración</h1>
+                
+                <!-- Sección General -->
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-2">General</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 divide-y divide-gray-50">
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+                        <span class="font-semibold text-sm text-gray-700">Idioma</span>
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="text-xs">Español</span>
+                            <i class="ph-bold ph-caret-right"></i>
+                        </div>
+                    </div>
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+                        <span class="font-semibold text-sm text-gray-700">Zona horaria</span>
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="text-xs">GMT-5</span>
+                            <i class="ph-bold ph-caret-right"></i>
+                        </div>
+                    </div>
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+                        <span class="font-semibold text-sm text-gray-700">Unidades</span>
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="text-xs">°C / mm</span>
+                            <i class="ph-bold ph-caret-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Riego -->
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-2">Riego</h3>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 divide-y divide-gray-50">
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+                        <span class="font-semibold text-sm text-gray-700">Ajustes generales</span>
+                        <i class="ph-bold ph-caret-right text-gray-400"></i>
+                    </div>
+                    <div class="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-sm text-gray-700">Sensores</span>
+                            <span class="text-xs text-gray-400">Configura sensores y umbrales</span>
+                        </div>
+                        <i class="ph-bold ph-caret-right text-gray-400"></i>
+                    </div>
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-sm text-gray-700">Omitir por lluvia</span>
+                            <span class="text-xs text-gray-400">Pausar riego según pronóstico</span>
+                        </div>
+                        <div class="w-10 h-6 bg-brand-500 rounded-full relative cursor-pointer">
+                            <div class="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="cerrarSesion()" class="w-full bg-red-50 text-red-600 font-bold py-3 rounded-xl hover:bg-red-100 transition mt-4 mb-4">
+                    Cerrar Sesión
+                </button>
+            </section>
+        </div>
+
+        <!-- ================= BARRA DE NAVEGACIÓN INFERIOR ================= -->
+        <nav id="bottom-nav" class="hidden absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 px-4 py-3 rounded-b-[32px] pb-6 z-30">
+            <div class="flex justify-between items-center max-w-sm mx-auto">
+                <button onclick="cambiarPantalla('pantalla-inicio', this)" class="nav-btn flex flex-col items-center gap-1 text-brand-600 transition-colors w-14">
+                    <i class="ph-fill ph-house text-2xl"></i>
+                    <span class="text-[9px] font-bold">Inicio</span>
+                </button>
+                <button onclick="cambiarPantalla('pantalla-programas', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition-colors w-14">
+                    <i class="ph-bold ph-calendar-blank text-2xl"></i>
+                    <span class="text-[9px] font-bold">Programas</span>
+                </button>
+                <button onclick="cambiarPantalla('pantalla-reportes', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition-colors w-14">
+                    <i class="ph-bold ph-chart-bar text-2xl"></i>
+                    <span class="text-[9px] font-bold">Reportes</span>
+                </button>
+                <button onclick="cambiarPantalla('pantalla-usuarios', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition-colors w-14">
+                    <i class="ph-bold ph-users text-2xl"></i>
+                    <span class="text-[9px] font-bold">Usuarios</span>
+                </button>
+                <button onclick="cambiarPantalla('pantalla-ajustes', this)" class="nav-btn flex flex-col items-center gap-1 text-gray-400 hover:text-brand-500 transition-colors w-14">
+                    <i class="ph-bold ph-gear text-2xl"></i>
+                    <span class="text-[9px] font-bold">Ajustes</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Flujo 1: Iniciar sesión
+        function iniciarSesion() {
+            const loginPantalla = document.getElementById('pantalla-login');
+            const modalSensores = document.getElementById('modal-sensores');
+            
+            // Desvanecer login
+            loginPantalla.style.opacity = '0';
+            
+            setTimeout(() => {
+                loginPantalla.classList.add('hidden');
+                
+                // Mostrar Modal de permisos
+                modalSensores.classList.remove('hidden');
+                modalSensores.classList.add('flex');
+                
+                // Pequeño delay para la animación de entrada del modal
+                setTimeout(() => {
+                    modalSensores.style.opacity = '1';
+                    document.getElementById('modal-content').classList.remove('scale-95');
+                    document.getElementById('modal-content').classList.add('scale-100');
+                }, 50);
+                
+            }, 500);
+        }
+
+        // Flujo 2: Aceptar permisos del modal
+        function aceptarSensores() {
+            const modal = document.getElementById('modal-sensores');
+            
+            // Animación de salida
+            modal.style.opacity = '0';
+            document.getElementById('modal-content').classList.remove('scale-100');
+            document.getElementById('modal-content').classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                
+                // Mostrar pantalla de inicio y navegación
+                document.getElementById('pantalla-inicio').classList.remove('hidden');
+                document.getElementById('pantalla-inicio').classList.add('flex');
+                document.getElementById('bottom-nav').classList.remove('hidden');
+            }, 300);
+        }
+
+        // Flujo 3: Navegación entre las 5 pantallas principales
+        function cambiarPantalla(pantallaId, btnElement) {
+            // IDs de todas las pantallas posibles
+            const pantallas = [
+                'pantalla-inicio', 
+                'pantalla-programas', 
+                'pantalla-reportes', 
+                'pantalla-usuarios', 
+                'pantalla-ajustes'
+            ];
+            
+            // 1. Ocultar todas las pantallas
+            pantallas.forEach(id => {
+                const pantalla = document.getElementById(id);
+                pantalla.classList.add('hidden');
+                pantalla.classList.remove('flex');
+            });
+
+            // 2. Mostrar la pantalla solicitada
+            const pantallaActiva = document.getElementById(pantallaId);
+            pantallaActiva.classList.remove('hidden');
+            pantallaActiva.classList.add('flex');
+
+            // 3. Reiniciar estilos de TODOS los botones de navegación
+            const todosLosBotones = document.querySelectorAll('.nav-btn');
+            todosLosBotones.forEach(btn => {
+                btn.classList.remove('text-brand-600');
+                btn.classList.add('text-gray-400');
+                
+                const icon = btn.querySelector('i');
+                // Cambiar de fill (relleno) a bold (línea)
+                icon.classList.remove('ph-fill');
+                icon.classList.add('ph-bold');
+            });
+
+            // 4. Resaltar el botón activo (el que se hizo click)
+            btnElement.classList.remove('text-gray-400');
+            btnElement.classList.add('text-brand-600');
+            
+            const iconActivo = btnElement.querySelector('i');
+            iconActivo.classList.remove('ph-bold');
+            iconActivo.classList.add('ph-fill');
+        }
+
+        // Flujo 4: Cerrar Sesión (Reinicia al login)
+        function cerrarSesion() {
+            // Ocultar navegeción
+            document.getElementById('bottom-nav').classList.add('hidden');
+            
+            // Ocultar todas las pantallas
+            const pantallas = ['pantalla-inicio', 'pantalla-programas', 'pantalla-reportes', 'pantalla-usuarios', 'pantalla-ajustes'];
+            pantallas.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+                document.getElementById(id).classList.remove('flex');
+            });
+
+            // Mostrar Login de nuevo
+            const loginPantalla = document.getElementById('pantalla-login');
+            loginPantalla.classList.remove('hidden');
+            setTimeout(() => {
+                loginPantalla.style.opacity = '1';
+            }, 50);
+            
+            // Reiniciar estado del Bottom Nav para el próximo inicio de sesión
+            const btnInicio = document.querySelector('.nav-btn'); // El primero es Inicio
+            cambiarPantalla('pantalla-inicio', btnInicio);
+        }
+    </script>
+</body>
+</html>

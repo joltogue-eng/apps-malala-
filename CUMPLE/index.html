@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Cumpleaños</title>
+    <!-- Google Fonts: Nunito -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* Smooth Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f43f5e40;
+            border-radius: 10px;
+        }
+        /* Custom Animation for transitions */
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .bounce-soft {
+            animation: bounceSoft 2s infinite;
+        }
+        @keyframes bounceSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans min-h-screen flex justify-center items-center">
+
+    <!-- Container Móvil Principal (Mobile-First Frame) -->
+    <div id="app-container" class="w-full max-w-md h-[840px] bg-white shadow-2xl rounded-[36px] overflow-hidden flex flex-col relative border-8 border-slate-900">
+        
+        <!-- BARRA DE ESTADO SIMULADA -->
+        <div class="bg-white text-slate-800 px-6 pt-3 pb-1 flex justify-between items-center text-xs font-bold shrink-0 z-20">
+            <span id="live-clock">10:30</span>
+            <!-- Cámara simulada / Notch del móvil -->
+            <div class="w-20 h-4 bg-slate-900 rounded-full mx-auto -mt-2"></div>
+            <div class="flex items-center gap-1">
+                <i class="ph-bold ph-wifi-high text-sm"></i>
+                <i class="ph-bold ph-battery-full text-base"></i>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE ACCESO (Login / Registro) -->
+        <div id="screen-login" class="flex-1 flex flex-col justify-between p-6 bg-gradient-to-b from-brand-50 to-white overflow-y-auto">
+            <div class="flex flex-col items-center text-center mt-8">
+                <div class="w-24 h-24 bg-brand-500 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-brand-300 mb-4 bounce-soft">
+                    <i class="ph-fill ph-cake text-5xl"></i>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Mis Cumpleaños</h1>
+                <p class="text-slate-500 text-sm mt-2 max-w-[280px]">Organiza y celebra cada fecha especial de tus personas queridas sin olvidar ningún regalo.</p>
+            </div>
+
+            <!-- Formulario de Acceso -->
+            <div class="my-6 space-y-4">
+                <div class="bg-rose-50 border border-brand-100 p-3 rounded-2xl flex items-start gap-2.5 text-xs text-brand-700">
+                    <i class="ph-fill ph-info text-base shrink-0 mt-0.5"></i>
+                    <p><strong>Demo Rápido:</strong> Introduce cualquier usuario y clave para ingresar y guardar tus datos en el navegador.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1 ml-1 uppercase">Nombre de Usuario</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-user absolute left-4 top-3.5 text-slate-400"></i>
+                        <input id="login-username" type="text" placeholder="Ej. InvitadoEstrella" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1 ml-1 uppercase">Clave de Seguridad</label>
+                    <div class="relative">
+                        <i class="ph-bold ph-lock absolute left-4 top-3.5 text-slate-400"></i>
+                        <input id="login-password" type="password" placeholder="••••••••" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 transition-all">
+                    </div>
+                </div>
+                <button onclick="handleLogin()" class="w-full py-3.5 bg-brand-500 text-white font-bold rounded-2xl shadow-lg shadow-brand-200 hover:bg-brand-600 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span>Ingresar a la App</span>
+                    <i class="ph-bold ph-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="text-center text-xs text-slate-400">
+                Diseñado para momentos memorables • v1.0
+            </div>
+        </div>
+
+        <!-- PANTALLA PRINCIPAL DE LA APP (AQUÍ DENTRO SE NAVEGA ENTRE HOME, CALENDARIO, NUEVO, STATS, PERFIL) -->
+        <div id="screen-main-app" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-50">
+            
+            <!-- Encabezado de la App (Fijo) -->
+            <header class="bg-white px-5 py-3 border-b border-slate-100 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 bg-brand-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                        <i class="ph-fill ph-cake-slice text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-slate-800 leading-none">Mis Cumpleaños</h2>
+                        <span id="app-user-greeting" class="text-[11px] text-slate-500 font-medium">Hola, Usuario</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="changeScreen('screen-add')" class="w-8 h-8 bg-brand-100 hover:bg-brand-200 text-brand-600 rounded-full flex items-center justify-center transition-all">
+                        <i class="ph-bold ph-plus text-base"></i>
+                    </button>
+                    <button onclick="logout()" class="w-8 h-8 bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-500 rounded-full flex items-center justify-center transition-all">
+                        <i class="ph-bold ph-sign-out text-base"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENEDOR DE PANTALLAS INTERNAS (Scrollable) -->
+            <div class="flex-1 overflow-y-auto relative p-4 pb-6">
+                
+                <!-- PANTALLA 1: HOME/INICIO -->
+                <div id="sub-screen-home" class="sub-screen space-y-4 fade-in">
+                    <!-- Buscador & Filtros -->
+                    <div class="space-y-3">
+                        <div class="relative">
+                            <i class="ph-bold ph-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+                            <input id="home-search" oninput="renderBirthdays()" type="text" placeholder="Buscar por nombre o regalo..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-400">
+                        </div>
+                        
+                        <!-- Categorías -->
+                        <div class="flex gap-2 overflow-x-auto pb-1" id="category-filter-list">
+                            <button onclick="filterCategory('Todos')" class="cat-btn active px-4 py-2 bg-brand-500 text-white text-xs font-extrabold rounded-full shadow-md transition-all shrink-0">Todos</button>
+                            <button onclick="filterCategory('Familiar')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-brand-50 text-xs font-semibold rounded-full border border-slate-200 transition-all shrink-0">👨‍👩‍👧 Familia</button>
+                            <button onclick="filterCategory('Amigo/a')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-brand-50 text-xs font-semibold rounded-full border border-slate-200 transition-all shrink-0">🤝 Amigos</button>
+                            <button onclick="filterCategory('Compañero/a')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-brand-50 text-xs font-semibold rounded-full border border-slate-200 transition-all shrink-0">💼 Trabajo</button>
+                            <button onclick="filterCategory('Otro')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-brand-50 text-xs font-semibold rounded-full border border-slate-200 transition-all shrink-0">✨ Otros</button>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Destacada: Próximo Cumpleaños -->
+                    <div id="highlight-birthday-card" class="bg-gradient-to-r from-brand-500 to-pink-500 text-white p-4.5 rounded-[24px] shadow-lg shadow-brand-200 relative overflow-hidden">
+                        <!-- Decoración Fondo -->
+                        <div class="absolute -right-8 -bottom-8 opacity-15">
+                            <i class="ph-fill ph-balloon text-9xl"></i>
+                        </div>
+                        <div class="relative z-10 flex flex-col h-full justify-between">
+                            <div class="flex justify-between items-start">
+                                <span class="bg-white/20 text-white text-[10px] px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wide">¡Próxima Celebración!</span>
+                                <i class="ph-fill ph-crown text-xl text-yellow-300"></i>
+                            </div>
+                            <div id="highlight-content" class="my-3">
+                                <!-- Dinámico -->
+                                <p class="text-sm opacity-90">No hay cumpleaños programados aún.</p>
+                                <h3 class="text-xl font-bold mt-1">¡Comienza a añadir!</h3>
+                            </div>
+                            <button onclick="changeScreen('screen-add')" class="self-start px-4 py-2 bg-white text-brand-600 text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-transform active:scale-95">
+                                <i class="ph-bold ph-plus-circle"></i> Agregar ahora
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Elementos Destacados/Cumpleaños -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center px-1">
+                            <h3 class="text-sm font-extrabold text-slate-700">Agenda de Cumpleaños</h3>
+                            <span id="birthday-count" class="text-xs text-brand-500 font-bold bg-brand-50 px-2 py-0.5 rounded-full">0 registrados</span>
+                        </div>
+
+                        <!-- Contenedor de Tarjetas de Cumpleaños -->
+                        <div id="birthdays-list" class="space-y-3">
+                            <!-- Ejemplo dinámico renderizado con JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANTALLA 2: EXPLORACIÓN/DATOS (Calendario interactivo) -->
+                <div id="sub-screen-calendar" class="sub-screen hidden space-y-4 fade-in">
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+                        <!-- Navegador de Mes del Calendario -->
+                        <div class="flex justify-between items-center mb-4">
+                            <button onclick="navigateMonth(-1)" class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100">
+                                <i class="ph-bold ph-caret-left"></i>
+                            </button>
+                            <h3 id="calendar-month-year" class="text-sm font-extrabold text-slate-800 uppercase tracking-wider">Enero 2026</h3>
+                            <button onclick="navigateMonth(1)" class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 text-slate-600 hover:bg-slate-100">
+                                <i class="ph-bold ph-caret-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Días de la semana -->
+                        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-extrabold text-slate-400 uppercase mb-2">
+                            <div>Do</div><div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sá</div>
+                        </div>
+
+                        <!-- Cuadrícula de días -->
+                        <div id="calendar-days-grid" class="grid grid-cols-7 gap-1">
+                            <!-- Inyectado dinámicamente con JS -->
+                        </div>
+                    </div>
+
+                    <!-- Detalle del día seleccionado -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-2 h-5 bg-brand-500 rounded-full"></div>
+                            <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Cumpleaños en este día</h4>
+                        </div>
+                        <div id="selected-day-birthdays" class="space-y-2">
+                            <p class="text-xs text-slate-400 text-center py-2">Selecciona un día en el calendario que tenga un indicador 🎂</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANTALLA 3: FORMULARIO DE ACCIÓN (Agregar/Editar) -->
+                <div id="sub-screen-add" class="sub-screen hidden space-y-4 fade-in">
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                        <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+                            <i class="ph-fill ph-plus-circle text-2xl text-brand-500"></i>
+                            <div>
+                                <h3 id="form-title" class="text-sm font-extrabold text-slate-800">Agregar Cumpleañero/a</h3>
+                                <p class="text-[10px] text-slate-400">Completa todos los datos para agendarlo.</p>
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="form-edit-id">
+
+                        <!-- Campo 1: Nombre Completo -->
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-slate-500 mb-1 uppercase tracking-wide">Nombre Completo</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-user-focus absolute left-3 top-3 text-slate-400"></i>
+                                <input id="form-name" type="text" placeholder="Ej. Sofía Rodríguez" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-400">
+                            </div>
+                        </div>
+
+                        <!-- Campo 2: Fecha de Nacimiento -->
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-slate-500 mb-1 uppercase tracking-wide">Fecha de Nacimiento</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-calendar-blank absolute left-3 top-3 text-slate-400"></i>
+                                <input id="form-birthdate" type="date" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-400">
+                            </div>
+                        </div>
+
+                        <!-- Campo 3: Relación (Dropdown) -->
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-slate-500 mb-1 uppercase tracking-wide">Relación / Vínculo</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-users-three absolute left-3 top-3 text-slate-400"></i>
+                                <select id="form-relationship" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-brand-400">
+                                    <option value="Familiar">👨‍👩‍👧 Familiar</option>
+                                    <option value="Amigo/a" selected>🤝 Amigo/a</option>
+                                    <option value="Compañero/a">💼 Compañero/a de Trabajo</option>
+                                    <option value="Pareja">❤️ Pareja</option>
+                                    <option value="Otro">✨ Otro / Especial</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Campo 4: Timbre / Aviso (Dropdown) -->
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-slate-500 mb-1 uppercase tracking-wide">Timbre de aviso (Alarma)</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-bell-ringing absolute left-3 top-3 text-slate-400"></i>
+                                <select id="form-tone" class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs appearance-none focus:outline-none focus:ring-2 focus:ring-brand-400">
+                                    <option value="Campanilla Clásica">🔔 Campanilla Clásica</option>
+                                    <option value="Melodía Fiesta" selected>🎵 Melodía Fiesta de Cumpleaños</option>
+                                    <option value="Voz Celebración">🎤 Voz de Celebración Feliz</option>
+                                    <option value="Solo Vibración">📳 Solo Vibración Suave</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Campo 5: Regalos y gustos (Textarea/Tags) -->
+                        <div>
+                            <label class="block text-[11px] font-extrabold text-slate-500 mb-1 uppercase tracking-wide">Ideas de Regalos y Gustos de la persona</label>
+                            <div class="relative">
+                                <i class="ph-bold ph-gift absolute left-3 top-3.5 text-slate-400"></i>
+                                <textarea id="form-gifts" rows="3" placeholder="Ej. Le gusta la ropa deportiva, usa perfumes florales, maquillaje de tonos cálidos..." class="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-400 resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="flex gap-2.5 pt-2">
+                            <button onclick="clearFormAndReset()" type="button" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition-all">
+                                Cancelar
+                            </button>
+                            <button onclick="saveBirthday()" type="button" class="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl text-xs shadow-md shadow-brand-100 transition-all">
+                                Guardar Fecha
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANTALLA 4: ESTADÍSTICAS O DETALLES -->
+                <div id="sub-screen-stats" class="sub-screen hidden space-y-4 fade-in">
+                    <!-- Tarjeta Resumen -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white p-4 rounded-3xl shadow-md">
+                            <i class="ph-fill ph-users text-2xl opacity-80 mb-1"></i>
+                            <h4 class="text-xs opacity-85">Total Registrados</h4>
+                            <p id="stats-total" class="text-3xl font-extrabold mt-1">0</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-brand-500 to-brand-600 text-white p-4 rounded-3xl shadow-md">
+                            <i class="ph-fill ph-hourglass-medium text-2xl opacity-80 mb-1"></i>
+                            <h4 class="text-xs opacity-85">Este Mes</h4>
+                            <p id="stats-this-month" class="text-3xl font-extrabold mt-1">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Métricas por Relación -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-bold ph-chart-pie text-brand-500 text-lg"></i>
+                            <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Distribución de Contactos</h4>
+                        </div>
+                        <div id="stats-distribution" class="space-y-2.5">
+                            <!-- Progreso inyectado con JS -->
+                        </div>
+                    </div>
+
+                    <!-- Signo Zodiacal Predominante -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+                        <div class="flex items-center gap-2">
+                            <i class="ph-bold ph-sparkles text-amber-500 text-lg"></i>
+                            <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Curiosidades de tu Lista</h4>
+                        </div>
+                        <div class="text-xs text-slate-600 leading-relaxed space-y-2">
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                                <span>Edad promedio en tu círculo:</span>
+                                <span id="stats-avg-age" class="font-bold text-slate-800">0 años</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1.5 border-b border-slate-100">
+                                <span>Signo más común en amigos:</span>
+                                <span id="stats-top-zodiac" class="font-bold text-slate-800">Ninguno</span>
+                            </div>
+                            <div class="flex justify-between items-center py-1.5">
+                                <span>Próxima gran meta de regalos:</span>
+                                <span id="stats-gifts-suggest" class="font-bold text-brand-500">Planificar ideas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANTALLA 5: PERFIL/AJUSTES -->
+                <div id="sub-screen-profile" class="sub-screen hidden space-y-4 fade-in">
+                    <!-- Tarjeta Perfil -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm text-center space-y-2">
+                        <div class="w-16 h-16 bg-brand-100 text-brand-500 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                            <i class="ph-fill ph-user-circle text-4xl"></i>
+                        </div>
+                        <div>
+                            <h3 id="profile-name-text" class="text-sm font-extrabold text-slate-800">Invitado de Honor</h3>
+                            <span class="text-[10px] text-brand-500 bg-brand-50 px-2.5 py-0.5 rounded-full font-bold">Organizador Estrella</span>
+                        </div>
+                    </div>
+
+                    <!-- Configuración Declaración Conectividad -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <i class="ph-bold ph-shield-check text-slate-700 text-lg"></i>
+                                <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Privacidad & Sensores</h4>
+                            </div>
+                            <span class="text-[9px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded">Requerimiento N4</span>
+                        </div>
+                        <div class="space-y-2.5 text-xs text-slate-600">
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-bluetooth text-blue-500"></i> Bluetooth</span>
+                                <span class="font-bold text-red-500">No Utilizado</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-envelope text-red-400"></i> Correo Electrónico</span>
+                                <span class="font-bold text-red-500">No Utilizado</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-image text-green-500"></i> Subir Fotos / Galería</span>
+                                <span class="font-bold text-red-500">No Utilizado</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-orange-500"></i> Localización GPS</span>
+                                <span class="font-bold text-red-500">No Utilizado</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-compass text-purple-500"></i> Giroscopio/Movimiento</span>
+                                <span class="font-bold text-red-500">No Utilizado</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ajustes de App -->
+                    <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm space-y-3">
+                        <h4 class="text-xs font-extrabold text-slate-800 uppercase tracking-wide">Acciones del Sistema</h4>
+                        
+                        <div class="space-y-2">
+                            <button onclick="openSensorsInfoModal()" class="w-full p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl flex justify-between items-center text-xs text-slate-700 transition-all">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-info text-base text-slate-500"></i> Ver Declaración de Sensores</span>
+                                <i class="ph-bold ph-caret-right text-slate-400"></i>
+                            </button>
+                            <button onclick="clearAllData()" class="w-full p-2.5 bg-red-50 hover:bg-red-100 rounded-xl flex justify-between items-center text-xs text-red-600 transition-all font-semibold">
+                                <span class="flex items-center gap-2"><i class="ph-bold ph-trash text-base"></i> Restablecer toda la App</span>
+                                <i class="ph-bold ph-caret-right text-red-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- NAVEGACIÓN INFERIOR (Bottom Nav) -->
+            <nav class="bg-white border-t border-slate-100 px-4 py-2.5 flex justify-around items-center shrink-0 z-10 shadow-lg">
+                <button onclick="changeScreen('home')" id="nav-home" class="nav-item flex flex-col items-center gap-1 text-brand-500 font-extrabold text-[10px] transition-all">
+                    <i class="ph-bold ph-house text-xl"></i>
+                    <span>Inicio</span>
+                </button>
+                <button onclick="changeScreen('calendar')" id="nav-calendar" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] transition-all">
+                    <i class="ph-bold ph-calendar text-xl"></i>
+                    <span>Calendario</span>
+                </button>
+                <button onclick="changeScreen('add')" id="nav-add" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] transition-all">
+                    <i class="ph-bold ph-plus-circle text-xl"></i>
+                    <span>Agregar</span>
+                </button>
+                <button onclick="changeScreen('stats')" id="nav-stats" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] transition-all">
+                    <i class="ph-bold ph-chart-bar text-xl"></i>
+                    <span>Métricas</span>
+                </button>
+                <button onclick="changeScreen('profile')" id="nav-profile" class="nav-item flex flex-col items-center gap-1 text-slate-400 hover:text-slate-600 font-bold text-[10px] transition-all">
+                    <i class="ph-bold ph-gear text-xl"></i>
+                    <span>Ajustes</span>
+                </button>
+            </nav>
+
+        </div>
+
+        <!-- MODAL DE MENSAJE O CONFIRMACIÓN PERSONALIZADO (Evitamos alert()) -->
+        <div id="custom-modal" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-6 z-50">
+            <div class="bg-white rounded-3xl p-5 w-full max-w-[320px] text-center space-y-4 shadow-2xl scale-95 transition-all">
+                <div id="modal-icon-container" class="w-12 h-12 bg-brand-100 text-brand-500 rounded-full flex items-center justify-center mx-auto">
+                    <i id="modal-icon" class="ph-fill ph-bell text-2xl"></i>
+                </div>
+                <div>
+                    <h3 id="modal-title" class="text-sm font-extrabold text-slate-800">Mensaje</h3>
+                    <p id="modal-body" class="text-xs text-slate-500 mt-1.5 leading-relaxed">Este es un mensaje explicativo.</p>
+                </div>
+                <button onclick="closeModal()" class="w-full py-2.5 bg-slate-900 text-white font-bold rounded-xl text-xs hover:bg-slate-800 transition-all">
+                    Entendido
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL DE DECLARACIÓN DE CONECTIVIDAD Y SENSORES (Inicio/Manual) -->
+        <div id="sensors-modal" class="hidden absolute inset-0 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-5 z-45">
+            <div class="bg-white rounded-[32px] p-6 w-full max-w-[340px] space-y-4 shadow-2xl">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-2.5 shadow-sm">
+                        <i class="ph-fill ph-fingerprint text-2xl"></i>
+                    </div>
+                    <h3 class="text-sm font-extrabold text-slate-800">Declaración de Privacidad</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Configuración y requerimientos de sensores (N4)</p>
+                </div>
+
+                <div class="space-y-3 bg-slate-50 p-4 rounded-2xl text-[11px] text-slate-600">
+                    <div class="flex items-start gap-2.5 pb-2 border-b border-slate-200/60">
+                        <i class="ph-bold ph-bluetooth text-blue-500 text-sm mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-slate-700 block">Bluetooth: NO</span>
+                            <span class="text-[10px] text-slate-400">La app no requiere conectarse a dispositivos externos.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 pb-2 border-b border-slate-200/60">
+                        <i class="ph-bold ph-envelope text-red-400 text-sm mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-slate-700 block">Correo Electrónico: NO</span>
+                            <span class="text-[10px] text-slate-400">Los recordatorios se generan de manera local.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 pb-2 border-b border-slate-200/60">
+                        <i class="ph-bold ph-image text-green-500 text-sm mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-slate-700 block">Subir Fotos: NO</span>
+                            <span class="text-[10px] text-slate-400">No se requiere acceso a la galería del móvil.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 pb-2 border-b border-slate-200/60">
+                        <i class="ph-bold ph-map-pin text-orange-500 text-sm mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-slate-700 block">Ubicación GPS: NO</span>
+                            <span class="text-[10px] text-slate-400">La app no guarda localizaciones físicas.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5">
+                        <i class="ph-bold ph-compass text-purple-500 text-sm mt-0.5"></i>
+                        <div>
+                            <span class="font-bold text-slate-700 block">Giroscopio/Movimiento: NO</span>
+                            <span class="text-[10px] text-slate-400">No se detectará movimiento o inclinación.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="acceptSensors()" class="w-full py-3 bg-brand-500 text-white font-extrabold rounded-2xl text-xs hover:bg-brand-600 shadow-md shadow-brand-100 transition-all">
+                    Confirmar & Continuar
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT INTEGRADO -->
+    <script>
+        // CONFIGURACIÓN DE DATOS INICIALES EN LOCAL STORAGE
+        let birthdays = JSON.parse(localStorage.getItem('birthdays')) || [
+            { id: '1', name: 'Mamá Estrella', date: '1975-06-15', relationship: 'Familiar', tone: 'Melodía Fiesta', gifts: 'Un perfume cítrico, bufandas suaves, tazas bonitas' },
+            { id: '2', name: 'Juan Carlos', date: '1995-10-22', relationship: 'Amigo/a', tone: 'Campanilla Clásica', gifts: 'Zapatillas deportivas (talla 41), sudadera gris' },
+            { id: '3', name: 'Diana Gómez', date: '1998-03-05', relationship: 'Compañero/a', tone: 'Solo Vibración', gifts: 'Kit de libretas y bolígrafos premium, té matcha' }
+        ];
+
+        let selectedMonth = new Date().getMonth();
+        let selectedYear = new Date().getFullYear();
+        let currentFilter = 'Todos';
+
+        // Inicializar hora simulada en la barra de estado
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('live-clock').innerText = `${hours}:${minutes}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Control de Carga Inicial
+        window.onload = function() {
+            // Verificar si ya se aceptó la declaración de sensores
+            if (!localStorage.getItem('sensors_declared')) {
+                document.getElementById('sensors-modal').classList.remove('hidden');
+            }
+            
+            // Verificar si hay sesión guardada
+            const savedUser = localStorage.getItem('current_user');
+            if (savedUser) {
+                document.getElementById('screen-login').classList.add('hidden');
+                document.getElementById('screen-main-app').classList.remove('hidden');
+                document.getElementById('app-user-greeting').innerText = `Hola, ${savedUser}`;
+                document.getElementById('profile-name-text').innerText = savedUser;
+                renderBirthdays();
+            }
+        };
+
+        // Cerrar modal de sensores y guardar estado
+        function acceptSensors() {
+            localStorage.setItem('sensors_declared', 'true');
+            document.getElementById('sensors-modal').classList.add('hidden');
+        }
+
+        function openSensorsInfoModal() {
+            document.getElementById('sensors-modal').classList.remove('hidden');
+        }
+
+        // Manejo de Inicio de Sesión
+        function handleLogin() {
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value.trim();
+
+            if (!usernameInput || !passwordInput) {
+                showModal('Campos Requeridos', 'Por favor ingresa un usuario y clave para ingresar.', 'ph-fill ph-warning-circle');
+                return;
+            }
+
+            // Guardar usuario en localStorage
+            localStorage.setItem('current_user', usernameInput);
+            localStorage.setItem('birthdays', JSON.stringify(birthdays));
+
+            // Transición a pantalla principal
+            document.getElementById('screen-login').classList.add('hidden');
+            document.getElementById('screen-main-app').classList.remove('hidden');
+            
+            document.getElementById('app-user-greeting').innerText = `Hola, ${usernameInput}`;
+            document.getElementById('profile-name-text').innerText = usernameInput;
+
+            renderBirthdays();
+            showModal('¡Bienvenido/a!', `Hola ${usernameInput}, tus datos locales han sido inicializados correctamente.`, 'ph-fill ph-sparkle');
+        }
+
+        // Cierre de Sesión
+        function logout() {
+            localStorage.removeItem('current_user');
+            document.getElementById('screen-main-app').classList.add('hidden');
+            document.getElementById('screen-login').classList.remove('hidden');
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+        }
+
+        // Reiniciar datos de la aplicación
+        function clearAllData() {
+            if (confirm('¿Estás seguro/a de que quieres restablecer todos los cumpleaños de la aplicación? Esta acción es irreversible.')) {
+                localStorage.clear();
+                birthdays = [];
+                logout();
+                location.reload();
+            }
+        }
+
+        // Navegación entre pestañas internas del Bottom Nav
+        function changeScreen(screenName) {
+            // Ocultar todas las sub-pantallas
+            document.querySelectorAll('.sub-screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+
+            // Remover estilos activos de todos los botones de navegación
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.classList.remove('text-brand-500', 'font-extrabold');
+                btn.classList.add('text-slate-400', 'font-bold');
+            });
+
+            // Activar la pantalla seleccionada
+            if (screenName === 'home') {
+                document.getElementById('sub-screen-home').classList.remove('hidden');
+                document.getElementById('nav-home').classList.add('text-brand-500', 'font-extrabold');
+                document.getElementById('nav-home').classList.remove('text-slate-400');
+                renderBirthdays();
+            } else if (screenName === 'calendar') {
+                document.getElementById('sub-screen-calendar').classList.remove('hidden');
+                document.getElementById('nav-calendar').classList.add('text-brand-500', 'font-extrabold');
+                document.getElementById('nav-calendar').classList.remove('text-slate-400');
+                renderCalendar();
+            } else if (screenName === 'add') {
+                document.getElementById('sub-screen-add').classList.remove('hidden');
+                document.getElementById('nav-add').classList.add('text-brand-500', 'font-extrabold');
+                document.getElementById('nav-add').classList.remove('text-slate-400');
+            } else if (screenName === 'stats') {
+                document.getElementById('sub-screen-stats').classList.remove('hidden');
+                document.getElementById('nav-stats').classList.add('text-brand-500', 'font-extrabold');
+                document.getElementById('nav-stats').classList.remove('text-slate-400');
+                calculateStats();
+            } else if (screenName === 'profile') {
+                document.getElementById('sub-screen-profile').classList.remove('hidden');
+                document.getElementById('nav-profile').classList.add('text-brand-500', 'font-extrabold');
+                document.getElementById('nav-profile').classList.remove('text-slate-400');
+            }
+        }
+
+        // Filtro de categorías
+        function filterCategory(category) {
+            currentFilter = category;
+            
+            // Estilos del botón activo
+            document.querySelectorAll('#category-filter-list button').forEach(btn => {
+                if (btn.innerText.includes(category) || (category === 'Todos' && btn.innerText === 'Todos')) {
+                    btn.className = "cat-btn active px-4 py-2 bg-brand-500 text-white text-xs font-extrabold rounded-full shadow-md transition-all shrink-0";
+                } else {
+                    btn.className = "cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-brand-50 text-xs font-semibold rounded-full border border-slate-200 transition-all shrink-0";
+                }
+            });
+
+            renderBirthdays();
+        }
+
+        // Cálculo de Días Restantes para el Cumpleaños
+        function getDaysRemaining(birthdateStr) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const birthdate = new Date(birthdateStr);
+            const currentYear = today.getFullYear();
+            
+            let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+            
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(currentYear + 1);
+            }
+            
+            const diffTime = Math.abs(nextBirthday - today);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            return diffDays === 365 ? 0 : diffDays; // 0 significa hoy
+        }
+
+        // Cálculo de la Edad a Cumplir
+        function getAgeToCelebrate(birthdateStr) {
+            const today = new Date();
+            const birthdate = new Date(birthdateStr);
+            const currentYear = today.getFullYear();
+            
+            let nextBirthday = new Date(currentYear, birthdate.getMonth(), birthdate.getDate());
+            let age = currentYear - birthdate.getFullYear();
+            
+            if (nextBirthday < today) {
+                age += 1;
+            }
+            return age;
+        }
+
+        // Renderización de la Lista de Cumpleaños (Home)
+        function renderBirthdays() {
+            const listContainer = document.getElementById('birthdays-list');
+            const searchVal = document.getElementById('home-search').value.toLowerCase();
+            
+            listContainer.innerHTML = '';
+
+            // Filtrado de la lista
+            let filtered = birthdays.filter(b => {
+                const matchesCategory = currentFilter === 'Todos' || b.relationship === currentFilter;
+                const matchesSearch = b.name.toLowerCase().includes(searchVal) || b.gifts.toLowerCase().includes(searchVal);
+                return matchesCategory && matchesSearch;
+            });
+
+            // Ordenar por cercanía (días restantes menores primero)
+            filtered.sort((a, b) => getDaysRemaining(a.date) - getDaysRemaining(b.date));
+
+            document.getElementById('birthday-count').innerText = `${birthdays.length} registrados`;
+
+            // Actualizar Tarjeta Destacada con el más cercano
+            if (birthdays.length > 0) {
+                const sortedAll = [...birthdays].sort((a, b) => getDaysRemaining(a.date) - getDaysRemaining(b.date));
+                const closest = sortedAll[0];
+                const daysLeft = getDaysRemaining(closest.date);
+                const age = getAgeToCelebrate(closest.date);
+
+                let countdownText = `¡Cumple en ${daysLeft} días!`;
+                if (daysLeft === 0) countdownText = "🌟 ¡Es Hoy! Cumpleaños de:";
+
+                document.getElementById('highlight-content').innerHTML = `
+                    <p class="text-xs opacity-90">${countdownText}</p>
+                    <h3 class="text-xl font-black mt-1 tracking-tight">${closest.name}</h3>
+                    <div class="flex items-center gap-1.5 mt-1 text-xs bg-white/10 self-start px-2 py-0.5 rounded-md w-fit">
+                        <span>🎂 Cumplirá ${age} años</span> • <span>🎁 ${closest.relationship}</span>
+                    </div>
+                `;
+            } else {
+                document.getElementById('highlight-content').innerHTML = `
+                    <p class="text-sm opacity-90">No hay cumpleaños programados aún.</p>
+                    <h3 class="text-xl font-bold mt-1">¡Comienza a añadir!</h3>
+                `;
+            }
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-10 bg-white rounded-3xl border border-dashed border-slate-200">
+                        <i class="ph-bold ph-calendar-x text-4xl text-slate-300 mb-2"></i>
+                        <p class="text-xs text-slate-500 font-bold">No se encontraron cumpleaños</p>
+                        <p class="text-[10px] text-slate-400">Intenta registrar un cumpleaños nuevo o cambia los filtros.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(b => {
+                const daysLeft = getDaysRemaining(b.date);
+                const age = getAgeToCelebrate(b.date);
+                
+                // Formatear Fecha visual
+                const dateParts = b.date.split('-');
+                const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+                const day = parseInt(dateParts[2]);
+                const month = monthNames[parseInt(dateParts[1]) - 1];
+
+                // Tarjeta de Cumpleaños Individual
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-3xl border border-slate-100 shadow-xs flex justify-between items-center gap-2 hover:border-brand-200 transition-all";
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <!-- Círculo de Fecha Estilo Calendario -->
+                        <div class="w-12 h-12 bg-rose-50 border border-rose-100 rounded-2xl flex flex-col items-center justify-center text-brand-500 font-bold shrink-0">
+                            <span class="text-[10px] uppercase leading-none font-bold">${month}</span>
+                            <span class="text-lg leading-none font-black mt-0.5">${day}</span>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center gap-1.5">
+                                <h4 class="text-xs font-extrabold text-slate-800 leading-tight">${b.name}</h4>
+                                <span class="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold">${b.relationship}</span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-1 max-w-[200px] truncate">
+                                🎁 Regalo: ${b.gifts || 'No definido'}
+                            </p>
+                            <p class="text-[9px] text-slate-400 flex items-center gap-1 mt-0.5">
+                                <i class="ph-bold ph-bell"></i> ${b.tone}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-end shrink-0 gap-1.5">
+                        <span class="text-[10px] font-black ${daysLeft === 0 ? 'bg-amber-400 text-slate-900 animate-pulse' : 'bg-brand-50 text-brand-500'} px-2 py-0.5 rounded-full">
+                            ${daysLeft === 0 ? '¡Hoy!' : `En ${daysLeft} días`}
+                        </span>
+                        <div class="flex gap-1">
+                            <button onclick="editBirthday('${b.id}')" class="w-6 h-6 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-full flex items-center justify-center transition-all text-xs">
+                                <i class="ph-bold ph-pencil-simple"></i>
+                            </button>
+                            <button onclick="deleteBirthday('${b.id}')" class="w-6 h-6 bg-rose-50 text-brand-500 hover:bg-rose-100 rounded-full flex items-center justify-center transition-all text-xs">
+                                <i class="ph-bold ph-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        // Registrar o Actualizar un Cumpleaños
+        function saveBirthday() {
+            const name = document.getElementById('form-name').value.trim();
+            const birthdate = document.getElementById('form-birthdate').value;
+            const relationship = document.getElementById('form-relationship').value;
+            const tone = document.getElementById('form-tone').value;
+            const gifts = document.getElementById('form-gifts').value.trim();
+            const editId = document.getElementById('form-edit-id').value;
+
+            if (!name || !birthdate) {
+                showModal('Datos Incompletos', 'Por favor llena el nombre completo y selecciona la fecha de nacimiento en el calendario para poder agendar.', 'ph-fill ph-warning-circle');
+                return;
+            }
+
+            if (editId) {
+                // Modo Edición
+                const index = birthdays.findIndex(b => b.id === editId);
+                if (index !== -1) {
+                    birthdays[index] = { id: editId, name, date: birthdate, relationship, tone, gifts };
+                    showModal('¡Actualizado!', `El cumpleaños de ${name} ha sido actualizado con éxito.`, 'ph-fill ph-check-circle');
+                }
+            } else {
+                // Nuevo registro
+                const newId = String(Date.now());
+                birthdays.push({ id: newId, name, date: birthdate, relationship, tone, gifts });
+                showModal('¡Guardado con Éxito!', `El cumpleaños de ${name} quedó seleccionado para esa persona importante.`, 'ph-fill ph-cake');
+            }
+
+            // Guardar en LocalStorage
+            localStorage.setItem('birthdays', JSON.stringify(birthdays));
+            clearFormAndReset();
+            changeScreen('home');
+        }
+
+        // Cargar Datos del Formulario para Edición
+        function editBirthday(id) {
+            const target = birthdays.find(b => b.id === id);
+            if (!target) return;
+
+            document.getElementById('form-edit-id').value = target.id;
+            document.getElementById('form-name').value = target.name;
+            document.getElementById('form-birthdate').value = target.date;
+            document.getElementById('form-relationship').value = target.relationship;
+            document.getElementById('form-tone').value = target.tone;
+            document.getElementById('form-gifts').value = target.gifts;
+
+            document.getElementById('form-title').innerText = "Editar Cumpleaño";
+
+            changeScreen('add');
+        }
+
+        // Borrar Cumpleaños de la lista
+        function deleteBirthday(id) {
+            const target = birthdays.find(b => b.id === id);
+            if (!target) return;
+
+            if (confirm(`¿Deseas eliminar a ${target.name} de tus recordatorios?`)) {
+                birthdays = birthdays.filter(b => b.id !== id);
+                localStorage.setItem('birthdays', JSON.stringify(birthdays));
+                renderBirthdays();
+            }
+        }
+
+        // Limpiar Formulario y regresar a Valores Default
+        function clearFormAndReset() {
+            document.getElementById('form-edit-id').value = '';
+            document.getElementById('form-name').value = '';
+            document.getElementById('form-birthdate').value = '';
+            document.getElementById('form-relationship').value = 'Amigo/a';
+            document.getElementById('form-tone').value = 'Melodía Fiesta';
+            document.getElementById('form-gifts').value = '';
+            
+            document.getElementById('form-title').innerText = "Agregar Cumpleañero/a";
+            changeScreen('home');
+        }
+
+        // RENDERIZADOR DEL CALENDARIO INTERACTIVO (Exploración)
+        function renderCalendar() {
+            const monthYearText = document.getElementById('calendar-month-year');
+            const daysGrid = document.getElementById('calendar-days-grid');
+            
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            
+            monthYearText.innerText = `${monthNames[selectedMonth]} ${selectedYear}`;
+            daysGrid.innerHTML = '';
+
+            // Primer día del mes actual
+            const firstDayIndex = new Date(selectedYear, selectedMonth, 1).getDay();
+            // Total días en el mes actual
+            const totalDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+
+            // Bloques en blanco para rellenar el inicio de la cuadrícula
+            for (let i = 0; i < firstDayIndex; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = "p-2";
+                daysGrid.appendChild(emptyCell);
+            }
+
+            // Días numéricos reales
+            for (let day = 1; day <= totalDays; day++) {
+                const dayCell = document.createElement('button');
+                dayCell.onclick = () => selectCalendarDay(day);
+                
+                // Formatear día con cero a la izquierda
+                const formattedDay = String(day).padStart(2, '0');
+                const formattedMonth = String(selectedMonth + 1).padStart(2, '0');
+                const targetDateMD = `${formattedMonth}-${formattedDay}`; // Formato MM-DD para comparar sin año
+
+                // Comprobar si hay un cumpleaños en este día
+                const hasBirthday = birthdays.some(b => {
+                    const bParts = b.date.split('-');
+                    return `${bParts[1]}-${bParts[2]}` === targetDateMD;
+                });
+
+                dayCell.className = `p-2 aspect-square flex flex-col items-center justify-between rounded-xl text-xs font-bold transition-all border ${hasBirthday ? 'bg-rose-50 border-brand-300 text-brand-600 shadow-xs' : 'bg-slate-50 border-transparent text-slate-700 hover:bg-slate-100'}`;
+                
+                dayCell.innerHTML = `
+                    <span>${day}</span>
+                    ${hasBirthday ? '<span class="text-[9px] -mt-1 bounce-soft">🎂</span>' : ''}
+                `;
+                
+                daysGrid.appendChild(dayCell);
+            }
+        }
+
+        function navigateMonth(direction) {
+            selectedMonth += direction;
+            if (selectedMonth > 11) {
+                selectedMonth = 0;
+                selectedYear++;
+            } else if (selectedMonth < 0) {
+                selectedMonth = 11;
+                selectedYear--;
+            }
+            renderCalendar();
+        }
+
+        // Selección de un Día para Ver Detalles
+        function selectCalendarDay(day) {
+            const selectedContainer = document.getElementById('selected-day-birthdays');
+            selectedContainer.innerHTML = '';
+
+            const formattedDay = String(day).padStart(2, '0');
+            const formattedMonth = String(selectedMonth + 1).padStart(2, '0');
+            const searchMD = `${formattedMonth}-${formattedDay}`;
+
+            const matches = birthdays.filter(b => {
+                const parts = b.date.split('-');
+                return `${parts[1]}-${parts[2]}` === searchMD;
+            });
+
+            if (matches.length === 0) {
+                selectedContainer.innerHTML = `
+                    <p class="text-xs text-slate-400 text-center py-2">Ningún cumpleaños agendado el ${day}/${formattedMonth}.</p>
+                `;
+                return;
+            }
+
+            matches.forEach(m => {
+                const age = getAgeToCelebrate(m.date);
+                const item = document.createElement('div');
+                item.className = "bg-rose-50/50 p-3 rounded-2xl border border-rose-100/50 flex justify-between items-center";
+                item.innerHTML = `
+                    <div>
+                        <h5 class="text-xs font-black text-slate-800">${m.name}</h5>
+                        <p class="text-[10px] text-slate-500">Relación: ${m.relationship} • Alarma: ${m.tone}</p>
+                        <p class="text-[10px] text-brand-600 mt-1">🎁 Ideas: ${m.gifts || 'No hay ideas de regalos cargadas'}</p>
+                    </div>
+                    <span class="text-[11px] font-extrabold bg-brand-500 text-white px-2 py-1 rounded-lg">Cumple ${age}</span>
+                `;
+                selectedContainer.appendChild(item);
+            });
+        }
+
+        // MÓDULO DE ESTADÍSTICAS & MÉTRICAS
+        function calculateStats() {
+            const total = birthdays.length;
+            document.getElementById('stats-total').innerText = total;
+
+            const currentMonthStr = String(new Date().getMonth() + 1).padStart(2, '0');
+            const thisMonthBirthdays = birthdays.filter(b => b.date.split('-')[1] === currentMonthStr).length;
+            document.getElementById('stats-this-month').innerText = thisMonthBirthdays;
+
+            // Calcular promedio de edad
+            if (total > 0) {
+                const currentYear = new Date().getFullYear();
+                const sumAges = birthdays.reduce((acc, b) => {
+                    const birthYear = parseInt(b.date.split('-')[0]);
+                    return acc + (currentYear - birthYear);
+                }, 0);
+                document.getElementById('stats-avg-age').innerText = `${Math.round(sumAges / total)} años`;
+            } else {
+                document.getElementById('stats-avg-age').innerText = `0 años`;
+            }
+
+            // Calcular distribución por relación
+            const distributionContainer = document.getElementById('stats-distribution');
+            distributionContainer.innerHTML = '';
+
+            const categories = ['Familiar', 'Amigo/a', 'Compañero/a', 'Pareja', 'Otro'];
+            const colors = {
+                'Familiar': 'bg-blue-500',
+                'Amigo/a': 'bg-green-500',
+                'Compañero/a': 'bg-indigo-500',
+                'Pareja': 'bg-rose-500',
+                'Otro': 'bg-amber-500'
+            };
+
+            categories.forEach(cat => {
+                const count = birthdays.filter(b => b.relationship === cat).length;
+                const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+
+                const row = document.createElement('div');
+                row.className = "space-y-1";
+                row.innerHTML = `
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-600">
+                        <span>${cat}</span>
+                        <span>${count} (${percent}%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div class="${colors[cat]} h-full rounded-full transition-all" style="width: ${percent}%"></div>
+                    </div>
+                `;
+                distributionContainer.appendChild(row);
+            });
+
+            // Signo Zodiacal más común
+            document.getElementById('stats-top-zodiac').innerText = getTopZodiacSign();
+        }
+
+        // Función Auxiliar: Obtener el Signo Zodiacal de una Fecha
+        function getZodiacSign(dateStr) {
+            const date = new Date(dateStr);
+            const day = date.getDate();
+            const month = date.getMonth() + 1; // 1-12
+
+            if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "Acuario ♒";
+            if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return "Piscis ♓";
+            if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return "Aries ♈";
+            if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return "Tauro ♉";
+            if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return "Géminis ♊";
+            if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return "Cáncer ♋";
+            if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return "Leo ♌";
+            if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return "Virgo ♍";
+            if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return "Libra ♎";
+            if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return "Escorpio ♏";
+            if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return "Sagitario ♐";
+            return "Capricornio ♑";
+        }
+
+        function getTopZodiacSign() {
+            if (birthdays.length === 0) return 'Ninguno';
+            const counts = {};
+            birthdays.forEach(b => {
+                const sign = getZodiacSign(b.date);
+                counts[sign] = (counts[sign] || 0) + 1;
+            });
+            let topSign = '';
+            let maxCount = 0;
+            for (const sign in counts) {
+                if (counts[sign] > maxCount) {
+                    maxCount = counts[sign];
+                    topSign = sign;
+                }
+            }
+            return `${topSign} (${maxCount})`;
+        }
+
+        // MÓDULO DE MODALES (Alternativa limpia a alert())
+        function showModal(title, text, iconClass = 'ph-fill ph-bell') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = text;
+            
+            const iconElement = document.getElementById('modal-icon');
+            iconElement.className = `${iconClass} text-2xl`;
+            
+            const modal = document.getElementById('custom-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
